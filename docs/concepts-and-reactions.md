@@ -77,6 +77,25 @@ Isolate relevant resources out of a larger collection;
 - *where*:
 - *then*: 
 
+
+## Tagging[Resource]
+### Purpose
+Make it easier to parse groups of related resources;
+### Principle
+Users can add or remove any number of alphanumeric tags to resources. They can then query for resources by tag.
+### State
+...
+### Actions
+#### index
+- *where*:
+- *then*: 
+#### _findTopResults
+- *where*:
+- *then*: 
+#### delete
+- *where*:
+- *then*: 
+
 # Reactions
 ## CommentIndexing
 TODO: when comments posted, index them
