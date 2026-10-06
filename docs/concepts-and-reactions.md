@@ -34,78 +34,89 @@ After a user registers with an email, username, and a password, they recieve a s
 ### Purpose
 Allow users to write notes about physical locations to be displayed publicly
 ### Principle
-...
+Users create posts with text content and a GPS coordinate. They can then be deleted or edited by the author.
 ### State
-...
+- a set of Posts with a body String and author User
 ### Actions
-#### create
-- **where**:
-- **then**: 
-#### delete
-- **where**:
-- **then**: 
-#### edit
-- **where**:
-- **then**: 
+#### create(user: User, body: String, location: Coordinate)
+- **where**: user exists 
+- **then**: add a post with the user and body
+#### delete(post: Post)
+- **where**: post exists
+- **then**: delete it
+#### edit(post: Post, body: Body)
+- **where**: post exists
+- **then**: overwrite that post's body
 
 
 ## Labeling[Resource]
 ### Purpose
-Make it easier to parse groups of related resources;
+Group related resources under a shared tag; 
 ### Principle
-Users can add or remove any number of alphanumeric tags to resources. They can then query for resources by tag.
+After a tag is applied to a resource, all resources under a shared tag can be queried at once. Tags can also be unapplied.
 ### State
-...
+- a set of Labels with a set of Resources
 ### Actions
-#### index
-- **where**:
-- **then**: 
-#### _findTopResults
-- **where**:
-- **then**: 
+#### createLabel(label: Label)
+- **where**: label does not exist
+- **then**: create it
+#### applyLabel(label: Label, resource: Resource)
+- **where**: label and resource exist; resource not in label group
+- **then**: add resources to the label group
+#### removeLabel(label: Label, resource: Resource)
+- **where**: label and resource exist; resource in label group
+- **then**: add resources to the label group
+#### _getResourcesUnderLabel(label: Label) : a set of Resources
+- **where**: label exists
+- **then**: return the set of all resources with that label
 #### delete
-- **where**:
-- **then**: 
+- **where**: label exists
+- **then**: delete the label 
 
-## Upvoting[Subject]
+## Upvoting[Resource]
 ### Purpose
 Rank the quality of user contributions
 ### Principle
-Subjects (i.e. posts, comments) can be upvoted/downvoted, or unvoted to undo
+Resources (i.e. posts, comments) can be upvoted/downvoted, or unvoted to undo
 ### State
-- a set of Votes with a Subject, a voter User, and a boolean flag for upvote/downvote
+- a set of Votes with a Resource, a voter User, and a boolean flag for upvote/downvote
 ### Actions
-#### upvote(vote: User, subject: Subject)
-- **where**: a vote does not exist with the  user and subject
-- **then**: add a new Vote with the given user + subject and upvote flagged as true
-#### downvote(vote: User, subject: Subject)
-- **where**: a vote does not exist with the  user and subject
-- **then**: add a new Vote with the given user + subject and upvote flagged as false
-#### unvote(voter: User, subject: Subject)
-- **where**: a vote exists with the voter and subject
+#### upvote(vote: User, resource: Resource)
+- **where**: a vote does not exist with the  user and resource
+- **then**: add a new Vote with the given user + resource and upvote flagged as true
+#### downvote(vote: User, resource: Resource)
+- **where**: a vote does not exist with the  user and resource
+- **then**: add a new Vote with the given user + resource and upvote flagged as false
+#### unvote(voter: User, resource: Resource)
+- **where**: a vote exists with the voter and resource
 - **then**: delete the vote
-#### _getVoteCount(subject: Subject)
-- **then**: return the count of all upvotes with the subject minus the downvotes
+#### _getVoteCount(resource: Resource)
+- **then**: return the count of all upvotes with the resource minus the downvotes
 
-## Querying
+## Querying[Resource]
 ### Purpose
 Isolate relevant resources out of a larger collection;
 ### Principle
-...
+Resources are indexed and unindexed into a SearchContext. A list of resources can then be queried according to the rules of SearchAlgorithm.
 ### State
-...
+- a set of SearchContexts with a set of Resources
+- a set of SearchAlgorithms
 ### Actions
-#### index
-- **where**:
-- **then**: 
-#### _findTopResults
-- **where**:
-- **then**: 
-#### delete
-- **where**:
-- **then**: 
-
-
+#### registerAlgorithm(algorithm: SearchAlgorithm)
+- **where**: algorithm is not already registered
+- **then**: register it
+#### createContext(context: SearchContext)
+- **where**: context does not already exist
+- **then**: create it
+#### index(resource: Resource, context: SearchContext)
+- **where**: resource and context both exist; resources not already in context
+- **then**: add resource to context 
+#### unindex(resource: Resource, context: SearchContext)
+- **where**: resource and context both exist; resource in context
+- **then**: remove resource from context
+#### _getNResults(context: SearchContext, algorithm: SearchAlgorithm, resultCount: number) : a set of Resources
+- **where**: all arguments exist, resultCount >= 0
+- **then**: return resultCount amount of resources according to the ranking rules of algorithm
 
 # Reactions
 ## CommentIndexing
@@ -119,4 +130,5 @@ TODO: when comment down voted too low, delete it
 - Deleting comments when their location is deleted
 
 # Notes
-- The reason that GeographicBinding is its own concept is because it could be applied to both comments 
+- Querying has a modular "SearchAlgorithm" type for ranking results. This could be its own concept (e.g. ItemRanking), but I decided to simplify it because this type will ideally be a small implementation of an existing algorithm, such as string similarity.
+- 
