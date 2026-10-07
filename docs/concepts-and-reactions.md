@@ -1,18 +1,19 @@
 # Concepts
 ## Table of contents
-- C1:  [EmailAndPasswordAuthenticating](##EmailAndPasswordAuthenticating)
-- C2: [GeographicPosting](##Commenting)
-- C3: [Labeling](##Labeling)
-- C4: [Upvoting](##Upvoting)
-- C5: [Querying](##Querying)
-- [Notes](##Notes)
+- C1:  [EmailAndPasswordAuthenticating](##emailandpasswordauthenticating)
+- C2: [GeographicPosting](##commenting)
+- C3: [Labeling](##labeling)
+- C4: [Upvoting](##upvoting)
+- C5: [Querying](##querying)
+- R: [Reactions](#reactions)
+- [Notes](#notes)
 
 ## EmailAndPasswordAuthenticating
 *Note: taken from my submission to E2*
 ### Purpose
 Identify users; prevent one user from masquerading as another; collect active emails from users for future notifications or password renewals
 ### Principle
-After a user registers with an email, username, and a password, they recieve a secret token in their inbox. They finalize their account registration by confirming with their username and secret token. They can then authenticate with that same username and password and be treated each time as the same user.
+After a user registers with an email, username, and a password, they receive a secret token in their inbox. They finalize their account registration by confirming with their username and secret token. They can then authenticate with that same username and password and be treated each time as the same user.
 ### State
 - a set of Users with a username: string, password: string, email: string, and verified: boolean
 - a set of Tokens with a username: string
@@ -22,7 +23,7 @@ After a user registers with an email, username, and a password, they recieve a s
 - **then** create a new user with the given username and password, verified set to false, and return it; create a new token with the newly created user, and return it (via email or some other reaction)
 
 #### confirm(username: String, secret: Token)
-- **where** the secret argument exiss and the stored token's username matches the username argument
+- **where** the secret argument exists and the stored token's username matches the username argument
 - **then** set the verified flag of the that user to true
 
 #### authenticate (username: string, password: string) : return (user: User)
@@ -122,11 +123,12 @@ Resources are indexed and unindexed into a SearchContext. A list of resources ca
 
 # Reactions
 ## PostIndexingForPlaces
-*Note*: will need analogous action for unindexing post if it's deleted
+*Note*: will need analogous reaction for unindexing post if it's deleted
 - **when** GeographicPosting.create(location: Coordinate) : (post: Post)
 - **where** a Querying.SearchContext context exists for the Place (external type referring to named locations such as "Harvard University" in the sketch, provided by an API) associated with this posts' location
 - **then** Querying.index(context, post)
 ## LabelingPostsByPlace
+*Note*: will need analogous reaction for unlabeling post if it's deleted
 - **when** GeographicPosting.create(location: Coordinate) : (post: Post)
 - **where** a Labeling.Label label exists for the Place associated with this posts' location
 - **then** Labeling.applyLabel(label, post)
