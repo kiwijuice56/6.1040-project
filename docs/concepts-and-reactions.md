@@ -18,18 +18,17 @@ After a user registers with an email, username, and a password, they receive a s
 - a set of Users with a username: string, password: string, email: string, and verified: boolean
 - a set of Tokens with a username: string
 ### Actions
-#### register (username: string, password: string, email: string) : return (user: User, secret: Token)
+#### register (username: string, password: string, email: string) : (user: User, secret: Token)
 - **where** both username and email are unused by any user in the set of all users, all arguments are nonempty, and email is a valid email
 - **then** create a new user with the given username and password, verified set to false, and return it; create a new token with the newly created user, and return it (via email or some other reaction)
 
-#### confirm(username: String, secret: Token)
+#### confirm(username: String, secret: Token) : (user: User)
 - **where** the secret argument exists and the stored token's username matches the username argument
-- **then** set the verified flag of the that user to true
+- **then** set the verified flag of the that user to true, and return the user
 
-#### authenticate (username: string, password: string) : return (user: User)
+#### authenticate (username: string, password: string) : (user: User)
 - **where** there exists a user with the given username, the password matches, and its verified flag is true
 - **then** return that user
-
 
 ## GeographicPosting
 ### Purpose
@@ -132,7 +131,12 @@ Resources are indexed and unindexed into a SearchContext. A list of resources ca
 - **when** GeographicPosting.create(location: Coordinate) : (post: Post)
 - **where** a Labeling.Label label exists for the Place associated with this posts' location
 - **then** Labeling.applyLabel(label, post)
-
+## CreatingSavedNotesLabel
+- **when** EmailAndPasswordAuthenticating.confirm() : (user: User)
+- **then** Labeling.createLabel() : (label : Label), to be stored on the server
+## SavingANote
+- **when** Requesting.saveNote(user: User, post: Post)
+- **then** Labeling.applyLabel(label, post) where label is the saved note label created by the CreatingSavedNotesLabel reaction
 ## UpvoteCleanup
 - **when** Requesting.deletePost(post: Post)
 - **then** Upvoting.clearAllVotes(post), then GeographicPosting.delete(post)
@@ -143,5 +147,7 @@ Resources are indexed and unindexed into a SearchContext. A list of resources ca
 
 # Notes
 - Querying has a modular "SearchAlgorithm" type for ranking results. This could be its own concept (e.g. ItemRanking), but I decided to simplify it because this type will ideally be a small implementation of an existing algorithm, such as string similarity.
+- Labeling will be used to implement post saving by creating labels for individual users (see CreatingSavedNotesLabel and SavingANote).
 - The LabelingPostsByPlace reaction will be used for grouping notes in the UI as shown in the sketch
 - As of now, Querying/Labeling might seem slightly fragmented because they both associate posts with another resource, but I want to keep them separate for future extensions such as allowing users to Query for Places on the map.
+- I tried to characterize authentication with the AccessGating reaction; in general, any action that modifies state on the server will require authentication (posting and upvoting in particular). Users that aren't authenticated will only be able to view existing notes.
