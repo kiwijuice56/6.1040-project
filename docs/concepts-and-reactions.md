@@ -38,20 +38,20 @@ Users create posts with text content and a GPS coordinate. They can then be dele
 ### State
 - a set of Posts with a body String and author User
 ### Actions
-#### create(user: User, body: String, location: Coordinate)
+#### create(user: User, body: String, location: Coordinate) : Post
 - **where**: user exists 
-- **then**: add a post with the user and body
+- **then**: add a post with the arguments and return it
 #### delete(post: Post)
 - **where**: post exists
 - **then**: delete it
-#### edit(post: Post, body: Body)
-- **where**: post exists
+#### edit(user: User, post: Post, body: Body)
+- **where**: post exists and user is the author
 - **then**: overwrite that post's body
 
 
 ## Labeling[Resource]
 ### Purpose
-Group related resources under a shared tag; 
+Group related resources under a shared tag
 ### Principle
 After a tag is applied to a resource, all resources under a shared tag can be queried at once. Tags can also be unapplied.
 ### State
@@ -119,16 +119,19 @@ Resources are indexed and unindexed into a SearchContext. A list of resources ca
 - **then**: return resultCount amount of resources according to the ranking rules of algorithm
 
 # Reactions
-## CommentIndexing
-TODO: when comments posted, index them
-## CommentBinding
-TODO: before/while comments posted, bind them to user-provided location and GPS coordinates
-## CommentFiltering
-TODO: when comment down voted too low, delete it
+## PostIndexing (creation, but analagous reaction for edit/delete)
+- **when** GeographicPosting.create() : (post: Post)
+- **then** Querying.index(post)
+## AccessGating
+- **when** Requesting.[any GeographicPosting or Upvoting action is requested]
+- **where** user is authenticated (EmailAndPasswordAuthenticating)
+- **then** complete the action
+
 ## Self-explanatory but necessary reactions:
 - De-indexing comments when they are deleted
 - Deleting comments when their location is deleted
 
 # Notes
+- I didn't explicitly write the indexing reactions when a post is edited or deleted for brevity, but they would be necessary in addition to the creation reaction.
 - Querying has a modular "SearchAlgorithm" type for ranking results. This could be its own concept (e.g. ItemRanking), but I decided to simplify it because this type will ideally be a small implementation of an existing algorithm, such as string similarity.
-- 
+- The Labeling concept will be used for saving sticky notes. I decided to generalize it in order to implement less important features like grouping notes under a specific place (e.g. all Harvard notes are under one label).
