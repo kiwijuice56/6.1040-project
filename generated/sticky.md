@@ -53,6 +53,32 @@ Defined in [Federating](../design/concepts/Federating.md), line 1.
 - `CommonsFederating` — instance of `Federating` — [Sticky types](../design/types.md), line 15.
   - `User` is `Registering.User` — [Sticky types](../design/types.md), line 16.
 
+### GeographicPosting
+
+Defined in [GeographicPosting](../design/concepts/GeographicPosting.md), line 1.
+
+#### Actions
+
+- `post(user: User, body: String, location: Coordinate) : returns (post: Post)`
+  - Refuses `EMPTY_BODY`: A post needs some text.
+  - Refuses `INVALID_LOCATION`: That location is not a valid GPS coordinate.
+- `delete(user: User, post: Post) : returns (post: Post)`
+  - Refuses `POST_NOT_FOUND`: There is no such post.
+  - Refuses `NOT_AUTHOR`: Only the author can change this post.
+- `edit(user: User, post: Post, body: String) : returns (post: Post)`
+  - Refuses `POST_NOT_FOUND`: There is no such post.
+  - Refuses `NOT_AUTHOR`: Only the author can change this post.
+  - Refuses `EMPTY_BODY`: A post needs some text.
+
+#### Queries
+
+- `_allPosts() : many (post: Post, body: String, author: User, location: Coordinate)`
+
+#### Instances
+
+- `GeographicPosting` — instance of `GeographicPosting` — [Sticky types](../design/types.md), line 25.
+  - `User` is `Registering.User` — [Sticky types](../design/types.md), line 26.
+
 ### Registering
 
 Defined in [Registering](../design/concepts/Registering.md), line 1.

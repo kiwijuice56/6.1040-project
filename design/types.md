@@ -21,4 +21,7 @@ instantiate Sessioning with
 instantiate Consenting with
   Person is Registering.User
   Use is Feature
+
+instantiate GeographicPosting with
+  User is Registering.User
 ```
