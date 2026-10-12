@@ -15,6 +15,7 @@ const server = Bun.serve({
   port: Number(process.env.PORT ?? 8080),
   routes: {
     "/": homepage,
+    "/auth/commons/callback": homepage,
     "/api/*": proxy,
     "/health": proxy,
   },

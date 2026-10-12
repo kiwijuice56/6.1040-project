@@ -1,12 +1,19 @@
 import { createGateway } from "@mit-sdg/sync-engine/boundary";
 import { createHttpHandler } from "@mit-sdg/sync-engine-http/handler";
 import { assembleApplication } from "./assembly.ts";
-import { MemoryProvider } from "./concepts/Federating/provider.ts";
+import { CommonsProvider } from "./concepts/Federating/provider.ts";
 import { stickyPolicy } from "./http.ts";
 import { db } from "./db.ts";
 
-const policy = stickyPolicy(process.env.PUBLIC_ORIGIN ?? "http://127.0.0.1:8080");
-const application = assembleApplication({ database: db, commons: new MemoryProvider() });
+const publicOrigin = process.env.PUBLIC_ORIGIN ?? "http://127.0.0.1:8080";
+const policy = stickyPolicy(publicOrigin);
+const application = assembleApplication({
+  database: db,
+  commons: new CommonsProvider({
+    origin: process.env.COMMONS_ORIGIN ?? "https://class.mit-sdg.dev",
+    app: publicOrigin,
+  }),
+});
 const gateway = createGateway({ application });
 const api = createHttpHandler({ application, gateway, policy });
 
