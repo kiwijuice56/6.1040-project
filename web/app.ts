@@ -1,5 +1,6 @@
 import { createHttpClient } from "@mit-sdg/sync-engine-http/client";
 import type { StickyWireHttp } from "../generated/wire.ts";
+import { mountMap } from "./map.ts";
 
 const api = createHttpClient<StickyWireHttp>({ baseUrl: "/api" });
 
@@ -80,6 +81,8 @@ signOut.addEventListener("click", async () => {
   await api["/auth/logout"]();
   window.location.assign("/");
 });
+
+mountMap(document.querySelector("#map")!);
 
 if (window.location.pathname === "/auth/commons/callback") {
   status.textContent = "Signing in with Commons…";

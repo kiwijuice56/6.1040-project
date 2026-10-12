@@ -1,8 +1,14 @@
+html,
 body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
   font-family: system-ui, sans-serif;
-  max-width: 40rem;
-  margin: 2rem auto;
-  padding: 0 1rem;
 }
 
 header {
@@ -11,6 +17,9 @@ header {
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  color: #111;
 }
 
 #session {
@@ -32,4 +41,15 @@ header {
 
 button {
   padding: 0.4rem 0.8rem;
+}
+
+#map {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  cursor: grab;
+}
+
+#map:active {
+  cursor: grabbing;
 }
