@@ -1,6 +1,25 @@
-import { httpPolicy } from "@mit-sdg/sync-engine-http/policy";
+import { httpPolicy, type HttpPolicy } from "@mit-sdg/sync-engine-http/policy";
+import { accountsHttp } from "./compositions/reusable/accounts.ts";
+import { commonsHttp } from "./compositions/reusable/commons.ts";
 
-export const policy = httpPolicy({
-  basePath: "/api",
-  publicErrors: { ALREADY_RESERVED: "CONFLICT", NO_SUCH_RESERVATION: "NOT_FOUND" },
-});
+/**
+ * The HTTP category the server returns for each refusal. A refusal missing here
+ * reaches the browser as INTERNAL_ERROR (500). Each way of signing in declares
+ * its categories beside its endpoints.
+ */
+export function stickyPolicy(publicOrigin: string): HttpPolicy {
+  return httpPolicy({
+    publicOrigin,
+    basePath: "/api",
+    publicErrors: {
+      ...accountsHttp.publicErrors,
+      ...commonsHttp.publicErrors,
+      ALREADY_CONSENTED: "CONFLICT",
+      NOT_CONSENTED: "CONFLICT",
+    },
+    cookies: {
+      session: accountsHttp.sessionCookie("sticky-session", [...commonsHttp.startingSessions]),
+      signIn: commonsHttp.signInCookie("sticky-sign-in"),
+    },
+  });
+}

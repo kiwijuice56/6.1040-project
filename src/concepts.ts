@@ -1,12 +1,14 @@
-import { conceptSet, registerConcept } from "@mit-sdg/sync-engine/assembly";
-import spec from "@design/concepts/Reserving.md" with { type: "text" };
-import { AlreadyReserved, NoSuchReservation, ReservingConcept } from "./concepts/Reserving.ts";
+import { conceptSet } from "@mit-sdg/sync-engine/assembly";
+import { consenting } from "./concepts/Consenting/registry.ts";
+import { commonsFederating } from "./concepts/Federating/registry.ts";
+import { registering } from "./concepts/Registering/registry.ts";
+import { sessioning } from "./concepts/Sessioning/registry.ts";
 
-const reserving = registerConcept({
-  class: ReservingConcept,
-  spec,
-  refusals: { ALREADY_RESERVED: AlreadyReserved, NO_SUCH_RESERVATION: NoSuchReservation },
+export const applicationConceptSet = conceptSet({
+  Registering: registering,
+  CommonsFederating: commonsFederating,
+  Sessioning: sessioning,
+  Consenting: consenting,
 });
 
-export const applicationConceptSet = conceptSet({ Reserving: reserving });
 export const { concepts } = applicationConceptSet;
