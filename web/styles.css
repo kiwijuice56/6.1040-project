@@ -53,3 +53,10 @@ button {
 #map:active {
   cursor: grabbing;
 }
+
+#map .leaflet-control-zoom a {
+  width: 2.75rem;
+  height: 2.75rem;
+  line-height: 2.75rem;
+  font-size: 1.5rem;
+}
