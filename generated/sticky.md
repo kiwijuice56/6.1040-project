@@ -143,6 +143,46 @@ then
   RequestBoundary.respond (error: message, requestId)
 ```
 
+### posting.creating.CreatePost
+
+Authored path: `posting.creating.CreatePost`.
+- Covered by [Posting](../design/compositions/posting.md), line 3.
+- Covered by [Posting](../design/compositions/posting.md), line 6.
+
+```reaction
+when RequestBoundary.request (body, location, path: "/posts/create", requestId, session)
+then
+  Sessioning.use (session)
+```
+
+### posting.creating.CreatePost#2
+
+Authored path: `posting.creating.CreatePost`.
+- Covered by [Posting](../design/compositions/posting.md), line 3.
+- Covered by [Posting](../design/compositions/posting.md), line 6.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by posting.creating.CreatePost
+where
+  earlier, RequestBoundary.request (body, location, path: "/posts/create", requestId, session)
+then
+  GeographicPosting.post (body, location, user)
+```
+
+### posting.creating.CreatePost#3
+
+Authored path: `posting.creating.CreatePost`.
+- Covered by [Posting](../design/compositions/posting.md), line 3.
+- Covered by [Posting](../design/compositions/posting.md), line 6.
+
+```reaction
+when GeographicPosting.post (body, location, user, post), asked by posting.creating.CreatePost#2
+where
+  earlier, RequestBoundary.request (body, location, path: "/posts/create", requestId, session)
+then
+  RequestBoundary.respond (post, requestId)
+```
+
 ### reusable.accounts.identifying.Me
 
 Authored path: `reusable.accounts.identifying.Me`.
@@ -395,3 +435,4 @@ not listed here have no explicit input contract.
 - `/auth/commons/finish` — requires `attempt`, `code`, `state`
 - `/auth/logout` — requires `session`
 - `/auth/me` — requires `session`
+- `/posts/create` — requires `body`, `location`, `session`

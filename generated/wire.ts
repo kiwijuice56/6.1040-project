@@ -67,6 +67,17 @@ export type StickyWire = {
     };
     error: { error: AppWideError | "INVALID_INPUT" | "NOT_SIGNED_IN" };
   };
+  "/posts/create": {
+    input: {
+      "body": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["post"]>[0], ["body"]>>;
+      "location": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["post"]>[0], ["location"]>>;
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["use"]>[0], ["session"]>>;
+    };
+    output: {
+      "post": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["post"]>>, ["post"]>>;
+    };
+    error: { error: AppWideError | "EMPTY_BODY" | "INVALID_INPUT" | "INVALID_LOCATION" | "NOT_SIGNED_IN" };
+  };
 };
 
 export type HttpAppWideError = never;
@@ -109,6 +120,16 @@ export type StickyWireHttp = {
     input: Record<string, never>;
     output: {
       "username": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Registering"]["_username"]>>>, ["username"]>>;
+    };
+    error: { error: HttpAppWideError | "INVALID_REQUEST" | "UNAUTHORIZED" };
+  };
+  "/posts/create": {
+    input: {
+      "body": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["post"]>[0], ["body"]>>;
+      "location": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["post"]>[0], ["location"]>>;
+    };
+    output: {
+      "post": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["post"]>>, ["post"]>>;
     };
     error: { error: HttpAppWideError | "INVALID_REQUEST" | "UNAUTHORIZED" };
   };

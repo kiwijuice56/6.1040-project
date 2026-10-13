@@ -1,6 +1,9 @@
 import { createHttpClient } from "@mit-sdg/sync-engine-http/client";
 import type { StickyWireHttp } from "../generated/wire.ts";
-import { mountMap } from "./map.ts";
+import { bindPostComposer } from "./composer.ts";
+import { mountMap, type MapCoordinate } from "./map.ts";
+
+const PENDING_POST = "sticky.pendingPost";
 
 const api = createHttpClient<StickyWireHttp>({ baseUrl: "/api" });
 
@@ -16,6 +19,7 @@ function signedOut(message = "") {
   signIn.hidden = false;
   signIn.disabled = false;
   status.textContent = message;
+  composer.setSignedIn(false);
 }
 
 function signedIn(username: string) {
@@ -24,6 +28,7 @@ function signedIn(username: string) {
   signIn.hidden = true;
   signOut.hidden = false;
   status.textContent = "";
+  composer.setSignedIn(true);
 }
 
 async function loadMe() {
@@ -33,7 +38,10 @@ async function loadMe() {
 }
 
 async function startCommons() {
+  stashPendingPost();
   signIn.disabled = true;
+  const popupSignIn = document.querySelector<HTMLButtonElement>(".post-composer-signin");
+  if (popupSignIn) popupSignIn.disabled = true;
   const result = await api["/auth/commons/start"]();
   if ("error" in result) {
     signedOut("Commons sign-in isn't available right now. Try again.");
@@ -72,6 +80,29 @@ async function finishCommons() {
   );
 }
 
+function stashPendingPost() {
+  const location = composer.location();
+  if (location) sessionStorage.setItem(PENDING_POST, JSON.stringify(location));
+}
+
+function takePendingPost(): MapCoordinate | undefined {
+  const raw = sessionStorage.getItem(PENDING_POST);
+  sessionStorage.removeItem(PENDING_POST);
+  if (raw === null) return;
+  try {
+    const value = JSON.parse(raw) as { latitude?: unknown; longitude?: unknown };
+    if (typeof value.latitude !== "number" || typeof value.longitude !== "number") return;
+    if (!Number.isFinite(value.latitude) || !Number.isFinite(value.longitude)) return;
+    return { latitude: value.latitude, longitude: value.longitude };
+  } catch {
+    return;
+  }
+}
+
+function restorePendingPost() {
+  if (pending) composer.open(pending, { animate: false });
+}
+
 signIn.addEventListener("click", () => {
   void startCommons();
 });
@@ -82,12 +113,25 @@ signOut.addEventListener("click", async () => {
   window.location.assign("/");
 });
 
-mountMap(document.querySelector("#map")!);
+const pending = takePendingPost();
+const map = mountMap(document.querySelector("#map")!, pending ? { center: pending } : {});
+const composer = bindPostComposer(map, {
+  onSignIn: () => {
+    void startCommons();
+  },
+  async onSubmit({ body, location }) {
+    const result = await api["/posts/create"]({ body, location });
+    if (!("error" in result)) return;
+    if (result.error === "UNAUTHORIZED") return "Sign in to post.";
+    if (result.error === "INVALID_REQUEST") return "That note couldn't be posted.";
+    return "Something went wrong. Try again.";
+  },
+});
 
 if (window.location.pathname === "/auth/commons/callback") {
   status.textContent = "Signing in with Commons…";
   signIn.hidden = true;
-  void finishCommons();
+  void finishCommons().finally(restorePendingPost);
 } else {
-  void loadMe();
+  void loadMe().finally(restorePendingPost);
 }

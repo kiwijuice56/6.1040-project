@@ -6,10 +6,18 @@ const ZOOM = 15;
 const MIN_ZOOM = 3;
 const MAX_ZOOM = 19;
 
+export type MapCoordinate = { latitude: number; longitude: number };
+
+/** GPS of a map click. Leaflet only fires `click` when the pointer did not drag. */
+export function coordinatesAt(event: { latlng: L.LatLng }): MapCoordinate {
+  return { latitude: event.latlng.lat, longitude: event.latlng.lng };
+}
+
 /** OpenStreetMap view with button and mouse-wheel zoom. This file is display-only; it does not import concepts. */
-export function mountMap(container: HTMLElement) {
+export function mountMap(container: HTMLElement, options: { center?: MapCoordinate } = {}) {
+  const start = options.center ?? START;
   const map = L.map(container, {
-    center: [START.latitude, START.longitude],
+    center: [start.latitude, start.longitude],
     zoom: ZOOM,
     minZoom: MIN_ZOOM,
     maxZoom: MAX_ZOOM,
