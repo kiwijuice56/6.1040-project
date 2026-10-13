@@ -40,7 +40,27 @@ header {
 }
 
 button {
+  appearance: none;
+  font: inherit;
   padding: 0.4rem 0.8rem;
+  border: 1px solid #111;
+  border-radius: 0.25rem;
+  background: #fff;
+  color: #111;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #f0f0f0;
+}
+
+button:active {
+  background: #e4e4e4;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 #map {
@@ -131,6 +151,11 @@ button {
   cursor: pointer;
 }
 
+.post-composer-close:hover,
+.post-composer-close:active {
+  background: transparent;
+}
+
 .post-composer-card label {
   display: flex;
   flex-direction: column;
@@ -195,9 +220,53 @@ button {
   white-space: pre-wrap;
 }
 
+textarea.note-reader-body {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+textarea.note-reader-body:not(:read-only) {
+  border: 1px solid #111;
+  padding: 0.25rem;
+}
+
 .note-reader-author {
   flex: 0 0 auto;
   margin: 0;
   font-size: 0.85rem;
   color: #555;
+}
+
+.note-reader-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+  width: 100%;
+  transition: opacity 0.1s ease;
+}
+
+.note-reader-actions button {
+  flex: 1 1 0;
+}
+
+.note-reader-actions.is-fading {
+  opacity: 0;
+}
+
+.note-delete {
+  color: #fff;
+  background: #c00;
+}
+
+.note-delete:hover {
+  background: #a40000;
+}
+
+.note-delete:active {
+  background: #7a0000;
+}
+
+.note-delete:disabled {
+  background: #c00;
 }

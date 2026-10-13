@@ -79,6 +79,27 @@ export type StickyWire = {
     };
     error: { error: AppWideError | "EMPTY_BODY" | "INVALID_INPUT" | "INVALID_LOCATION" | "NOT_SIGNED_IN" };
   };
+  "/posts/delete": {
+    input: {
+      "post": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["delete"]>[0], ["post"]>>;
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["use"]>[0], ["session"]>>;
+    };
+    output: {
+      "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["delete"]>[0], ["post"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["delete"]>>, ["post"]>]>>;
+    };
+    error: { error: AppWideError | "INVALID_INPUT" | "NOT_AUTHOR" | "NOT_SIGNED_IN" | "POST_NOT_FOUND" };
+  };
+  "/posts/edit": {
+    input: {
+      "body": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["edit"]>[0], ["body"]>>;
+      "post": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["edit"]>[0], ["post"]>>;
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["use"]>[0], ["session"]>>;
+    };
+    output: {
+      "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["edit"]>[0], ["post"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["edit"]>>, ["post"]>]>>;
+    };
+    error: { error: AppWideError | "EMPTY_BODY" | "INVALID_INPUT" | "NOT_AUTHOR" | "NOT_SIGNED_IN" | "POST_NOT_FOUND" };
+  };
   "/posts/list": {
     input: Record<string, never>;
     output: {
@@ -146,6 +167,25 @@ export type StickyWireHttp = {
       "post": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["post"]>>, ["post"]>>;
     };
     error: { error: HttpAppWideError | "INVALID_REQUEST" | "UNAUTHORIZED" };
+  };
+  "/posts/delete": {
+    input: {
+      "post": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["delete"]>[0], ["post"]>>;
+    };
+    output: {
+      "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["delete"]>[0], ["post"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["delete"]>>, ["post"]>]>>;
+    };
+    error: { error: HttpAppWideError | "FORBIDDEN" | "INVALID_REQUEST" | "NOT_FOUND" | "UNAUTHORIZED" };
+  };
+  "/posts/edit": {
+    input: {
+      "body": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["edit"]>[0], ["body"]>>;
+      "post": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["edit"]>[0], ["post"]>>;
+    };
+    output: {
+      "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["edit"]>[0], ["post"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["edit"]>>, ["post"]>]>>;
+    };
+    error: { error: HttpAppWideError | "FORBIDDEN" | "INVALID_REQUEST" | "NOT_FOUND" | "UNAUTHORIZED" };
   };
   "/posts/list": {
     input: Record<string, never>;

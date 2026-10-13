@@ -13,6 +13,8 @@ const status = document.querySelector<HTMLParagraphElement>("#status")!;
 const signIn = document.querySelector<HTMLButtonElement>("#signin")!;
 const signOut = document.querySelector<HTMLButtonElement>("#signout")!;
 
+let viewer: string | undefined;
+
 function signedOut(message = "") {
   who.hidden = true;
   who.textContent = "";
@@ -20,6 +22,7 @@ function signedOut(message = "") {
   signIn.hidden = false;
   signIn.disabled = false;
   status.textContent = message;
+  viewer = undefined;
   composer.setSignedIn(false);
 }
 
@@ -29,6 +32,7 @@ function signedIn(username: string) {
   signIn.hidden = true;
   signOut.hidden = false;
   status.textContent = "";
+  viewer = username;
   composer.setSignedIn(true);
 }
 
@@ -119,6 +123,24 @@ const map = mountMap(document.querySelector("#map")!, pending ? { center: pendin
 let closeComposer = () => {};
 const notes = bindNotes(map, {
   onOpen: () => closeComposer(),
+  viewer: () => viewer,
+  async onEdit({ post, body }) {
+    const result = await api["/posts/edit"]({ post, body });
+    if (!("error" in result)) return;
+    if (result.error === "UNAUTHORIZED") return "Sign in to edit.";
+    if (result.error === "FORBIDDEN") return "Only the author can change this post.";
+    if (result.error === "NOT_FOUND") return "That note is gone.";
+    if (result.error === "INVALID_REQUEST") return "A post needs some text.";
+    return "Something went wrong. Try again.";
+  },
+  async onDelete({ post }) {
+    const result = await api["/posts/delete"]({ post });
+    if (!("error" in result)) return;
+    if (result.error === "UNAUTHORIZED") return "Sign in to delete.";
+    if (result.error === "FORBIDDEN") return "Only the author can change this post.";
+    if (result.error === "NOT_FOUND") return "That note is gone.";
+    return "Something went wrong. Try again.";
+  },
 });
 const composer = bindPostComposer(map, {
   interceptClick: () => notes.closeIfOpen(),

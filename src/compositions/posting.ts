@@ -32,10 +32,32 @@ const CreatePost = endpoint(
   { validators: { input: postingInput } },
 );
 
+const EditPost = endpoint(
+  "/posts/edit",
+  ({ session, user, post, body }) =>
+    receive({ session, post, body })
+      .then(Sessioning.use({ session }).responds({ subject: user }))
+      .then(GeographicPosting.edit({ user, post, body }).responds({ post }))
+      .then(respond({ post })),
+  { validators: { input: textInput } },
+);
+
+const DeletePost = endpoint(
+  "/posts/delete",
+  ({ session, user, post }) =>
+    receive({ session, post })
+      .then(Sessioning.use({ session }).responds({ subject: user }))
+      .then(GeographicPosting.delete({ user, post }).responds({ post }))
+      .then(respond({ post })),
+  { validators: { input: textInput } },
+);
+
 export const postingHttp = {
   publicErrors: {
     EMPTY_BODY: "INVALID_REQUEST",
     INVALID_LOCATION: "INVALID_REQUEST",
+    POST_NOT_FOUND: "NOT_FOUND",
+    NOT_AUTHOR: "FORBIDDEN",
   },
 } as const;
 
@@ -60,4 +82,5 @@ const ListPosts = endpoint(
 export const composition = {
   creating: { CreatePost },
   listing: { ListPosts, AllNotes },
+  changing: { EditPost, DeletePost },
 };

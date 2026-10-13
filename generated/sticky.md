@@ -165,6 +165,86 @@ then
   RequestBoundary.respond (error: message, requestId)
 ```
 
+### posting.changing.DeletePost
+
+Authored path: `posting.changing.DeletePost`.
+- Covered by [Posting](../design/compositions/posting.md), line 15.
+- Covered by [Posting](../design/compositions/posting.md), line 19.
+
+```reaction
+when RequestBoundary.request (path: "/posts/delete", post, requestId, session)
+then
+  Sessioning.use (session)
+```
+
+### posting.changing.DeletePost#2
+
+Authored path: `posting.changing.DeletePost`.
+- Covered by [Posting](../design/compositions/posting.md), line 15.
+- Covered by [Posting](../design/compositions/posting.md), line 19.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by posting.changing.DeletePost
+where
+  earlier, RequestBoundary.request (path: "/posts/delete", post, requestId, session)
+then
+  GeographicPosting.delete (post, user)
+```
+
+### posting.changing.DeletePost#3
+
+Authored path: `posting.changing.DeletePost`.
+- Covered by [Posting](../design/compositions/posting.md), line 15.
+- Covered by [Posting](../design/compositions/posting.md), line 19.
+
+```reaction
+when GeographicPosting.delete (post, user), asked by posting.changing.DeletePost#2
+where
+  earlier, RequestBoundary.request (path: "/posts/delete", post, requestId, session)
+then
+  RequestBoundary.respond (post, requestId)
+```
+
+### posting.changing.EditPost
+
+Authored path: `posting.changing.EditPost`.
+- Covered by [Posting](../design/compositions/posting.md), line 15.
+- Covered by [Posting](../design/compositions/posting.md), line 18.
+
+```reaction
+when RequestBoundary.request (body, path: "/posts/edit", post, requestId, session)
+then
+  Sessioning.use (session)
+```
+
+### posting.changing.EditPost#2
+
+Authored path: `posting.changing.EditPost`.
+- Covered by [Posting](../design/compositions/posting.md), line 15.
+- Covered by [Posting](../design/compositions/posting.md), line 18.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by posting.changing.EditPost
+where
+  earlier, RequestBoundary.request (body, path: "/posts/edit", post, requestId, session)
+then
+  GeographicPosting.edit (body, post, user)
+```
+
+### posting.changing.EditPost#3
+
+Authored path: `posting.changing.EditPost`.
+- Covered by [Posting](../design/compositions/posting.md), line 15.
+- Covered by [Posting](../design/compositions/posting.md), line 18.
+
+```reaction
+when GeographicPosting.edit (body, post, user), asked by posting.changing.EditPost#2
+where
+  earlier, RequestBoundary.request (body, path: "/posts/edit", post, requestId, session)
+then
+  RequestBoundary.respond (post, requestId)
+```
+
 ### posting.creating.CreatePost
 
 Authored path: `posting.creating.CreatePost`.
@@ -470,3 +550,5 @@ not listed here have no explicit input contract.
 - `/auth/logout` — requires `session`
 - `/auth/me` — requires `session`
 - `/posts/create` — requires `body`, `location`, `session`
+- `/posts/delete` — requires `post`, `session`
+- `/posts/edit` — requires `body`, `post`, `session`
