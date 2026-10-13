@@ -5,6 +5,7 @@ import type { applicationConceptSet as ApplicationConceptSet } from "../src/conc
 
 type AtPath<T, P extends readonly string[]> = P extends readonly [infer H extends string, ...infer R extends string[]] ? H extends keyof T ? AtPath<T[H], R> : H extends `${number}` ? T extends readonly (infer Item)[] ? AtPath<Item, R> : never : never : T;
 type QueryRow<T> = T extends readonly (infer Row)[] ? Row : T;
+type AllOf<T extends readonly unknown[]> = T extends readonly [infer Head, ...infer Rest] ? Head & AllOf<Rest> : unknown;
 type OneOf<T extends readonly unknown[]> = T[number];
 type Jsonify<T> = T extends Date ? string : T extends null | boolean | number | string ? T : T extends (...args: never[]) => unknown ? never : T extends readonly (infer Item)[] ? Jsonify<Item>[] : T extends object ? { [K in keyof T]: Jsonify<T[K]> } : never;
 
@@ -78,6 +79,19 @@ export type StickyWire = {
     };
     error: { error: AppWideError | "EMPTY_BODY" | "INVALID_INPUT" | "INVALID_LOCATION" | "NOT_SIGNED_IN" };
   };
+  "/posts/list": {
+    input: Record<string, never>;
+    output: {
+      "posts": ({
+        "author": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Registering"]["_username"]>[0], ["user"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_allPosts"]>>>, ["author"]>]>>;
+        "body": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_allPosts"]>>>, ["body"]>>;
+        "location": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_allPosts"]>>>, ["location"]>>;
+        "post": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_allPosts"]>>>, ["post"]>>;
+        "username": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Registering"]["_username"]>>>, ["username"]>> | null;
+      })[];
+    };
+    error: { error: AppWideError };
+  };
 };
 
 export type HttpAppWideError = never;
@@ -132,5 +146,18 @@ export type StickyWireHttp = {
       "post": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["post"]>>, ["post"]>>;
     };
     error: { error: HttpAppWideError | "INVALID_REQUEST" | "UNAUTHORIZED" };
+  };
+  "/posts/list": {
+    input: Record<string, never>;
+    output: {
+      "posts": ({
+        "author": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Registering"]["_username"]>[0], ["user"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_allPosts"]>>>, ["author"]>]>>;
+        "body": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_allPosts"]>>>, ["body"]>>;
+        "location": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_allPosts"]>>>, ["location"]>>;
+        "post": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_allPosts"]>>>, ["post"]>>;
+        "username": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Registering"]["_username"]>>>, ["username"]>> | null;
+      })[];
+    };
+    error: { error: HttpAppWideError };
   };
 };

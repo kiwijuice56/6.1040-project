@@ -121,6 +121,28 @@ Concrete types:
 
 - `Feature` — [Sticky types](../design/types.md), line 8.
 
+## Formers
+
+_Formers name result shapes evaluated when asked. The source former owns_
+_the authored explanation; this section records the generated shape._
+
+### the public notes
+
+Authored path: `posting.listing.AllNotes`.
+- Covered by [Posting](../design/compositions/posting.md), line 9.
+
+```former
+Former "the public notes" — inputs (); bindings (post, body, author, location, username); promises exactly one record — forms:
+  each GeographicPosting._allPosts () has (author, body, location, post)
+    where whether Registering._username (user: author) has (username)
+    form a record of
+      author
+      body
+      location
+      post
+      username
+```
+
 ## Reactions
 
 ### DeliverFaultToAsker
@@ -181,6 +203,18 @@ where
   earlier, RequestBoundary.request (body, location, path: "/posts/create", requestId, session)
 then
   RequestBoundary.respond (post, requestId)
+```
+
+### posting.listing.ListPosts
+
+Authored path: `posting.listing.ListPosts`.
+- Covered by [Posting](../design/compositions/posting.md), line 9.
+- Covered by [Posting](../design/compositions/posting.md), line 12.
+
+```reaction
+when RequestBoundary.request (path: "/posts/list", requestId)
+then
+  RequestBoundary.respond (posts: former "the public notes", requestId)
 ```
 
 ### reusable.accounts.identifying.Me

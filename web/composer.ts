@@ -1,11 +1,6 @@
 import L from "leaflet";
 import { coordinatesAt, type MapCoordinate } from "./map.ts";
-
-const POPUP_SIZE = 260;
-/** Screen-pixel gap between the click and the popup. Leaflet icons are in pixels, so this stays constant across zoom. */
-const RADIUS = 20;
-const PAN_SECONDS = 0.25;
-const SCALE_MS = 100;
+import { dismissPopup, placePopup } from "./popup.ts";
 
 export type ComposerOpenOptions = {
   body?: string;
@@ -17,6 +12,7 @@ export function bindPostComposer(
   options: {
     onSubmit: (input: { body: string; location: MapCoordinate }) => Promise<string | undefined>;
     onSignIn: () => void;
+    interceptClick?: () => boolean;
   },
 ) {
   let marker: L.Marker | undefined;
@@ -24,18 +20,9 @@ export function bindPostComposer(
   let signedIn = false;
 
   function close(motion: { animate?: boolean } = {}) {
-    const toRemove = marker;
+    dismissPopup(marker, motion);
     marker = undefined;
     form = undefined;
-    if (!toRemove) return;
-    const animate = motion.animate !== false;
-    const el = toRemove.getElement();
-    if (!animate || !el) {
-      toRemove.remove();
-      return;
-    }
-    el.classList.remove("is-open");
-    window.setTimeout(() => toRemove.remove(), SCALE_MS);
   }
 
   function currentBody() {
@@ -78,43 +65,19 @@ export function bindPostComposer(
       onCancel: () => close(),
       onSignIn: options.onSignIn,
     });
-    const root = document.createElement("div");
-    root.className = "post-composer-body";
-    root.append(form);
-    marker = L.marker(latlng, {
-      icon: L.divIcon({
-        className: "post-composer",
-        iconSize: [POPUP_SIZE + RADIUS, POPUP_SIZE],
-        iconAnchor: [0, POPUP_SIZE / 2],
-        html: root,
-      }),
-      interactive: true,
-      keyboard: false,
-      zIndexOffset: 1000,
-    }).addTo(map);
-    const el = marker.getElement();
-    if (el) {
-      L.DomEvent.disableClickPropagation(el);
-      L.DomEvent.disableScrollPropagation(el);
-      if (animate) {
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => el.classList.add("is-open"));
-        });
-      } else {
-        el.classList.add("is-open", "post-composer-instant");
-      }
-    }
+    marker = placePopup(map, latlng, form, { animate });
     const focus = form.querySelector<HTMLElement>("textarea, .post-composer-signin");
     focus?.focus();
-    panClickToWindowCenter(map, latlng, animate);
   }
 
   map.on("click", (event: L.LeafletMouseEvent) => {
+    if (options.interceptClick?.()) return;
     open(coordinatesAt(event), { body: currentBody() });
   });
 
   return {
     open,
+    close,
     location: currentLocation,
     setSignedIn(value: boolean) {
       if (signedIn === value) return;
@@ -123,15 +86,6 @@ export function bindPostComposer(
       if (location) open(location, { body: signedIn ? currentBody() : "", animate: false });
     },
   };
-}
-
-/** Pan so the click sits in the window center. The popup sits to the right of that point. */
-function panClickToWindowCenter(map: L.Map, latlng: L.LatLng, animate: boolean) {
-  const mapRect = map.getContainer().getBoundingClientRect();
-  const size = map.getSize();
-  const windowCenterInMap = L.point(size.x / 2, window.innerHeight / 2 - mapRect.top);
-  const clickInMap = map.latLngToContainerPoint(latlng);
-  map.panBy(clickInMap.subtract(windowCenterInMap), { animate, duration: PAN_SECONDS });
 }
 
 function buildForm(options: {
@@ -147,7 +101,7 @@ function buildForm(options: {
     form.innerHTML = `
       <button class="post-composer-close" type="button" aria-label="Cancel">&times;</button>
       <label>
-        Note
+        write a sticky note!
         <textarea name="body" rows="6" maxlength="2000" required></textarea>
       </label>
       <p class="post-composer-error" role="status"></p>

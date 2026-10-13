@@ -1,8 +1,10 @@
 import type { EndpointValidator } from "@mit-sdg/sync-engine/boundary";
 import { endpoint, receive, respond } from "@mit-sdg/sync-engine/boundary";
+import { each, former, whether } from "@mit-sdg/sync-engine/language";
 import { concepts } from "../concepts.ts";
+import { textInput } from "./reusable/inputs.ts";
 
-const { Sessioning, GeographicPosting } = concepts;
+const { Sessioning, GeographicPosting, Registering } = concepts;
 
 const postingInput: EndpointValidator = (value) => {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -37,6 +39,25 @@ export const postingHttp = {
   },
 } as const;
 
+const AllNotes = former("the public notes", (_input, { post, body, author, location, username }) =>
+  each(GeographicPosting._allPosts({}).is({ post, body, author, location }))
+    .where(whether(Registering._username({ user: author }).is({ username })))
+    .form({
+      post,
+      body,
+      author,
+      location,
+      username,
+    }),
+);
+
+const ListPosts = endpoint(
+  "/posts/list",
+  () => receive({}).then(respond({ posts: AllNotes({}) })),
+  { validators: { input: textInput } },
+);
+
 export const composition = {
   creating: { CreatePost },
+  listing: { ListPosts, AllNotes },
 };

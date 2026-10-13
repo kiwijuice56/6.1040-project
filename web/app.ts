@@ -2,6 +2,7 @@ import { createHttpClient } from "@mit-sdg/sync-engine-http/client";
 import type { StickyWireHttp } from "../generated/wire.ts";
 import { bindPostComposer } from "./composer.ts";
 import { mountMap, type MapCoordinate } from "./map.ts";
+import { bindNotes } from "./notes.ts";
 
 const PENDING_POST = "sticky.pendingPost";
 
@@ -115,19 +116,35 @@ signOut.addEventListener("click", async () => {
 
 const pending = takePendingPost();
 const map = mountMap(document.querySelector("#map")!, pending ? { center: pending } : {});
+let closeComposer = () => {};
+const notes = bindNotes(map, {
+  onOpen: () => closeComposer(),
+});
 const composer = bindPostComposer(map, {
+  interceptClick: () => notes.closeIfOpen(),
   onSignIn: () => {
     void startCommons();
   },
   async onSubmit({ body, location }) {
     const result = await api["/posts/create"]({ body, location });
-    if (!("error" in result)) return;
+    if (!("error" in result)) {
+      await loadNotes();
+      return;
+    }
     if (result.error === "UNAUTHORIZED") return "Sign in to post.";
     if (result.error === "INVALID_REQUEST") return "That note couldn't be posted.";
     return "Something went wrong. Try again.";
   },
 });
+closeComposer = () => composer.close();
 
+async function loadNotes() {
+  const result = await api["/posts/list"]();
+  if ("error" in result) return;
+  notes.render(result.posts);
+}
+
+void loadNotes();
 if (window.location.pathname === "/auth/commons/callback") {
   status.textContent = "Signing in with Commons…";
   signIn.hidden = true;
