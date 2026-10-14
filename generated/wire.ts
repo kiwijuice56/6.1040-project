@@ -144,6 +144,16 @@ export type StickyWire = {
     };
     error: { error: AppWideError | "ALREADY_VOTED" | "INVALID_INPUT" | "NOT_SIGNED_IN" };
   };
+  "/posts/vote": {
+    input: {
+      "post": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["_getVote"]>[0], ["resource"]>>;
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["use"]>[0], ["session"]>>;
+    };
+    output: Record<string, never> | {
+      "upvote": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["_getVote"]>>>, ["upvote"]>>;
+    };
+    error: { error: AppWideError | "INVALID_INPUT" | "NOT_SIGNED_IN" };
+  };
 };
 
 export type HttpAppWideError = never;
@@ -258,5 +268,14 @@ export type StickyWireHttp = {
       "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["upvote"]>[0], ["resource"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["upvote"]>>, ["resource"]>]>>;
     };
     error: { error: HttpAppWideError | "CONFLICT" | "INVALID_REQUEST" | "UNAUTHORIZED" };
+  };
+  "/posts/vote": {
+    input: {
+      "post": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["_getVote"]>[0], ["resource"]>>;
+    };
+    output: Record<string, never> | {
+      "upvote": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["_getVote"]>>>, ["upvote"]>>;
+    };
+    error: { error: HttpAppWideError | "INVALID_REQUEST" | "UNAUTHORIZED" };
   };
 };

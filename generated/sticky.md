@@ -132,6 +132,7 @@ Defined in [Upvoting](../design/concepts/Upvoting.md), line 1.
 #### Queries
 
 - `_getVoteCount(resource: Resource) : one (count: Number)`
+- `_getVote(voter: User, resource: Resource) : optional (upvote: Flag)`
 
 #### Instances
 
@@ -373,6 +374,48 @@ where
   earlier, RequestBoundary.request (path: "/posts/downvote", post, requestId, session)
 then
   RequestBoundary.respond (post, requestId)
+```
+
+### posting.ranking.ReadVote
+
+Authored path: `posting.ranking.ReadVote`.
+- Covered by [Posting](../design/compositions/posting.md), line 30.
+- Covered by [Posting](../design/compositions/posting.md), line 33.
+
+```reaction
+when RequestBoundary.request (path: "/posts/vote", post, requestId, session)
+then
+  Sessioning.use (session)
+```
+
+### posting.ranking.ReadVote:none#2
+
+Authored path: `posting.ranking.ReadVote`.
+- Covered by [Posting](../design/compositions/posting.md), line 30.
+- Covered by [Posting](../design/compositions/posting.md), line 33.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by posting.ranking.ReadVote
+where
+  earlier, RequestBoundary.request (path: "/posts/vote", post, requestId, session)
+  no Upvoting._getVote (resource: post, voter: user)
+then
+  RequestBoundary.respond (requestId)
+```
+
+### posting.ranking.ReadVote:voted#2
+
+Authored path: `posting.ranking.ReadVote`.
+- Covered by [Posting](../design/compositions/posting.md), line 30.
+- Covered by [Posting](../design/compositions/posting.md), line 33.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by posting.ranking.ReadVote
+where
+  earlier, RequestBoundary.request (path: "/posts/vote", post, requestId, session)
+  Upvoting._getVote (resource: post, voter: user) has (upvote)
+then
+  RequestBoundary.respond (requestId, upvote)
 ```
 
 ### posting.ranking.UnvotePost
@@ -713,3 +756,4 @@ not listed here have no explicit input contract.
 - `/posts/edit` — requires `body`, `post`, `session`
 - `/posts/unvote` — requires `post`, `session`
 - `/posts/upvote` — requires `post`, `session`
+- `/posts/vote` — requires `post`, `session`

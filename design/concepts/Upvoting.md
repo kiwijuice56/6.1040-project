@@ -72,4 +72,7 @@ clearAllVotes(resource: Resource) : returns (resource: Resource)
 ```queries
 _getVoteCount(resource: Resource) : one (count: Number)
   Returns the number of upvotes for the resource minus the number of downvotes. When there are no votes, the count is 0.
+
+_getVote(voter: User, resource: Resource) : optional (upvote: Flag)
+  Returns that vote's upvote flag, or no row when this voter has not voted on the resource.
 ```

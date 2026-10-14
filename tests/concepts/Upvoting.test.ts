@@ -85,4 +85,14 @@ describe("Upvoting", () => {
   test("_getVoteCount is 0 when nobody has voted", async () => {
     expect(await voting._getVoteCount({ resource: "note" })).toEqual({ count: 0 });
   });
+
+  test("_getVote returns the voter's flag, or no row", async () => {
+    expect(await voting._getVote({ voter: "sam", resource: "note" })).toEqual([]);
+    await voting.upvote({ voter: "sam", resource: "note" });
+    expect(await voting._getVote({ voter: "sam", resource: "note" })).toEqual([{ upvote: true }]);
+    await voting.unvote({ voter: "sam", resource: "note" });
+    await voting.downvote({ voter: "sam", resource: "note" });
+    expect(await voting._getVote({ voter: "sam", resource: "note" })).toEqual([{ upvote: false }]);
+    expect(await voting._getVote({ voter: "leo", resource: "note" })).toEqual([]);
+  });
 });

@@ -56,6 +56,11 @@ export class UpvotingConcept<User extends string, Resource extends string> {
     return { count };
   }
 
+  async _getVote({ voter, resource }: { voter: User; resource: Resource }) {
+    const found = await this.votes.findOne({ voter, resource });
+    return found === null ? [] : [{ upvote: found.upvote }];
+  }
+
   async #add(voter: User, resource: Resource, upvote: boolean) {
     await this.#ready();
     try {

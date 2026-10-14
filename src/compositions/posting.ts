@@ -1,6 +1,6 @@
 import type { EndpointValidator } from "@mit-sdg/sync-engine/boundary";
 import { endpoint, receive, respond } from "@mit-sdg/sync-engine/boundary";
-import { each, former, whether } from "@mit-sdg/sync-engine/language";
+import { each, former, no, whether, where } from "@mit-sdg/sync-engine/language";
 import { concepts } from "../concepts.ts";
 import { textInput } from "./reusable/inputs.ts";
 
@@ -83,6 +83,22 @@ const UnvotePost = endpoint(
   { validators: { input: textInput } },
 );
 
+const ReadVote = endpoint(
+  "/posts/vote",
+  ({ session, user, post, upvote }) =>
+    receive({ session, post })
+      .then(Sessioning.use({ session }).responds({ subject: user }))
+      .then(
+        where(Upvoting._getVote({ voter: user, resource: post }).is({ upvote }))
+          .then(respond({ upvote }))
+          .named("voted"),
+        where(no(Upvoting._getVote({ voter: user, resource: post })))
+          .then(respond({}))
+          .named("none"),
+      ),
+  { validators: { input: textInput } },
+);
+
 export const postingHttp = {
   publicErrors: {
     EMPTY_BODY: "INVALID_REQUEST",
@@ -120,5 +136,5 @@ export const composition = {
   creating: { CreatePost },
   listing: { ListPosts, AllNotes },
   changing: { EditPost, DeletePost },
-  ranking: { UpvotePost, DownvotePost, UnvotePost },
+  ranking: { UpvotePost, DownvotePost, UnvotePost, ReadVote },
 };

@@ -3,9 +3,15 @@ import type { StickyWireHttp } from "../generated/wire.ts";
 import { dismissPopup, placePopup } from "./popup.ts";
 
 export type PublicNote = StickyWireHttp["/posts/list"]["output"]["posts"][number];
+export type VoteChoice = "up" | "down";
 
 const DOT = 16;
 const FADE_MS = 100;
+
+const UP_ICON =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.2 20.2 18H3.8z"/></svg>';
+const DOWN_ICON =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 18.8 3.8 6h16.4z"/></svg>';
 
 export function bindNotes(
   map: L.Map,
@@ -14,6 +20,12 @@ export function bindNotes(
     viewer?: () => string | undefined;
     onEdit?: (input: { post: PublicNote["post"]; body: string }) => Promise<string | undefined>;
     onDelete?: (input: { post: PublicNote["post"] }) => Promise<string | undefined>;
+    onVote?: (input: {
+      post: PublicNote["post"];
+      action: "upvote" | "downvote" | "unvote";
+    }) => Promise<string | undefined>;
+    onMine?: (input: { post: PublicNote["post"] }) => Promise<VoteChoice | undefined>;
+    onSignIn?: () => void;
   } = {},
 ) {
   const dots = new Map<PublicNote["post"], L.Marker>();
@@ -77,7 +89,15 @@ export function bindNotes(
     editing = false;
     const card = buildReader(note, {
       owned: Boolean(note.username && note.username === options.viewer?.()),
+      signedIn: Boolean(options.viewer?.()),
       onClose: () => closeReader(),
+      onSignIn: () => options.onSignIn?.(),
+      onVote: async (action) => {
+        const error = await options.onVote?.({ post: note.post, action });
+        if (error) return error;
+        return;
+      },
+      onMine: () => options.onMine?.({ post: note.post }) ?? Promise.resolve(undefined),
       onEdit: async (body) => {
         const error = await options.onEdit?.({ post: note.post, body });
         if (error) return error;
@@ -125,11 +145,20 @@ export function bindNotes(
   };
 }
 
+function formatCount(count: number) {
+  if (count > 0) return `+${count}`;
+  return String(count);
+}
+
 function buildReader(
   note: PublicNote,
   options: {
     owned: boolean;
+    signedIn: boolean;
     onClose: () => void;
+    onSignIn: () => void;
+    onVote: (action: "upvote" | "downvote" | "unvote") => Promise<string | undefined>;
+    onMine: () => Promise<VoteChoice | undefined>;
     onEdit: (body: string) => Promise<string | undefined>;
     onDelete: () => Promise<string | undefined>;
     onEditing: (value: boolean) => void;
@@ -140,14 +169,106 @@ function buildReader(
   card.innerHTML = `
     <button class="post-composer-close" type="button" aria-label="Close">&times;</button>
     <textarea class="note-reader-body" maxlength="2000" readonly></textarea>
-    <p class="note-reader-author"></p>
+    <div class="note-reader-meta">
+      <p class="note-reader-author"></p>
+      <div class="note-reader-votes">
+        <button class="note-vote note-vote-up" type="button" aria-label="Upvote" aria-pressed="false">${UP_ICON}</button>
+        <span class="note-vote-count">0</span>
+        <button class="note-vote note-vote-down" type="button" aria-label="Downvote" aria-pressed="false">${DOWN_ICON}</button>
+      </div>
+    </div>
   `;
   const body = card.querySelector("textarea")!;
   body.value = note.body;
-  const author = card.querySelector(".note-reader-author")!;
-  if (note.username) author.textContent = note.username;
-  else author.remove();
+  const author = card.querySelector<HTMLParagraphElement>(".note-reader-author")!;
+  author.textContent = note.username ?? "";
+  if (note.username) author.title = note.username;
   card.querySelector(".post-composer-close")!.addEventListener("click", () => options.onClose());
+
+  const meta = card.querySelector<HTMLElement>(".note-reader-meta")!;
+  const up = card.querySelector<HTMLButtonElement>(".note-vote-up")!;
+  const down = card.querySelector<HTMLButtonElement>(".note-vote-down")!;
+  const tally = card.querySelector<HTMLElement>(".note-vote-count")!;
+  let count = typeof note.count === "number" ? note.count : 0;
+  let mine: VoteChoice | undefined;
+  let voting = false;
+
+  function paintVotes() {
+    tally.textContent = formatCount(count);
+    tally.classList.toggle("is-up", count > 0);
+    tally.classList.toggle("is-down", count < 0);
+    up.setAttribute("aria-pressed", String(mine === "up"));
+    down.setAttribute("aria-pressed", String(mine === "down"));
+    up.disabled = options.owned;
+    down.disabled = options.owned;
+  }
+
+  const error = document.createElement("p");
+  error.className = "post-composer-error";
+  error.hidden = true;
+  card.insertBefore(error, meta);
+
+  function setError(message: string) {
+    error.hidden = !message;
+    error.textContent = message;
+  }
+
+  if (options.owned) {
+    up.title = "You can't vote on your own note";
+    down.title = "You can't vote on your own note";
+  }
+
+  paintVotes();
+  if (options.signedIn && !options.owned) {
+    void options.onMine().then((choice) => {
+      mine = choice;
+      paintVotes();
+    });
+  }
+
+  async function choose(next: VoteChoice) {
+    if (options.owned) return;
+    if (!options.signedIn) {
+      options.onSignIn();
+      return;
+    }
+    if (voting) return;
+    voting = true;
+    up.disabled = true;
+    down.disabled = true;
+    const steps: Array<"upvote" | "downvote" | "unvote"> = [];
+    if (mine === next) steps.push("unvote");
+    else {
+      if (mine) steps.push("unvote");
+      steps.push(next === "up" ? "upvote" : "downvote");
+    }
+    let failed: string | undefined;
+    for (const action of steps) {
+      const errorMessage = await options.onVote(action);
+      if (errorMessage) {
+        failed = errorMessage;
+        break;
+      }
+      if (action === "unvote") {
+        count += mine === "up" ? -1 : 1;
+        mine = undefined;
+      } else {
+        mine = next;
+        count += next === "up" ? 1 : -1;
+      }
+    }
+    note.count = count;
+    paintVotes();
+    voting = false;
+    setError(failed ?? "");
+  }
+
+  up.addEventListener("click", () => {
+    void choose("up");
+  });
+  down.addEventListener("click", () => {
+    void choose("down");
+  });
 
   if (!options.owned) return card;
 
@@ -160,19 +281,11 @@ function buildReader(
   secondary.type = "button";
   secondary.className = "note-delete";
   secondary.textContent = "Delete";
-  const error = document.createElement("p");
-  error.className = "post-composer-error";
-  error.hidden = true;
   actions.append(primary, secondary);
-  card.append(error, actions);
+  card.insertBefore(actions, error);
 
   let mode: "view" | "edit" = "view";
   let fading = false;
-
-  function setError(message: string) {
-    error.hidden = !message;
-    error.textContent = message;
-  }
 
   async function showView() {
     if (mode === "view") return;

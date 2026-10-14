@@ -1,6 +1,9 @@
 /* UI ink. Was black (#111 / #000). Change --ink to recolor text, icons, outlines, and map dots. */
 :root {
   --ink: #2e221a;
+  --upvote: #e39b6b;
+  --downvote: #7ba3c9;
+  --delete: #e18282;
 }
 
 html,
@@ -458,10 +461,117 @@ textarea.note-reader-body:read-only:focus-visible {
   border: 2px solid #4d90fe;
 }
 
-.note-reader-author {
+.note-reader-meta {
+  display: flex;
+  align-items: center;
   flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
+  gap: 0.35rem;
+}
+
+.note-reader-author {
+  flex: 1 1 50%;
+  min-width: 0;
   margin: 0;
   color: #555;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.note-reader-votes {
+  display: flex;
+  align-items: center;
+  flex: 1 1 50%;
+  min-width: 0;
+  gap: 0.25rem;
+}
+
+.note-vote {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  padding: 0;
+  border-radius: 0.25rem;
+}
+
+.note-vote svg {
+  display: block;
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+}
+
+.note-vote-up {
+  color: var(--upvote);
+  border-color: var(--upvote);
+}
+
+.note-vote-up:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--upvote) 18%, #fff);
+}
+
+.note-vote-up:active:not(:disabled) {
+  background: color-mix(in srgb, var(--upvote) 28%, #fff);
+}
+
+.note-vote-up[aria-pressed="true"] {
+  color: #fff;
+  background: var(--upvote);
+}
+
+.note-vote-up[aria-pressed="true"]:hover {
+  background: color-mix(in srgb, var(--upvote) 88%, var(--ink));
+}
+
+.note-vote-up[aria-pressed="true"]:active {
+  background: color-mix(in srgb, var(--upvote) 75%, var(--ink));
+}
+
+.note-vote-down {
+  color: var(--downvote);
+  border-color: var(--downvote);
+}
+
+.note-vote-down:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--downvote) 18%, #fff);
+}
+
+.note-vote-down:active:not(:disabled) {
+  background: color-mix(in srgb, var(--downvote) 28%, #fff);
+}
+
+.note-vote-down[aria-pressed="true"] {
+  color: #fff;
+  background: var(--downvote);
+}
+
+.note-vote-down[aria-pressed="true"]:hover {
+  background: color-mix(in srgb, var(--downvote) 88%, var(--ink));
+}
+
+.note-vote-down[aria-pressed="true"]:active {
+  background: color-mix(in srgb, var(--downvote) 75%, var(--ink));
+}
+
+.note-vote-count {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.note-vote-count.is-up {
+  color: var(--upvote);
+}
+
+.note-vote-count.is-down {
+  color: var(--downvote);
 }
 
 .note-reader-actions {
@@ -473,26 +583,36 @@ textarea.note-reader-body:read-only:focus-visible {
 }
 
 .note-reader-actions button {
-  flex: 1 1 0;
+  box-sizing: border-box;
+  flex: 7 1 0;
+  min-width: 0;
+  white-space: nowrap;
 }
 
 .note-reader-actions.is-fading {
   opacity: 0;
 }
 
+.note-reader-actions .note-delete {
+  flex: 3 1 0;
+  padding-left: 0.3rem;
+  padding-right: 0.3rem;
+}
+
 .note-delete {
   color: #fff;
-  background: #c00;
+  background: var(--delete);
+  border-color: color-mix(in srgb, var(--delete) 50%, var(--ink));
 }
 
 .note-delete:hover {
-  background: #a40000;
+  background: color-mix(in srgb, var(--delete) 88%, var(--ink));
 }
 
 .note-delete:active {
-  background: #7a0000;
+  background: color-mix(in srgb, var(--delete) 75%, var(--ink));
 }
 
 .note-delete:disabled {
-  background: #c00;
+  background: var(--delete);
 }

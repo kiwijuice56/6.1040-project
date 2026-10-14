@@ -132,6 +132,27 @@ let closeComposer = () => {};
 const notes = bindNotes(map, {
   onOpen: () => closeComposer(),
   viewer: () => viewer,
+  onSignIn: () => {
+    void startCommons();
+  },
+  async onMine({ post }) {
+    const result = await api["/posts/vote"]({ post });
+    if ("error" in result) return;
+    if ("upvote" in result && typeof result.upvote === "boolean") return result.upvote ? "up" : "down";
+  },
+  async onVote({ post, action }) {
+    const result =
+      action === "upvote"
+        ? await api["/posts/upvote"]({ post })
+        : action === "downvote"
+          ? await api["/posts/downvote"]({ post })
+          : await api["/posts/unvote"]({ post });
+    if (!("error" in result)) return;
+    if (result.error === "UNAUTHORIZED") return "Sign in to vote.";
+    if (result.error === "CONFLICT") return "You already have a vote on this.";
+    if (result.error === "NOT_FOUND") return "You have not voted on this.";
+    return "Something went wrong. Try again.";
+  },
   async onEdit({ post, body }) {
     const result = await api["/posts/edit"]({ post, body });
     if (!("error" in result)) return;

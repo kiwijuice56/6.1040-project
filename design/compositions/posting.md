@@ -26,3 +26,9 @@ posting.ranking.UpvotePost at /posts/upvote
 posting.ranking.DownvotePost at /posts/downvote
 posting.ranking.UnvotePost at /posts/unvote
 ```
+
+The page can [read the signed-in person's vote](reaction:posting.ranking.ReadVote) on one note. That endpoint reads the user from the session, then `Upvoting._getVote`. People who are not signed in are refused with `NOT_SIGNED_IN`. When they have not voted, the answer has no `upvote` field.
+
+```endpoints
+posting.ranking.ReadVote at /posts/vote
+```
