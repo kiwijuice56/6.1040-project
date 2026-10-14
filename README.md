@@ -7,7 +7,9 @@
 - [UI sketches](docs/p1/ui-sketches.md)
 - [User journey](docs/p1/user-journey.md)
 ## P2 
+- [Design notebook (private)](https://github.com/kiwijuice56/6.1040-homework-fa26/tree/main/project/design-notebook.md)
 - [Updated user journey](docs/p2/user-journey.md)
+- [User journey video](docs/p2/user-journey.mp4)
 
 # Attribution
 - [Paper background image from Wikimedia Commons, by pinkorchid_too (Sandra)](https://commons.wikimedia.org/wiki/File:Vintage_paper_texture_-_Flickr_-_pinkorchid_too_(Sandra).jpg).

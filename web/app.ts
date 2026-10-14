@@ -197,13 +197,26 @@ const composer = bindPostComposer(map, {
 });
 closeComposer = () => composer.close();
 
+const NOTES_POLL_MS = 5_000;
+let loadingNotes = false;
+
 async function loadNotes() {
-  const result = await api["/posts/list"]();
-  if ("error" in result) return;
-  notes.render(result.posts);
+  if (loadingNotes) return;
+  loadingNotes = true;
+  try {
+    const result = await api["/posts/list"]();
+    if ("error" in result) return;
+    notes.render(result.posts);
+  } finally {
+    loadingNotes = false;
+  }
 }
 
 void loadNotes();
+window.setInterval(() => {
+  if (document.hidden || notes.isEditing()) return;
+  void loadNotes();
+}, NOTES_POLL_MS);
 const nav = bindNav({
   onSignIn: () => {
     void startCommons();
