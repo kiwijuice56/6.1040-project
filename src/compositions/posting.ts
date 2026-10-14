@@ -4,7 +4,7 @@ import { each, former, whether } from "@mit-sdg/sync-engine/language";
 import { concepts } from "../concepts.ts";
 import { textInput } from "./reusable/inputs.ts";
 
-const { Sessioning, GeographicPosting, Registering } = concepts;
+const { Sessioning, GeographicPosting, Registering, Upvoting } = concepts;
 
 const postingInput: EndpointValidator = (value) => {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -48,6 +48,37 @@ const DeletePost = endpoint(
     receive({ session, post })
       .then(Sessioning.use({ session }).responds({ subject: user }))
       .then(GeographicPosting.delete({ user, post }).responds({ post }))
+      .then(Upvoting.clearAllVotes({ resource: post }).responds({ resource: post }))
+      .then(respond({ post })),
+  { validators: { input: textInput } },
+);
+
+const UpvotePost = endpoint(
+  "/posts/upvote",
+  ({ session, user, post }) =>
+    receive({ session, post })
+      .then(Sessioning.use({ session }).responds({ subject: user }))
+      .then(Upvoting.upvote({ voter: user, resource: post }).responds({ resource: post }))
+      .then(respond({ post })),
+  { validators: { input: textInput } },
+);
+
+const DownvotePost = endpoint(
+  "/posts/downvote",
+  ({ session, user, post }) =>
+    receive({ session, post })
+      .then(Sessioning.use({ session }).responds({ subject: user }))
+      .then(Upvoting.downvote({ voter: user, resource: post }).responds({ resource: post }))
+      .then(respond({ post })),
+  { validators: { input: textInput } },
+);
+
+const UnvotePost = endpoint(
+  "/posts/unvote",
+  ({ session, user, post }) =>
+    receive({ session, post })
+      .then(Sessioning.use({ session }).responds({ subject: user }))
+      .then(Upvoting.unvote({ voter: user, resource: post }).responds({ resource: post }))
       .then(respond({ post })),
   { validators: { input: textInput } },
 );
@@ -58,18 +89,24 @@ export const postingHttp = {
     INVALID_LOCATION: "INVALID_REQUEST",
     POST_NOT_FOUND: "NOT_FOUND",
     NOT_AUTHOR: "FORBIDDEN",
+    ALREADY_VOTED: "CONFLICT",
+    NO_VOTE: "NOT_FOUND",
   },
 } as const;
 
-const AllNotes = former("the public notes", (_input, { post, body, author, location, username }) =>
+const AllNotes = former("the public notes", (_input, { post, body, author, location, username, count }) =>
   each(GeographicPosting._allPosts({}).is({ post, body, author, location }))
-    .where(whether(Registering._username({ user: author }).is({ username })))
+    .where(
+      whether(Registering._username({ user: author }).is({ username })),
+      Upvoting._getVoteCount({ resource: post }).is({ count }),
+    )
     .form({
       post,
       body,
       author,
       location,
       username,
+      count,
     }),
 );
 
@@ -83,4 +120,5 @@ export const composition = {
   creating: { CreatePost },
   listing: { ListPosts, AllNotes },
   changing: { EditPost, DeletePost },
+  ranking: { UpvotePost, DownvotePost, UnvotePost },
 };

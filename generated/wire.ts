@@ -81,13 +81,23 @@ export type StickyWire = {
   };
   "/posts/delete": {
     input: {
-      "post": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["delete"]>[0], ["post"]>>;
+      "post": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["delete"]>[0], ["post"]>, AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["clearAllVotes"]>[0], ["resource"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["clearAllVotes"]>>, ["resource"]>]>]>>;
       "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["use"]>[0], ["session"]>>;
     };
     output: {
-      "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["delete"]>[0], ["post"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["delete"]>>, ["post"]>]>>;
+      "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["clearAllVotes"]>[0], ["resource"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["clearAllVotes"]>>, ["resource"]>]>>;
     };
     error: { error: AppWideError | "INVALID_INPUT" | "NOT_AUTHOR" | "NOT_SIGNED_IN" | "POST_NOT_FOUND" };
+  };
+  "/posts/downvote": {
+    input: {
+      "post": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["downvote"]>[0], ["resource"]>>;
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["use"]>[0], ["session"]>>;
+    };
+    output: {
+      "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["downvote"]>[0], ["resource"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["downvote"]>>, ["resource"]>]>>;
+    };
+    error: { error: AppWideError | "ALREADY_VOTED" | "INVALID_INPUT" | "NOT_SIGNED_IN" };
   };
   "/posts/edit": {
     input: {
@@ -106,12 +116,33 @@ export type StickyWire = {
       "posts": ({
         "author": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Registering"]["_username"]>[0], ["user"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_allPosts"]>>>, ["author"]>]>>;
         "body": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_allPosts"]>>>, ["body"]>>;
+        "count": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["_getVoteCount"]>>>, ["count"]>>;
         "location": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_allPosts"]>>>, ["location"]>>;
-        "post": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_allPosts"]>>>, ["post"]>>;
+        "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["_getVoteCount"]>[0], ["resource"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_allPosts"]>>>, ["post"]>]>>;
         "username": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Registering"]["_username"]>>>, ["username"]>> | null;
       })[];
     };
     error: { error: AppWideError };
+  };
+  "/posts/unvote": {
+    input: {
+      "post": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["unvote"]>[0], ["resource"]>>;
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["use"]>[0], ["session"]>>;
+    };
+    output: {
+      "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["unvote"]>[0], ["resource"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["unvote"]>>, ["resource"]>]>>;
+    };
+    error: { error: AppWideError | "INVALID_INPUT" | "NOT_SIGNED_IN" | "NO_VOTE" };
+  };
+  "/posts/upvote": {
+    input: {
+      "post": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["upvote"]>[0], ["resource"]>>;
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["use"]>[0], ["session"]>>;
+    };
+    output: {
+      "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["upvote"]>[0], ["resource"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["upvote"]>>, ["resource"]>]>>;
+    };
+    error: { error: AppWideError | "ALREADY_VOTED" | "INVALID_INPUT" | "NOT_SIGNED_IN" };
   };
 };
 
@@ -170,12 +201,21 @@ export type StickyWireHttp = {
   };
   "/posts/delete": {
     input: {
-      "post": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["delete"]>[0], ["post"]>>;
+      "post": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["delete"]>[0], ["post"]>, AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["clearAllVotes"]>[0], ["resource"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["clearAllVotes"]>>, ["resource"]>]>]>>;
     };
     output: {
-      "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["delete"]>[0], ["post"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["delete"]>>, ["post"]>]>>;
+      "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["clearAllVotes"]>[0], ["resource"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["clearAllVotes"]>>, ["resource"]>]>>;
     };
     error: { error: HttpAppWideError | "FORBIDDEN" | "INVALID_REQUEST" | "NOT_FOUND" | "UNAUTHORIZED" };
+  };
+  "/posts/downvote": {
+    input: {
+      "post": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["downvote"]>[0], ["resource"]>>;
+    };
+    output: {
+      "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["downvote"]>[0], ["resource"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["downvote"]>>, ["resource"]>]>>;
+    };
+    error: { error: HttpAppWideError | "CONFLICT" | "INVALID_REQUEST" | "UNAUTHORIZED" };
   };
   "/posts/edit": {
     input: {
@@ -193,11 +233,30 @@ export type StickyWireHttp = {
       "posts": ({
         "author": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Registering"]["_username"]>[0], ["user"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_allPosts"]>>>, ["author"]>]>>;
         "body": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_allPosts"]>>>, ["body"]>>;
+        "count": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["_getVoteCount"]>>>, ["count"]>>;
         "location": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_allPosts"]>>>, ["location"]>>;
-        "post": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_allPosts"]>>>, ["post"]>>;
+        "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["_getVoteCount"]>[0], ["resource"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_allPosts"]>>>, ["post"]>]>>;
         "username": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Registering"]["_username"]>>>, ["username"]>> | null;
       })[];
     };
     error: { error: HttpAppWideError };
+  };
+  "/posts/unvote": {
+    input: {
+      "post": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["unvote"]>[0], ["resource"]>>;
+    };
+    output: {
+      "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["unvote"]>[0], ["resource"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["unvote"]>>, ["resource"]>]>>;
+    };
+    error: { error: HttpAppWideError | "INVALID_REQUEST" | "NOT_FOUND" | "UNAUTHORIZED" };
+  };
+  "/posts/upvote": {
+    input: {
+      "post": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["upvote"]>[0], ["resource"]>>;
+    };
+    output: {
+      "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["upvote"]>[0], ["resource"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["upvote"]>>, ["resource"]>]>>;
+    };
+    error: { error: HttpAppWideError | "CONFLICT" | "INVALID_REQUEST" | "UNAUTHORIZED" };
   };
 };

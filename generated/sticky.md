@@ -115,6 +115,30 @@ Defined in [Sessioning](../design/concepts/Sessioning.md), line 1.
 - `Sessioning` — instance of `Sessioning` — [Sticky types](../design/types.md), line 18.
   - `Subject` is `Registering.User` — [Sticky types](../design/types.md), line 19.
 
+### Upvoting
+
+Defined in [Upvoting](../design/concepts/Upvoting.md), line 1.
+
+#### Actions
+
+- `upvote(voter: User, resource: Resource) : returns (resource: Resource)`
+  - Refuses `ALREADY_VOTED`: You already have a vote on this.
+- `downvote(voter: User, resource: Resource) : returns (resource: Resource)`
+  - Refuses `ALREADY_VOTED`: You already have a vote on this.
+- `unvote(voter: User, resource: Resource) : returns (resource: Resource)`
+  - Refuses `NO_VOTE`: You have not voted on this.
+- `clearAllVotes(resource: Resource) : returns (resource: Resource)`
+
+#### Queries
+
+- `_getVoteCount(resource: Resource) : one (count: Number)`
+
+#### Instances
+
+- `Upvoting` — instance of `Upvoting` — [Sticky types](../design/types.md), line 28.
+  - `Resource` is `GeographicPosting.Post` — [Sticky types](../design/types.md), line 30.
+  - `User` is `Registering.User` — [Sticky types](../design/types.md), line 29.
+
 ## Application types
 
 Concrete types:
@@ -132,12 +156,14 @@ Authored path: `posting.listing.AllNotes`.
 - Covered by [Posting](../design/compositions/posting.md), line 9.
 
 ```former
-Former "the public notes" — inputs (); bindings (post, body, author, location, username); promises exactly one record — forms:
+Former "the public notes" — inputs (); bindings (post, body, author, location, username, count); promises exactly one record — forms:
   each GeographicPosting._allPosts () has (author, body, location, post)
     where whether Registering._username (user: author) has (username)
+    where Upvoting._getVoteCount (resource: post) has (count)
     form a record of
       author
       body
+      count
       location
       post
       username
@@ -199,6 +225,18 @@ Authored path: `posting.changing.DeletePost`.
 
 ```reaction
 when GeographicPosting.delete (post, user), asked by posting.changing.DeletePost#2
+then
+  Upvoting.clearAllVotes (resource: post)
+```
+
+### posting.changing.DeletePost#4
+
+Authored path: `posting.changing.DeletePost`.
+- Covered by [Posting](../design/compositions/posting.md), line 15.
+- Covered by [Posting](../design/compositions/posting.md), line 19.
+
+```reaction
+when Upvoting.clearAllVotes (resource: post), asked by posting.changing.DeletePost#3
 where
   earlier, RequestBoundary.request (path: "/posts/delete", post, requestId, session)
 then
@@ -295,6 +333,126 @@ Authored path: `posting.listing.ListPosts`.
 when RequestBoundary.request (path: "/posts/list", requestId)
 then
   RequestBoundary.respond (posts: former "the public notes", requestId)
+```
+
+### posting.ranking.DownvotePost
+
+Authored path: `posting.ranking.DownvotePost`.
+- Covered by [Posting](../design/compositions/posting.md), line 22.
+- Covered by [Posting](../design/compositions/posting.md), line 26.
+
+```reaction
+when RequestBoundary.request (path: "/posts/downvote", post, requestId, session)
+then
+  Sessioning.use (session)
+```
+
+### posting.ranking.DownvotePost#2
+
+Authored path: `posting.ranking.DownvotePost`.
+- Covered by [Posting](../design/compositions/posting.md), line 22.
+- Covered by [Posting](../design/compositions/posting.md), line 26.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by posting.ranking.DownvotePost
+where
+  earlier, RequestBoundary.request (path: "/posts/downvote", post, requestId, session)
+then
+  Upvoting.downvote (resource: post, voter: user)
+```
+
+### posting.ranking.DownvotePost#3
+
+Authored path: `posting.ranking.DownvotePost`.
+- Covered by [Posting](../design/compositions/posting.md), line 22.
+- Covered by [Posting](../design/compositions/posting.md), line 26.
+
+```reaction
+when Upvoting.downvote (resource: post, voter: user), asked by posting.ranking.DownvotePost#2
+where
+  earlier, RequestBoundary.request (path: "/posts/downvote", post, requestId, session)
+then
+  RequestBoundary.respond (post, requestId)
+```
+
+### posting.ranking.UnvotePost
+
+Authored path: `posting.ranking.UnvotePost`.
+- Covered by [Posting](../design/compositions/posting.md), line 22.
+- Covered by [Posting](../design/compositions/posting.md), line 27.
+
+```reaction
+when RequestBoundary.request (path: "/posts/unvote", post, requestId, session)
+then
+  Sessioning.use (session)
+```
+
+### posting.ranking.UnvotePost#2
+
+Authored path: `posting.ranking.UnvotePost`.
+- Covered by [Posting](../design/compositions/posting.md), line 22.
+- Covered by [Posting](../design/compositions/posting.md), line 27.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by posting.ranking.UnvotePost
+where
+  earlier, RequestBoundary.request (path: "/posts/unvote", post, requestId, session)
+then
+  Upvoting.unvote (resource: post, voter: user)
+```
+
+### posting.ranking.UnvotePost#3
+
+Authored path: `posting.ranking.UnvotePost`.
+- Covered by [Posting](../design/compositions/posting.md), line 22.
+- Covered by [Posting](../design/compositions/posting.md), line 27.
+
+```reaction
+when Upvoting.unvote (resource: post, voter: user), asked by posting.ranking.UnvotePost#2
+where
+  earlier, RequestBoundary.request (path: "/posts/unvote", post, requestId, session)
+then
+  RequestBoundary.respond (post, requestId)
+```
+
+### posting.ranking.UpvotePost
+
+Authored path: `posting.ranking.UpvotePost`.
+- Covered by [Posting](../design/compositions/posting.md), line 22.
+- Covered by [Posting](../design/compositions/posting.md), line 25.
+
+```reaction
+when RequestBoundary.request (path: "/posts/upvote", post, requestId, session)
+then
+  Sessioning.use (session)
+```
+
+### posting.ranking.UpvotePost#2
+
+Authored path: `posting.ranking.UpvotePost`.
+- Covered by [Posting](../design/compositions/posting.md), line 22.
+- Covered by [Posting](../design/compositions/posting.md), line 25.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by posting.ranking.UpvotePost
+where
+  earlier, RequestBoundary.request (path: "/posts/upvote", post, requestId, session)
+then
+  Upvoting.upvote (resource: post, voter: user)
+```
+
+### posting.ranking.UpvotePost#3
+
+Authored path: `posting.ranking.UpvotePost`.
+- Covered by [Posting](../design/compositions/posting.md), line 22.
+- Covered by [Posting](../design/compositions/posting.md), line 25.
+
+```reaction
+when Upvoting.upvote (resource: post, voter: user), asked by posting.ranking.UpvotePost#2
+where
+  earlier, RequestBoundary.request (path: "/posts/upvote", post, requestId, session)
+then
+  RequestBoundary.respond (post, requestId)
 ```
 
 ### reusable.accounts.identifying.Me
@@ -551,4 +709,7 @@ not listed here have no explicit input contract.
 - `/auth/me` — requires `session`
 - `/posts/create` — requires `body`, `location`, `session`
 - `/posts/delete` — requires `post`, `session`
+- `/posts/downvote` — requires `post`, `session`
 - `/posts/edit` — requires `body`, `post`, `session`
+- `/posts/unvote` — requires `post`, `session`
+- `/posts/upvote` — requires `post`, `session`

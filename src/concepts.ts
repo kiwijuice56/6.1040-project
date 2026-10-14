@@ -4,6 +4,7 @@ import { commonsFederating } from "./concepts/Federating/registry.ts";
 import { geographicPosting } from "./concepts/GeographicPosting/registry.ts";
 import { registering } from "./concepts/Registering/registry.ts";
 import { sessioning } from "./concepts/Sessioning/registry.ts";
+import { upvoting } from "./concepts/Upvoting/registry.ts";
 
 export const applicationConceptSet = conceptSet({
   Registering: registering,
@@ -11,6 +12,7 @@ export const applicationConceptSet = conceptSet({
   Sessioning: sessioning,
   Consenting: consenting,
   GeographicPosting: geographicPosting,
+  Upvoting: upvoting,
 });
 
 

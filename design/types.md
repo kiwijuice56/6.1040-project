@@ -24,4 +24,8 @@ instantiate Consenting with
 
 instantiate GeographicPosting with
   User is Registering.User
+
+instantiate Upvoting with
+  User is Registering.User
+  Resource is GeographicPosting.Post
 ```
