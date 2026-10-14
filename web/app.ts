@@ -1,6 +1,7 @@
 import { createHttpClient } from "@mit-sdg/sync-engine-http/client";
 import type { StickyWireHttp } from "../generated/wire.ts";
 import { bindPostComposer } from "./composer.ts";
+import { bindLocation, SHARING_LOCATION } from "./location.ts";
 import { mountMap, type MapCoordinate } from "./map.ts";
 import { bindNav } from "./nav.ts";
 import { bindNotes } from "./notes.ts";
@@ -31,9 +32,10 @@ function signedOut(message = "") {
   viewer = undefined;
   composer.setSignedIn(false);
   nav.setSignedIn(false);
+  locating.signedOut();
 }
 
-function signedIn(username: string) {
+function signedIn(username: string, offer = false) {
   who.hidden = false;
   who.textContent = `Signed in as ${username}`;
   signIn.hidden = true;
@@ -42,12 +44,13 @@ function signedIn(username: string) {
   viewer = username;
   composer.setSignedIn(true);
   nav.setSignedIn(true);
+  void locating.signedIn(username, offer);
 }
 
-async function loadMe() {
+async function loadMe(offer = false) {
   const result = await api["/auth/me"]();
   if ("error" in result) signedOut();
-  else signedIn(result.username);
+  else signedIn(result.username, offer);
 }
 
 async function startCommons() {
@@ -75,7 +78,7 @@ async function finishCommons() {
     code: query.get("code") ?? "",
   });
   if (!("error" in result)) {
-    await loadMe();
+    await loadMe(true);
     return;
   }
   if (result.error === "CONFLICT") {
@@ -128,6 +131,11 @@ signOut.addEventListener("click", async () => {
 
 const pending = takePendingPost();
 const map = mountMap(document.querySelector("#map")!, pending ? { center: pending } : {});
+const locating = bindLocation(map, {
+  status: () => api["/location/status"]({ feature: SHARING_LOCATION }),
+  consent: () => api["/location/consent"]({ feature: SHARING_LOCATION }),
+  withdraw: () => api["/location/withdraw"]({ feature: SHARING_LOCATION }),
+});
 let closeComposer = () => {};
 const notes = bindNotes(map, {
   onOpen: () => closeComposer(),

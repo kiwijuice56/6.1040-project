@@ -25,9 +25,9 @@ Defined in [Consenting](../design/concepts/Consenting.md), line 1.
 
 #### Instances
 
-- `Consenting` — instance of `Consenting` — [Sticky types](../design/types.md), line 21.
-  - `Person` is `Registering.User` — [Sticky types](../design/types.md), line 22.
-  - `Use` is `Feature` — [Sticky types](../design/types.md), line 23.
+- `Consenting` — instance of `Consenting` — [Sticky types](../design/types.md), line 23.
+  - `Person` is `Registering.User` — [Sticky types](../design/types.md), line 24.
+  - `Use` is `Feature` — [Sticky types](../design/types.md), line 25.
 
 ### Federating
 
@@ -50,8 +50,8 @@ Defined in [Federating](../design/concepts/Federating.md), line 1.
 
 #### Instances
 
-- `CommonsFederating` — instance of `Federating` — [Sticky types](../design/types.md), line 15.
-  - `User` is `Registering.User` — [Sticky types](../design/types.md), line 16.
+- `CommonsFederating` — instance of `Federating` — [Sticky types](../design/types.md), line 17.
+  - `User` is `Registering.User` — [Sticky types](../design/types.md), line 18.
 
 ### GeographicPosting
 
@@ -76,8 +76,8 @@ Defined in [GeographicPosting](../design/concepts/GeographicPosting.md), line 1.
 
 #### Instances
 
-- `GeographicPosting` — instance of `GeographicPosting` — [Sticky types](../design/types.md), line 25.
-  - `User` is `Registering.User` — [Sticky types](../design/types.md), line 26.
+- `GeographicPosting` — instance of `GeographicPosting` — [Sticky types](../design/types.md), line 27.
+  - `User` is `Registering.User` — [Sticky types](../design/types.md), line 28.
 
 ### Registering
 
@@ -96,7 +96,7 @@ Defined in [Registering](../design/concepts/Registering.md), line 1.
 
 #### Instances
 
-- `Registering` — instance of `Registering` — [Sticky types](../design/types.md), line 13.
+- `Registering` — instance of `Registering` — [Sticky types](../design/types.md), line 15.
 
 ### Sessioning
 
@@ -112,8 +112,8 @@ Defined in [Sessioning](../design/concepts/Sessioning.md), line 1.
 
 #### Instances
 
-- `Sessioning` — instance of `Sessioning` — [Sticky types](../design/types.md), line 18.
-  - `Subject` is `Registering.User` — [Sticky types](../design/types.md), line 19.
+- `Sessioning` — instance of `Sessioning` — [Sticky types](../design/types.md), line 20.
+  - `Subject` is `Registering.User` — [Sticky types](../design/types.md), line 21.
 
 ### Upvoting
 
@@ -136,9 +136,9 @@ Defined in [Upvoting](../design/concepts/Upvoting.md), line 1.
 
 #### Instances
 
-- `Upvoting` — instance of `Upvoting` — [Sticky types](../design/types.md), line 28.
-  - `Resource` is `GeographicPosting.Post` — [Sticky types](../design/types.md), line 30.
-  - `User` is `Registering.User` — [Sticky types](../design/types.md), line 29.
+- `Upvoting` — instance of `Upvoting` — [Sticky types](../design/types.md), line 30.
+  - `Resource` is `GeographicPosting.Post` — [Sticky types](../design/types.md), line 32.
+  - `User` is `Registering.User` — [Sticky types](../design/types.md), line 31.
 
 ## Application types
 
@@ -190,6 +190,113 @@ where
   earlier, RequestBoundary.request (requestId)
 then
   RequestBoundary.respond (error: message, requestId)
+```
+
+### location.sharing.ConsentLocation
+
+Authored path: `location.sharing.ConsentLocation`.
+- Covered by [Sharing location](../design/compositions/location.md), line 5.
+- Covered by [Sharing location](../design/compositions/location.md), line 8.
+
+```reaction
+when RequestBoundary.request (feature, path: "/location/consent", requestId, session)
+then
+  Sessioning.use (session)
+```
+
+### location.sharing.ConsentLocation#2
+
+Authored path: `location.sharing.ConsentLocation`.
+- Covered by [Sharing location](../design/compositions/location.md), line 5.
+- Covered by [Sharing location](../design/compositions/location.md), line 8.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by location.sharing.ConsentLocation
+where
+  earlier, RequestBoundary.request (feature, path: "/location/consent", requestId, session)
+then
+  Consenting.consent (person: user, use: feature)
+```
+
+### location.sharing.ConsentLocation#3
+
+Authored path: `location.sharing.ConsentLocation`.
+- Covered by [Sharing location](../design/compositions/location.md), line 5.
+- Covered by [Sharing location](../design/compositions/location.md), line 8.
+
+```reaction
+when Consenting.consent (person: user, use: feature), asked by location.sharing.ConsentLocation#2
+where
+  earlier, RequestBoundary.request (feature, path: "/location/consent", requestId, session)
+then
+  RequestBoundary.respond (requestId)
+```
+
+### location.sharing.ReadLocationConsent
+
+Authored path: `location.sharing.ReadLocationConsent`.
+- Covered by [Sharing location](../design/compositions/location.md), line 17.
+- Covered by [Sharing location](../design/compositions/location.md), line 20.
+
+```reaction
+when RequestBoundary.request (feature, path: "/location/status", requestId, session)
+then
+  Sessioning.use (session)
+```
+
+### location.sharing.ReadLocationConsent#2
+
+Authored path: `location.sharing.ReadLocationConsent`.
+- Covered by [Sharing location](../design/compositions/location.md), line 17.
+- Covered by [Sharing location](../design/compositions/location.md), line 20.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by location.sharing.ReadLocationConsent
+where
+  earlier, RequestBoundary.request (feature, path: "/location/status", requestId, session)
+  Consenting._consented (person: user, use: feature) has (consented)
+then
+  RequestBoundary.respond (consented, requestId)
+```
+
+### location.sharing.WithdrawLocation
+
+Authored path: `location.sharing.WithdrawLocation`.
+- Covered by [Sharing location](../design/compositions/location.md), line 11.
+- Covered by [Sharing location](../design/compositions/location.md), line 14.
+
+```reaction
+when RequestBoundary.request (feature, path: "/location/withdraw", requestId, session)
+then
+  Sessioning.use (session)
+```
+
+### location.sharing.WithdrawLocation#2
+
+Authored path: `location.sharing.WithdrawLocation`.
+- Covered by [Sharing location](../design/compositions/location.md), line 11.
+- Covered by [Sharing location](../design/compositions/location.md), line 14.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by location.sharing.WithdrawLocation
+where
+  earlier, RequestBoundary.request (feature, path: "/location/withdraw", requestId, session)
+then
+  Consenting.withdraw (person: user, use: feature)
+```
+
+### location.sharing.WithdrawLocation#3
+
+Authored path: `location.sharing.WithdrawLocation`.
+- Covered by [Sharing location](../design/compositions/location.md), line 11.
+- Covered by [Sharing location](../design/compositions/location.md), line 14.
+
+```reaction
+when Consenting.withdraw (person: user, use: feature), asked by location.sharing.WithdrawLocation#2
+where
+  earlier, RequestBoundary.request (feature, path: "/location/withdraw", requestId, session)
+then
+  RequestBoundary.respond (requestId)
 ```
 
 ### posting.changing.DeletePost
@@ -750,6 +857,9 @@ not listed here have no explicit input contract.
 - `/auth/commons/finish` — requires `attempt`, `code`, `state`
 - `/auth/logout` — requires `session`
 - `/auth/me` — requires `session`
+- `/location/consent` — requires `feature`, `session`
+- `/location/status` — requires `feature`, `session`
+- `/location/withdraw` — requires `feature`, `session`
 - `/posts/create` — requires `body`, `location`, `session`
 - `/posts/delete` — requires `post`, `session`
 - `/posts/downvote` — requires `post`, `session`

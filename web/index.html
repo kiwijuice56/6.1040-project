@@ -59,10 +59,30 @@
         <h2 id="settings-heading" class="visually-hidden">My profile</h2>
         <div id="session">
           <p id="who" hidden></p>
+          <label class="location-toggle" id="location-toggle" hidden>
+            <input id="use-location" type="checkbox" />
+            Use my location
+          </label>
+          <p id="location-status" class="location-status" hidden></p>
           <button id="signin" type="button">Sign in with Commons</button>
           <button id="signout" type="button" hidden>Sign out</button>
         </div>
       </section>
     </main>
+    <div id="location-consent" class="location-consent" hidden>
+      <div
+        class="location-consent-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="location-consent-title"
+      >
+        <h2 id="location-consent-title">Share your location?</h2>
+        <p>Sticky can keep the map on you so nearby notes are easier to find.</p>
+        <div class="location-consent-actions">
+          <button type="button" id="location-accept">Accept</button>
+          <button type="button" id="location-skip">Continue without location</button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

@@ -58,3 +58,8 @@ export function mountMap(container: HTMLElement, options: { center?: MapCoordina
   window.addEventListener("resize", resize);
   return map;
 }
+
+/** Move the map to a GPS point without changing zoom. */
+export function panToCoordinate(map: L.Map, coord: MapCoordinate) {
+  map.panTo([coord.latitude, coord.longitude]);
+}

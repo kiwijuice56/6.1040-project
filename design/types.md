@@ -9,6 +9,8 @@ concrete Feature
   A use of a person's data that needs their consent.
 ```
 
+Sticky uses one Feature, `sharingLocation`: keeping the map on the person's GPS. Consenting records whether they agreed to that use; the page asks the browser for GPS only after they have.
+
 ```instances
 instantiate Registering
 

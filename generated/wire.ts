@@ -68,6 +68,32 @@ export type StickyWire = {
     };
     error: { error: AppWideError | "INVALID_INPUT" | "NOT_SIGNED_IN" };
   };
+  "/location/consent": {
+    input: {
+      "feature": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Consenting"]["consent"]>[0], ["use"]>>;
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["use"]>[0], ["session"]>>;
+    };
+    output: Record<string, never>;
+    error: { error: AppWideError | "ALREADY_CONSENTED" | "INVALID_INPUT" | "NOT_SIGNED_IN" };
+  };
+  "/location/status": {
+    input: {
+      "feature": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Consenting"]["_consented"]>[0], ["use"]>>;
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["use"]>[0], ["session"]>>;
+    };
+    output: {
+      "consented": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Consenting"]["_consented"]>>>, ["consented"]>>;
+    };
+    error: { error: AppWideError | "INVALID_INPUT" | "NOT_SIGNED_IN" };
+  };
+  "/location/withdraw": {
+    input: {
+      "feature": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Consenting"]["withdraw"]>[0], ["use"]>>;
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["use"]>[0], ["session"]>>;
+    };
+    output: Record<string, never>;
+    error: { error: AppWideError | "INVALID_INPUT" | "NOT_CONSENTED" | "NOT_SIGNED_IN" };
+  };
   "/posts/create": {
     input: {
       "body": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["post"]>[0], ["body"]>>;
@@ -198,6 +224,29 @@ export type StickyWireHttp = {
       "username": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Registering"]["_username"]>>>, ["username"]>>;
     };
     error: { error: HttpAppWideError | "INVALID_REQUEST" | "UNAUTHORIZED" };
+  };
+  "/location/consent": {
+    input: {
+      "feature": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Consenting"]["consent"]>[0], ["use"]>>;
+    };
+    output: Record<string, never>;
+    error: { error: HttpAppWideError | "CONFLICT" | "INVALID_REQUEST" | "UNAUTHORIZED" };
+  };
+  "/location/status": {
+    input: {
+      "feature": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Consenting"]["_consented"]>[0], ["use"]>>;
+    };
+    output: {
+      "consented": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Consenting"]["_consented"]>>>, ["consented"]>>;
+    };
+    error: { error: HttpAppWideError | "INVALID_REQUEST" | "UNAUTHORIZED" };
+  };
+  "/location/withdraw": {
+    input: {
+      "feature": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Consenting"]["withdraw"]>[0], ["use"]>>;
+    };
+    output: Record<string, never>;
+    error: { error: HttpAppWideError | "CONFLICT" | "INVALID_REQUEST" | "UNAUTHORIZED" };
   };
   "/posts/create": {
     input: {

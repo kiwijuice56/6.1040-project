@@ -178,6 +178,118 @@ header h1 a {
   gap: 0.75rem;
 }
 
+.location-toggle {
+  flex: 1 1 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  cursor: pointer;
+}
+
+.location-toggle[hidden] {
+  display: none;
+}
+
+.location-toggle input {
+  appearance: none;
+  flex: 0 0 auto;
+  width: 2.4rem;
+  height: 1.35rem;
+  margin: 0;
+  padding: 0.12rem;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.location-toggle input::before {
+  content: "";
+  display: block;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--ink);
+  transition: transform 0.1s ease;
+}
+
+.location-toggle input:checked {
+  background: var(--ink);
+}
+
+.location-toggle input:checked::before {
+  background: #fff;
+  transform: translateX(1.05rem);
+}
+
+.location-toggle input:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.location-status {
+  flex: 1 1 100%;
+  margin: 0;
+  color: #555;
+}
+
+.location-status[hidden] {
+  display: none;
+}
+
+.location-consent {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: color-mix(in srgb, var(--ink) 35%, transparent);
+}
+
+.location-consent[hidden] {
+  display: none;
+}
+
+.location-consent-card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: min(22rem, 100%);
+  padding: 1.25rem 1rem 1rem;
+  background-color: #c4b5a5;
+  background-image: url("./img/paper_texture.webp");
+  background-size: 100% auto;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: var(--ink);
+  border: 1px solid color-mix(in srgb, var(--ink) 50%, transparent);
+  border-radius: 2px;
+  box-shadow: 0 0.4rem 1rem color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+.location-consent-card h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.location-consent-card p {
+  margin: 0;
+}
+
+.location-consent-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.location-consent-actions button {
+  width: 100%;
+}
+
 #who {
   margin: 0;
   font-weight: 600;
