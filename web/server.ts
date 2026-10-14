@@ -16,6 +16,11 @@ const server = Bun.serve({
   routes: {
     "/": homepage,
     "/auth/commons/callback": homepage,
+    "/carto-key": () =>
+      Response.json(
+        { key: process.env.CARTO_API_KEY ?? "" },
+        { headers: { "Cache-Control": "no-store" } },
+      ),
     "/api/*": proxy,
     "/health": proxy,
   },

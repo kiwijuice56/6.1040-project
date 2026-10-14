@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="referrer" content="no-referrer" />
     <title>Sticky</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Schoolbell&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="./styles.css" />
     <script type="module" src="./app.ts"></script>
   </head>
@@ -23,20 +29,20 @@
         <ul>
           <li>
             <a class="nav-link" href="#find" data-view="find">
-              <img class="nav-icon" src="./img/find.svg" alt="" width="20" height="20" />
+              <span class="nav-icon nav-icon-find" aria-hidden="true"></span>
               Find info
             </a>
           </li>
           <li>
             <a class="nav-link" href="#notes" data-view="notes">
-              <img class="nav-icon" src="./img/notes.svg" alt="" width="20" height="20" />
+              <span class="nav-icon nav-icon-notes" aria-hidden="true"></span>
               My notes
             </a>
           </li>
           <li>
             <a class="nav-link" id="nav-account" href="#" role="button">
-              <img class="nav-icon" id="nav-icon-signin" src="./img/signin.svg" alt="" width="20" height="20" />
-              <img class="nav-icon" id="nav-icon-profile" src="./img/settings.svg" alt="" width="20" height="20" hidden />
+              <span class="nav-icon nav-icon-signin" id="nav-icon-signin" aria-hidden="true"></span>
+              <span class="nav-icon nav-icon-profile" id="nav-icon-profile" aria-hidden="true" hidden></span>
               <span id="nav-account-label">Sign in</span>
             </a>
           </li>

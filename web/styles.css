@@ -1,3 +1,8 @@
+/* UI ink. Was black (#111 / #000). Change --ink to recolor text, icons, outlines, and map dots. */
+:root {
+  --ink: #241b15;
+}
+
 html,
 body {
   height: 100%;
@@ -5,10 +10,17 @@ body {
   overflow: hidden;
 }
 
+html {
+  font-family: Schoolbell, cursive;
+  color: var(--ink);
+}
+
 body {
   display: flex;
   flex-direction: column;
-  font-family: system-ui, sans-serif;
+  font-family: inherit;
+  font-size: 18px;
+  color: var(--ink);
 }
 
 header {
@@ -18,8 +30,15 @@ header {
   justify-content: space-between;
   gap: 0.75rem 1rem;
   padding: 0.75rem 1rem;
-  background: #fff;
-  color: #111;
+  background-color: #c4b5a5;
+  background-image: url("./img/paper_texture.webp");
+  background-size: 100% auto;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--ink) 18%, transparent);
+  position: relative;
+  z-index: 1;
+  color: var(--ink);
 }
 
 header h1 {
@@ -76,7 +95,7 @@ header h1 a {
   gap: 0.45rem;
   box-sizing: border-box;
   padding: 0.4rem 0.8rem;
-  border: 1px solid #111;
+  border: 1px solid var(--ink);
   border-radius: 0.25rem;
   background: #fff;
   color: inherit;
@@ -94,19 +113,39 @@ header h1 a {
 
 .nav-link:focus-visible,
 #nav-menu:focus-visible {
-  outline: 2px solid #111;
+  outline: 2px solid var(--ink);
   outline-offset: 2px;
 }
 
 .nav-link[aria-current="page"] {
   background: #f0f0f0;
-  box-shadow: inset 0 -2px 0 #111;
+  box-shadow: inset 0 -2px 0 var(--ink);
 }
 
 .nav-icon {
   display: block;
   width: 1.15rem;
   height: 1.15rem;
+  flex: 0 0 auto;
+  background-color: var(--ink);
+  -webkit-mask: var(--nav-glyph) center / contain no-repeat;
+  mask: var(--nav-glyph) center / contain no-repeat;
+}
+
+.nav-icon-find {
+  --nav-glyph: url("./img/find_icon.png");
+}
+
+.nav-icon-notes {
+  --nav-glyph: url("./img/note_icon.png");
+}
+
+.nav-icon-signin {
+  --nav-glyph: url("./img/sign_in.png");
+}
+
+.nav-icon-profile {
+  --nav-glyph: url("./img/profile_icon.png");
 }
 
 .nav-icon[hidden] {
@@ -185,10 +224,10 @@ button {
   appearance: none;
   font: inherit;
   padding: 0.4rem 0.8rem;
-  border: 1px solid #111;
+  border: 1px solid var(--ink);
   border-radius: 0.25rem;
   background: #fff;
-  color: #111;
+  color: var(--ink);
   cursor: pointer;
 }
 
@@ -220,11 +259,33 @@ button:disabled {
   cursor: grabbing;
 }
 
+#map.leaflet-container,
+.leaflet-control,
+.leaflet-control-attribution {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+#map .leaflet-bar {
+  border-color: color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+#map .leaflet-bar a,
 #map .leaflet-control-zoom a {
   width: 2.75rem;
   height: 2.75rem;
   line-height: 2.75rem;
-  font-size: 1.5rem;
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--ink);
+}
+
+#map .leaflet-bar a {
+  border-bottom-color: color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+#map .leaflet-control-attribution {
+  color: var(--ink);
 }
 
 .post-composer {
@@ -250,7 +311,7 @@ button:disabled {
   height: 0.5rem;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: #111;
+  background: var(--ink);
   box-shadow: 0 0 0 2px #fff;
 }
 
@@ -265,10 +326,15 @@ button:disabled {
   min-height: 0;
   overflow: hidden;
   padding: 1.75rem 0.75rem 0.75rem;
-  background: #fff;
-  color: #111;
-  border: 1px solid #111;
-  box-shadow: 0 0.4rem 1rem rgb(0 0 0 / 20%);
+  background-color: #c4b5a5;
+  background-image: url("./img/paper_texture.webp");
+  background-size: auto 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: var(--ink);
+  border: 1px solid color-mix(in srgb, var(--ink) 50%, transparent);
+  border-radius: 2px;
+  box-shadow: 0 0.4rem 1rem color-mix(in srgb, var(--ink) 20%, transparent);
   cursor: default;
   transform: scale(0);
   transform-origin: left center;
@@ -308,7 +374,6 @@ button:disabled {
   gap: 0.25rem;
   flex: 1 1 auto;
   min-height: 0;
-  font-size: 0.85rem;
 }
 
 .post-composer-card textarea {
@@ -316,12 +381,14 @@ button:disabled {
   min-height: 0;
   resize: none;
   font: inherit;
+  color: inherit;
+  border: none;
+  background: transparent;
 }
 
 .post-composer-error {
   margin: 0;
   min-height: 1.1rem;
-  font-size: 0.85rem;
   color: #a40000;
 }
 
@@ -332,7 +399,6 @@ button:disabled {
   justify-content: center;
   margin: 0;
   text-align: center;
-  font-size: 0.95rem;
 }
 
 .note-dot-icon {
@@ -346,7 +412,7 @@ button:disabled {
   height: 0.5rem;
   margin: 0.25rem;
   border-radius: 50%;
-  background: #111;
+  background: var(--ink);
   box-shadow: 0 0 0 2px #fff;
   transform-origin: center;
   transition: transform 0.2s ease;
@@ -373,14 +439,13 @@ textarea.note-reader-body {
 }
 
 textarea.note-reader-body:not(:read-only) {
-  border: 1px solid #111;
+  border: 1px solid color-mix(in srgb, var(--ink) 50%, transparent);
   padding: 0.25rem;
 }
 
 .note-reader-author {
   flex: 0 0 auto;
   margin: 0;
-  font-size: 0.85rem;
   color: #555;
 }
 
