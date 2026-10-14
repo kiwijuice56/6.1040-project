@@ -14,12 +14,119 @@ body {
 header {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.75rem 1rem;
   padding: 0.75rem 1rem;
   background: #fff;
   color: #111;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+header h1 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+#nav-menu {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-left: auto;
+}
+
+#nav-menu[hidden] {
+  display: none;
+}
+
+.nav-menu-bars {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 1.1rem;
+  height: 0.75rem;
+}
+
+.nav-menu-bars span {
+  display: block;
+  height: 2px;
+  background: currentColor;
+}
+
+#primary-nav {
+  margin-left: auto;
+}
+
+#primary-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  box-sizing: border-box;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #111;
+  border-radius: 0.25rem;
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.nav-link:hover {
+  background: #f0f0f0;
+}
+
+.nav-link:active {
+  background: #e4e4e4;
+}
+
+.nav-link:focus-visible,
+#nav-menu:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 2px;
+}
+
+.nav-link[aria-current="page"] {
+  background: #f0f0f0;
+  box-shadow: inset 0 -2px 0 #111;
+}
+
+.nav-icon {
+  display: block;
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.nav-icon[hidden] {
+  display: none;
+}
+
+@media (max-width: 44rem) {
+  #primary-nav {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+
+  #primary-nav ul {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nav-link {
+    width: 100%;
+  }
 }
 
 #session {
@@ -36,7 +143,42 @@ header {
 
 #status {
   margin: 0;
-  flex-basis: 100%;
+  padding: 0 1rem 0.75rem;
+}
+
+#status[hidden] {
+  display: none;
+}
+
+main {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-view {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 1.5rem;
+  background: #fff;
+}
+
+.app-view[hidden] {
+  display: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 button {
@@ -68,6 +210,10 @@ button:disabled {
   min-height: 0;
   width: 100%;
   cursor: grab;
+}
+
+#map[hidden] {
+  display: none;
 }
 
 #map:active {

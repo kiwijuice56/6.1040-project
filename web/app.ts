@@ -2,6 +2,7 @@ import { createHttpClient } from "@mit-sdg/sync-engine-http/client";
 import type { StickyWireHttp } from "../generated/wire.ts";
 import { bindPostComposer } from "./composer.ts";
 import { mountMap, type MapCoordinate } from "./map.ts";
+import { bindNav } from "./nav.ts";
 import { bindNotes } from "./notes.ts";
 
 const PENDING_POST = "sticky.pendingPost";
@@ -15,15 +16,21 @@ const signOut = document.querySelector<HTMLButtonElement>("#signout")!;
 
 let viewer: string | undefined;
 
+function setStatus(message = "") {
+  status.textContent = message;
+  status.hidden = message === "";
+}
+
 function signedOut(message = "") {
   who.hidden = true;
   who.textContent = "";
   signOut.hidden = true;
   signIn.hidden = false;
   signIn.disabled = false;
-  status.textContent = message;
+  setStatus(message);
   viewer = undefined;
   composer.setSignedIn(false);
+  nav.setSignedIn(false);
 }
 
 function signedIn(username: string) {
@@ -31,9 +38,10 @@ function signedIn(username: string) {
   who.textContent = `Signed in as ${username}`;
   signIn.hidden = true;
   signOut.hidden = false;
-  status.textContent = "";
+  setStatus("");
   viewer = username;
   composer.setSignedIn(true);
+  nav.setSignedIn(true);
 }
 
 async function loadMe() {
@@ -167,8 +175,22 @@ async function loadNotes() {
 }
 
 void loadNotes();
+const nav = bindNav({
+  onSignIn: () => {
+    void startCommons();
+  },
+  onView(view) {
+    if (view !== "find") {
+      notes.closeIfOpen();
+      composer.close();
+      return;
+    }
+    map.invalidateSize();
+  },
+});
+
 if (window.location.pathname === "/auth/commons/callback") {
-  status.textContent = "Signing in with Commons…";
+  setStatus("Signing in with Commons…");
   signIn.hidden = true;
   void finishCommons().finally(restorePendingPost);
 } else {
