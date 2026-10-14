@@ -1,6 +1,6 @@
 /* UI ink. Was black (#111 / #000). Change --ink to recolor text, icons, outlines, and map dots. */
 :root {
-  --ink: #241b15;
+  --ink: #2e221a;
 }
 
 html,
@@ -434,13 +434,28 @@ button:disabled {
 
 textarea.note-reader-body {
   border: none;
+  box-shadow: none;
   background: transparent;
   padding: 0;
+  resize: none;
 }
 
-textarea.note-reader-body:not(:read-only) {
-  border: 1px solid color-mix(in srgb, var(--ink) 50%, transparent);
+textarea.note-reader-body:read-only {
+  caret-color: transparent;
+  outline: none;
+}
+
+textarea.note-reader-body:read-only:focus,
+textarea.note-reader-body:read-only:focus-visible {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.post-composer-card textarea.is-editing {
+  background: rgb(255 255 255 / 50%);
   padding: 0.25rem;
+  border: 2px solid #4d90fe;
 }
 
 .note-reader-author {

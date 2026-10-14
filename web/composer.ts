@@ -102,7 +102,7 @@ function buildForm(options: {
       <button class="post-composer-close" type="button" aria-label="Cancel">&times;</button>
       <label>
         write a sticky note!
-        <textarea name="body" rows="6" maxlength="2000" required></textarea>
+        <textarea class="is-editing" name="body" rows="6" maxlength="2000" required></textarea>
       </label>
       <p class="post-composer-error" role="status"></p>
       <button type="submit">Post</button>

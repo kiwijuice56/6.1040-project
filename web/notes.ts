@@ -182,6 +182,7 @@ function buildReader(
     mode = "view";
     options.onEditing(false);
     body.readOnly = true;
+    body.classList.remove("is-editing");
     body.value = note.body;
     primary.textContent = "Edit";
     primary.disabled = false;
@@ -201,6 +202,7 @@ function buildReader(
     mode = "edit";
     options.onEditing(true);
     body.readOnly = false;
+    body.classList.add("is-editing");
     body.focus();
     primary.textContent = "Confirm";
     primary.disabled = false;
