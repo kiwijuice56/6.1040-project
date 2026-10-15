@@ -20,7 +20,8 @@ const { viewer, signedIn } = useSession();
 const { vote, mine: loadMine, edit, remove } = usePosts();
 
 const owned = computed(() => Boolean(props.note.username && props.note.username === viewer.value));
-const body = ref(props.note.body);
+const savedBody = ref(props.note.body);
+const body = ref(savedBody.value);
 const count = ref(typeof props.note.count === "number" ? props.note.count : 0);
 const mine = ref<VoteChoice | undefined>();
 const error = ref("");
@@ -82,7 +83,7 @@ async function showView() {
   await wait(FADE_MS);
   mode.value = "view";
   emit("editing", false);
-  body.value = props.note.body;
+  body.value = savedBody.value;
   error.value = "";
   fading.value = false;
 }
@@ -114,6 +115,7 @@ function onPrimary() {
       error.value = message;
       return;
     }
+    savedBody.value = body.value;
     void showView();
   });
 }
