@@ -1,112 +1,31 @@
-import { createHttpClient } from "@mit-sdg/sync-engine-http/client";
-import type { StickyWireHttp } from "../generated/wire.ts";
+import { api } from "./client.ts";
 import { bindPostComposer } from "./composer.ts";
+import type { AppView } from "./composables/useView.ts";
 import { bindLocation, SHARING_LOCATION } from "./location.ts";
 import { mountMap, type MapCoordinate } from "./map.ts";
-import { bindNav } from "./nav.ts";
 import { bindNotes } from "./notes.ts";
 
 const PENDING_POST = "sticky.pendingPost";
 
-const api = createHttpClient<StickyWireHttp>({ baseUrl: "/api" });
-
 let started = false;
 
-/** Bind the existing map/nav/notes modules onto the Vue-rendered shell. Safe to call once after mount. */
-export function startApp() {
-  if (started) return;
+export type MapUi = {
+  setSession(username: string | undefined, options?: { offer?: boolean }): void;
+  onView(view: AppView): void;
+  stashPendingPost(): void;
+  restorePendingPost(): void;
+};
+
+/** Leaflet notes/composer/location on a Vue-owned map node. Session and views stay in Vue. */
+export function bindMap(options: {
+  map: HTMLElement;
+  viewer: () => string | undefined;
+  onSignIn: () => void;
+}): MapUi {
+  if (started) {
+    throw new Error("bindMap already ran");
+  }
   started = true;
-
-  const who = document.querySelector<HTMLParagraphElement>("#who")!;
-  const status = document.querySelector<HTMLParagraphElement>("#status")!;
-  const signIn = document.querySelector<HTMLButtonElement>("#signin")!;
-  const signOut = document.querySelector<HTMLButtonElement>("#signout")!;
-
-  let viewer: string | undefined;
-
-  function setStatus(message = "") {
-    status.textContent = message;
-    status.hidden = message === "";
-  }
-
-  function signedOut(message = "") {
-    who.hidden = true;
-    who.textContent = "";
-    signOut.hidden = true;
-    signIn.hidden = false;
-    signIn.disabled = false;
-    setStatus(message);
-    viewer = undefined;
-    composer.setSignedIn(false);
-    nav.setSignedIn(false);
-    locating.signedOut();
-  }
-
-  function signedIn(username: string, offer = false) {
-    who.hidden = false;
-    who.textContent = `Signed in as ${username}`;
-    signIn.hidden = true;
-    signOut.hidden = false;
-    setStatus("");
-    viewer = username;
-    composer.setSignedIn(true);
-    nav.setSignedIn(true);
-    void locating.signedIn(username, offer);
-  }
-
-  async function loadMe(offer = false) {
-    const result = await api["/auth/me"]();
-    if ("error" in result) signedOut();
-    else signedIn(result.username, offer);
-  }
-
-  async function startCommons() {
-    stashPendingPost();
-    signIn.disabled = true;
-    const popupSignIn = document.querySelector<HTMLButtonElement>(".post-composer-signin");
-    if (popupSignIn) popupSignIn.disabled = true;
-    const result = await api["/auth/commons/start"]();
-    if ("error" in result) {
-      signedOut("Commons sign-in isn't available right now. Try again.");
-      return;
-    }
-    window.location.assign(result.address);
-  }
-
-  async function finishCommons() {
-    const query = new URLSearchParams(window.location.search);
-    window.history.replaceState(null, "", "/");
-    if (query.get("error") === "access_denied") {
-      signedOut("Sign-in cancelled.");
-      return;
-    }
-    const result = await api["/auth/commons/finish"]({
-      state: query.get("state") ?? "",
-      code: query.get("code") ?? "",
-    });
-    if (!("error" in result)) {
-      await loadMe(true);
-      return;
-    }
-    if (result.error === "CONFLICT") {
-      signedOut("Your Commons username is already taken here.");
-      return;
-    }
-    if (result.error === "INVALID_REQUEST") {
-      signedOut("Your Commons username can't be used here.");
-      return;
-    }
-    signedOut(
-      result.error === "FORBIDDEN"
-        ? "Signing in with Commons didn't work. Start again."
-        : "Something went wrong. Try again.",
-    );
-  }
-
-  function stashPendingPost() {
-    const location = composer.location();
-    if (location) sessionStorage.setItem(PENDING_POST, JSON.stringify(location));
-  }
 
   function takePendingPost(): MapCoordinate | undefined {
     const raw = sessionStorage.getItem(PENDING_POST);
@@ -122,22 +41,8 @@ export function startApp() {
     }
   }
 
-  function restorePendingPost() {
-    if (pending) composer.open(pending, { animate: false });
-  }
-
-  signIn.addEventListener("click", () => {
-    void startCommons();
-  });
-
-  signOut.addEventListener("click", async () => {
-    signOut.disabled = true;
-    await api["/auth/logout"]();
-    window.location.assign("/");
-  });
-
   const pending = takePendingPost();
-  const map = mountMap(document.querySelector("#map")!, pending ? { center: pending } : {});
+  const map = mountMap(options.map, pending ? { center: pending } : {});
   const locating = bindLocation(map, {
     status: () => api["/location/status"]({ feature: SHARING_LOCATION }),
     consent: () => api["/location/consent"]({ feature: SHARING_LOCATION }),
@@ -146,10 +51,8 @@ export function startApp() {
   let closeComposer = () => {};
   const notes = bindNotes(map, {
     onOpen: () => closeComposer(),
-    viewer: () => viewer,
-    onSignIn: () => {
-      void startCommons();
-    },
+    viewer: () => options.viewer(),
+    onSignIn: () => options.onSignIn(),
     async onMine({ post }) {
       const result = await api["/posts/vote"]({ post });
       if ("error" in result) return;
@@ -188,9 +91,7 @@ export function startApp() {
   });
   const composer = bindPostComposer(map, {
     interceptClick: () => notes.closeIfOpen(),
-    onSignIn: () => {
-      void startCommons();
-    },
+    onSignIn: () => options.onSignIn(),
     async onSubmit({ body, location }) {
       const result = await api["/posts/create"]({ body, location });
       if (!("error" in result)) {
@@ -224,9 +125,12 @@ export function startApp() {
     if (document.hidden || notes.isEditing()) return;
     void loadNotes();
   }, NOTES_POLL_MS);
-  const nav = bindNav({
-    onSignIn: () => {
-      void startCommons();
+
+  return {
+    setSession(username, extras = {}) {
+      composer.setSignedIn(Boolean(username));
+      if (username) void locating.signedIn(username, extras.offer === true);
+      else locating.signedOut();
     },
     onView(view) {
       if (view !== "find") {
@@ -236,13 +140,12 @@ export function startApp() {
       }
       map.invalidateSize();
     },
-  });
-
-  if (window.location.pathname === "/auth/commons/callback") {
-    setStatus("Signing in with Commons…");
-    signIn.hidden = true;
-    void finishCommons().finally(restorePendingPost);
-  } else {
-    void loadMe().finally(restorePendingPost);
-  }
+    stashPendingPost() {
+      const location = composer.location();
+      if (location) sessionStorage.setItem(PENDING_POST, JSON.stringify(location));
+    },
+    restorePendingPost() {
+      if (pending) composer.open(pending, { animate: false });
+    },
+  };
 }

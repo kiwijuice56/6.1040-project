@@ -1,0 +1,89 @@
+import { computed, ref } from "vue";
+import { api } from "../client.ts";
+
+const viewer = ref<string | undefined>();
+const status = ref("");
+const busy = ref(false);
+
+/** Session from `/auth/me`, Commons start/finish, and logout. `signedIn` / `who` / `accountLabel` are computed from `viewer`. */
+export function useSession() {
+  const signedIn = computed(() => viewer.value !== undefined);
+  const who = computed(() => (viewer.value ? `Signed in as ${viewer.value}` : ""));
+  const accountLabel = computed(() => (signedIn.value ? "My profile" : "Sign in"));
+
+  function signedOut(message = "") {
+    viewer.value = undefined;
+    busy.value = false;
+    status.value = message;
+  }
+
+  async function loadMe() {
+    const result = await api["/auth/me"]();
+    if ("error" in result) {
+      signedOut();
+      return;
+    }
+    viewer.value = result.username;
+    status.value = "";
+  }
+
+  async function startCommons() {
+    busy.value = true;
+    const result = await api["/auth/commons/start"]();
+    if ("error" in result) {
+      signedOut("Commons sign-in isn't available right now. Try again.");
+      return;
+    }
+    window.location.assign(result.address);
+  }
+
+  async function finishCommons(): Promise<{ offer: boolean }> {
+    const query = new URLSearchParams(window.location.search);
+    window.history.replaceState(null, "", "/");
+    if (query.get("error") === "access_denied") {
+      signedOut("Sign-in cancelled.");
+      return { offer: false };
+    }
+    const result = await api["/auth/commons/finish"]({
+      state: query.get("state") ?? "",
+      code: query.get("code") ?? "",
+    });
+    if (!("error" in result)) {
+      await loadMe();
+      return { offer: true };
+    }
+    if (result.error === "CONFLICT") {
+      signedOut("Your Commons username is already taken here.");
+      return { offer: false };
+    }
+    if (result.error === "INVALID_REQUEST") {
+      signedOut("Your Commons username can't be used here.");
+      return { offer: false };
+    }
+    signedOut(
+      result.error === "FORBIDDEN"
+        ? "Signing in with Commons didn't work. Start again."
+        : "Something went wrong. Try again.",
+    );
+    return { offer: false };
+  }
+
+  async function logout() {
+    busy.value = true;
+    await api["/auth/logout"]();
+    window.location.assign("/");
+  }
+
+  return {
+    viewer,
+    signedIn,
+    who,
+    accountLabel,
+    status,
+    busy,
+    loadMe,
+    startCommons,
+    finishCommons,
+    logout,
+  };
+}

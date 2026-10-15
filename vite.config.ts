@@ -3,7 +3,7 @@ import { defineConfig, loadEnv, type Plugin, type ProxyOptions } from "vite";
 
 const backend = process.env.BACKEND_URL ?? "http://127.0.0.1:3000";
 const proxy: Record<string, ProxyOptions> = {
-  "/api": backend,
+  "/api/": backend,
   "/health": backend,
 };
 
