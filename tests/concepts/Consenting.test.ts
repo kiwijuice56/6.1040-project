@@ -4,6 +4,7 @@ import {
   ConsentingConcept,
   NotConsented,
 } from "../../src/concepts/Consenting/Consenting.ts";
+import { expectOneWinner } from "../expect-one-winner.ts";
 import { openTestDb, type TestDb } from "../test-db.ts";
 
 let testDb: TestDb;
@@ -21,15 +22,6 @@ beforeEach(async () => {
 afterAll(async () => {
   await testDb.close();
 });
-
-/** From ConceptBox: exactly one of the attempts started together succeeds; the rest refuse. */
-async function expectOneWinner(attempts: Promise<unknown>[], refusal: new (message?: string) => Error) {
-  const outcomes = await Promise.allSettled(attempts);
-  expect(outcomes.filter((outcome) => outcome.status === "fulfilled")).toHaveLength(1);
-  for (const outcome of outcomes) {
-    if (outcome.status === "rejected") expect(outcome.reason).toBeInstanceOf(refusal);
-  }
-}
 
 describe("Consenting", () => {
   test("its principle: Maya's consent counts from when she gives it until she withdraws it", async () => {
