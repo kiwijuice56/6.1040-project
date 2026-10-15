@@ -11,78 +11,9 @@
       href="https://fonts.googleapis.com/css2?family=Schoolbell&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css" />
-    <script type="module" src="./app.ts"></script>
   </head>
   <body>
-    <header>
-      <h1><a href="#find">Sticky</a></h1>
-      <button id="nav-menu" type="button" aria-expanded="false" aria-controls="primary-nav" hidden>
-        <span class="nav-menu-bars" aria-hidden="true">
-          <span></span>
-          <span></span>
-          <span></span>
-        </span>
-        Menu
-      </button>
-      <nav id="primary-nav" aria-label="Main">
-        <ul>
-          <li>
-            <a class="nav-link" href="#find" data-view="find">
-              <span class="nav-icon nav-icon-find" aria-hidden="true"></span>
-              Find info
-            </a>
-          </li>
-          <li>
-            <a class="nav-link" href="#notes" data-view="notes">
-              <span class="nav-icon nav-icon-notes" aria-hidden="true"></span>
-              My notes
-            </a>
-          </li>
-          <li>
-            <a class="nav-link" id="nav-account" href="#" role="button">
-              <span class="nav-icon nav-icon-signin" id="nav-icon-signin" aria-hidden="true"></span>
-              <span class="nav-icon nav-icon-profile" id="nav-icon-profile" aria-hidden="true" hidden></span>
-              <span id="nav-account-label">Sign in</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </header>
-    <p id="status" role="status" hidden></p>
-    <main>
-      <div id="map" role="application" aria-label="Map"></div>
-      <section id="view-notes" class="app-view" hidden aria-labelledby="notes-heading">
-        <h2 id="notes-heading" class="visually-hidden">My notes</h2>
-      </section>
-      <section id="view-settings" class="app-view" hidden aria-labelledby="settings-heading">
-        <h2 id="settings-heading" class="visually-hidden">My profile</h2>
-        <div id="session">
-          <p id="who" hidden></p>
-          <label class="location-toggle" id="location-toggle" hidden>
-            <input id="use-location" type="checkbox" />
-            Use my location
-          </label>
-          <p id="location-status" class="location-status" hidden></p>
-          <button id="signin" type="button">Sign in with Commons</button>
-          <button id="signout" type="button" hidden>Sign out</button>
-        </div>
-      </section>
-    </main>
-    <div id="location-consent" class="location-consent" hidden>
-      <div
-        class="location-consent-card"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="location-consent-title"
-      >
-        <h2 id="location-consent-title">Share your location?</h2>
-        <p>Sticky can keep the map on you so nearby notes are easier to find.</p>
-        <div class="location-consent-actions">
-          <button type="button" id="location-accept">Accept</button>
-          <button type="button" id="location-skip">Continue without location</button>
-        </div>
-      </div>
-    </div>
+    <div id="app"></div>
+    <script type="module" src="./main.ts"></script>
   </body>
 </html>
