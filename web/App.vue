@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from "vue";
+import { nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { bindMap, type MapUi } from "./app.ts";
 import AppHeader from "./components/AppHeader.vue";
 import ProfileView from "./components/ProfileView.vue";
+import { usePosts } from "./composables/usePosts.ts";
 import { useSession } from "./composables/useSession.ts";
 import { useView } from "./composables/useView.ts";
 
+const NOTES_POLL_MS = 5_000;
+
 const { viewer, signedIn, who, accountLabel, status, busy, loadMe, startCommons, finishCommons, logout } =
   useSession();
+const { posts, poll, create, edit, remove, vote, mine } = usePosts();
 const { view, compact, menuOpen, showMap, showNotes, showProfile, goFind } = useView();
 const mapEl = ref<HTMLElement>();
 let mapUi: MapUi | undefined;
@@ -24,7 +28,20 @@ onMounted(async () => {
     map: mapEl.value!,
     viewer: () => viewer.value,
     onSignIn: signIn,
+    onCreate: create,
+    onEdit: edit,
+    onDelete: remove,
+    onVote: vote,
+    onMine: mine,
   });
+
+  watch(
+    posts,
+    (list) => {
+      mapUi?.render(list);
+    },
+    { immediate: true },
+  );
 
   let offer = false;
   if (window.location.pathname === "/auth/commons/callback") {
@@ -37,6 +54,12 @@ onMounted(async () => {
   if (!signedIn.value && view.value === "settings") goFind();
   mapUi.setSession(viewer.value, { offer });
   mapUi.restorePendingPost();
+  void poll();
+
+  pollId = window.setInterval(() => {
+    if (document.hidden || mapUi?.isEditing()) return;
+    void poll();
+  }, NOTES_POLL_MS);
 });
 
 watch(view, async (next) => {
@@ -46,6 +69,11 @@ watch(view, async (next) => {
   }
   await nextTick();
   mapUi?.onView("find");
+});
+
+let pollId: number | undefined;
+onUnmounted(() => {
+  if (pollId !== undefined) window.clearInterval(pollId);
 });
 </script>
 
