@@ -27,7 +27,7 @@ function wasOffered(name: string) {
   }
 }
 
-/** Consent from `/location/*`. GPS watch stays next to the map. Shared with nested popup apps via module state. */
+/** Consent from `/location/*`. The map locates once on load or when consent is granted. */
 export function useLocation() {
   const { viewer } = useSession();
 

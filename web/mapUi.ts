@@ -1,12 +1,14 @@
 import type { Map as LeafletMap } from "leaflet";
 import { mountComposer } from "./composer.ts";
 import type { AppView } from "./composables/useView.ts";
-import { startGpsWatch, stopGpsWatch } from "./location.ts";
+import { cancelLocate, locateOnce } from "./location.ts";
 import { mountMap, type MapCoordinate } from "./map.ts";
 import { mountNotes } from "./notes.ts";
 import type { PublicNote } from "./types.ts";
 
 const PENDING_POST = "sticky.pendingPost";
+/** Long enough to swallow the map click that fires after the overlay is removed. */
+const IGNORE_MAP_CLICK_MS = 300;
 
 let mapInstance: LeafletMap | undefined;
 
@@ -47,23 +49,31 @@ export function mountMapUi(options: {
   const pending = takePendingPost();
   const map = mountMap(options.map, pending ? { center: pending } : {});
   mapInstance = map;
-  let gps: number | undefined;
+
+  let ignoreMapClick = false;
+  let ignoreMapClickTimer: number | undefined;
+  function ignoreNextMapClick() {
+    ignoreMapClick = true;
+    if (ignoreMapClickTimer !== undefined) window.clearTimeout(ignoreMapClickTimer);
+    ignoreMapClickTimer = window.setTimeout(() => {
+      ignoreMapClick = false;
+      ignoreMapClickTimer = undefined;
+    }, IGNORE_MAP_CLICK_MS);
+  }
+
   let closeComposer = () => {};
   const notes = mountNotes(map, {
     onOpen: () => closeComposer(),
     onSignIn: () => options.onSignIn(),
+    onDismiss: ignoreNextMapClick,
   });
   const composer = mountComposer(map, {
-    interceptClick: () => notes.closeIfOpen(),
+    interceptClick: () => ignoreMapClick || notes.closeIfOpen(),
     onSignIn: () => options.onSignIn(),
     onSubmit: options.onCreate,
+    onDismiss: ignoreNextMapClick,
   });
   closeComposer = () => composer.close();
-
-  function stopGps() {
-    stopGpsWatch(gps);
-    gps = undefined;
-  }
 
   return {
     onView(view) {
@@ -79,10 +89,11 @@ export function mountMapUi(options: {
     },
     isEditing: () => notes.isEditing(),
     startGps(setHint) {
-      if (gps !== undefined) return;
-      gps = startGpsWatch(map, setHint);
+      locateOnce(map, setHint, {
+        shouldPan: () => !notes.isOpen() && !composer.isOpen(),
+      });
     },
-    stopGps,
+    stopGps: cancelLocate,
     stashPendingPost() {
       const location = composer.location();
       if (location) sessionStorage.setItem(PENDING_POST, JSON.stringify(location));
@@ -91,7 +102,8 @@ export function mountMapUi(options: {
       if (pending) composer.open(pending, { animate: false });
     },
     destroy() {
-      stopGps();
+      cancelLocate();
+      if (ignoreMapClickTimer !== undefined) window.clearTimeout(ignoreMapClickTimer);
       notes.closeIfOpen();
       composer.close();
       map.remove();

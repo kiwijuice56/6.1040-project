@@ -36,6 +36,8 @@ export function placePopup(map: L.Map, latlng: L.LatLng, options: { animate?: bo
   }
   L.DomEvent.disableClickPropagation(el);
   L.DomEvent.disableScrollPropagation(el);
+  L.DomEvent.on(el, "mouseup", L.DomEvent.stopPropagation);
+  L.DomEvent.on(el, "pointerup", L.DomEvent.stopPropagation);
   if (animate) {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => el.classList.add("is-open"));
@@ -47,14 +49,25 @@ export function placePopup(map: L.Map, latlng: L.LatLng, options: { animate?: bo
   return { marker, host };
 }
 
-export function dismissPopup(marker: L.Marker | undefined, options: { animate?: boolean } = {}) {
-  if (!marker) return;
+export function dismissPopup(
+  marker: L.Marker | undefined,
+  options: { animate?: boolean } = {},
+  after?: () => void,
+) {
+  if (!marker) {
+    after?.();
+    return;
+  }
   const animate = options.animate !== false;
   const el = marker.getElement();
-  if (!animate || !el) {
+  const finish = () => {
+    after?.();
     marker.remove();
+  };
+  if (!animate || !el) {
+    finish();
     return;
   }
   el.classList.remove("is-open");
-  window.setTimeout(() => marker.remove(), SCALE_MS);
+  window.setTimeout(finish, SCALE_MS);
 }

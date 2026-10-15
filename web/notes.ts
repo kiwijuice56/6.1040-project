@@ -11,6 +11,7 @@ export function mountNotes(
   options: {
     onOpen?: () => void;
     onSignIn?: () => void;
+    onDismiss?: () => void;
   } = {},
 ) {
   const dots = new Map<PublicNote["post"], L.Marker>();
@@ -55,13 +56,15 @@ export function mountNotes(
 
   function closeReader(motion: { animate?: boolean } = {}): boolean {
     if (!reader) return false;
+    options.onDismiss?.();
     const post = reading;
+    const app = readerApp;
+    const closing = reader;
     editing = false;
-    readerApp?.unmount();
     readerApp = undefined;
-    dismissPopup(reader, motion);
     reader = undefined;
     reading = undefined;
+    dismissPopup(closing, motion, () => app?.unmount());
     if (post) {
       const note = notes.get(post);
       if (note) showDot(note);
@@ -79,9 +82,7 @@ export function mountNotes(
     const { marker, host } = placePopup(map, L.latLng(note.location.latitude, note.location.longitude));
     readerApp = createApp(NoteReader, {
       note,
-      onClose: () => {
-        queueMicrotask(() => closeReader());
-      },
+      onClose: () => closeReader(),
       onEditing: (value: boolean) => {
         editing = value;
       },
@@ -108,6 +109,7 @@ export function mountNotes(
   return {
     render,
     closeIfOpen: () => closeReader(),
+    isOpen: () => reading !== undefined,
     isEditing: () => editing,
   };
 }

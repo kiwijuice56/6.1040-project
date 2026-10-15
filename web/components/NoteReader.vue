@@ -138,7 +138,16 @@ function onSecondary() {
 
 <template>
   <div class="post-composer-card note-reader">
-    <button class="post-composer-close" type="button" aria-label="Close" @click="emit('close')">&times;</button>
+    <button
+      class="post-composer-close"
+      type="button"
+      aria-label="Close"
+      @pointerdown.stop
+      @mousedown.stop
+      @click.stop="emit('close')"
+    >
+      &times;
+    </button>
     <textarea
       class="note-reader-body"
       maxlength="2000"

@@ -82,7 +82,6 @@ onMounted(async () => {
   if (viewer.value) await applySession(offer);
   else locationSignedOut();
   mapUi.value.restorePendingPost();
-  syncGps();
   void poll();
 
   pollId = window.setInterval(() => {

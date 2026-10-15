@@ -15,6 +15,7 @@ export function mountComposer(
     onSubmit: (input: { body: string; location: MapCoordinate }) => Promise<string | undefined>;
     onSignIn: () => void;
     interceptClick?: () => boolean;
+    onDismiss?: () => void;
   },
 ) {
   let marker: L.Marker | undefined;
@@ -22,10 +23,13 @@ export function mountComposer(
   let draft = "";
 
   function close(motion: { animate?: boolean } = {}) {
-    composerApp?.unmount();
+    if (!marker) return;
+    options.onDismiss?.();
+    const app = composerApp;
+    const closing = marker;
     composerApp = undefined;
-    dismissPopup(marker, motion);
     marker = undefined;
+    dismissPopup(closing, motion, () => app?.unmount());
   }
 
   function currentLocation(): MapCoordinate | undefined {
@@ -58,9 +62,7 @@ export function mountComposer(
       onDraft: (body: string) => {
         draft = body;
       },
-      onCancel: () => {
-        queueMicrotask(() => close());
-      },
+      onCancel: () => close(),
       onSignIn: () => options.onSignIn(),
     });
     composerApp.mount(host);
@@ -75,5 +77,6 @@ export function mountComposer(
     open,
     close,
     location: currentLocation,
+    isOpen: () => marker !== undefined,
   };
 }

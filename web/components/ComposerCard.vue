@@ -49,7 +49,14 @@ async function submit() {
 
 <template>
   <form class="post-composer-card" @submit.prevent="submit">
-    <button class="post-composer-close" type="button" :aria-label="signedIn ? 'Cancel' : 'Close'" @click="emit('cancel')">
+    <button
+      class="post-composer-close"
+      type="button"
+      :aria-label="signedIn ? 'Cancel' : 'Close'"
+      @pointerdown.stop
+      @mousedown.stop
+      @click.stop="emit('cancel')"
+    >
       &times;
     </button>
     <template v-if="signedIn">
