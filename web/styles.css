@@ -63,10 +63,6 @@ header h1 a {
   margin-left: auto;
 }
 
-#nav-menu[hidden] {
-  display: none;
-}
-
 .nav-menu-bars {
   display: flex;
   flex-direction: column;
@@ -153,10 +149,6 @@ header h1 a {
   --nav-glyph: url("./img/profile_icon.png");
 }
 
-.nav-icon[hidden] {
-  display: none;
-}
-
 @media (max-width: 44rem) {
   #primary-nav {
     flex-basis: 100%;
@@ -186,10 +178,6 @@ header h1 a {
   align-items: center;
   gap: 0.65rem;
   cursor: pointer;
-}
-
-.location-toggle[hidden] {
-  display: none;
 }
 
 .location-toggle input {
@@ -235,10 +223,6 @@ header h1 a {
   color: #555;
 }
 
-.location-status[hidden] {
-  display: none;
-}
-
 .location-consent {
   position: fixed;
   inset: 0;
@@ -248,10 +232,6 @@ header h1 a {
   justify-content: center;
   padding: 1rem;
   background: color-mix(in srgb, var(--ink) 35%, transparent);
-}
-
-.location-consent[hidden] {
-  display: none;
 }
 
 .location-consent-card {
@@ -302,10 +282,6 @@ header h1 a {
   padding: 0 1rem 0.75rem;
 }
 
-#status[hidden] {
-  display: none;
-}
-
 main {
   flex: 1 1 auto;
   min-height: 0;
@@ -319,10 +295,6 @@ main {
   overflow: auto;
   padding: 1.5rem;
   background: #fff;
-}
-
-.app-view[hidden] {
-  display: none;
 }
 
 .visually-hidden {
@@ -366,10 +338,6 @@ button:disabled {
   min-height: 0;
   width: 100%;
   cursor: grab;
-}
-
-#map[hidden] {
-  display: none;
 }
 
 #map:active {

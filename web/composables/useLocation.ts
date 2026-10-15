@@ -1,17 +1,35 @@
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { api } from "../client.ts";
-import { markLocationOffered, SHARING_LOCATION, wasLocationOffered } from "../location.ts";
 import { useSession } from "./useSession.ts";
+
+/** Must match the Feature the location composition accepts. */
+const SHARING_LOCATION = "sharingLocation";
+const OFFERED_PREFIX = "sticky.locationOffered.";
 
 const consented = ref(false);
 const hint = ref("");
 const busy = ref(false);
 const dialogOpen = ref(false);
 
-/** Consent from `/location/*`. GPS watch stays next to the map. */
+function markOffered(name: string) {
+  try {
+    localStorage.setItem(`${OFFERED_PREFIX}${name}`, "1");
+  } catch {
+    /* private mode */
+  }
+}
+
+function wasOffered(name: string) {
+  try {
+    return localStorage.getItem(`${OFFERED_PREFIX}${name}`) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/** Consent from `/location/*`. GPS watch stays next to the map. Shared with nested popup apps via module state. */
 export function useLocation() {
-  const { viewer, signedIn } = useSession();
-  const showToggle = computed(() => signedIn.value);
+  const { viewer } = useSession();
 
   function signedOut() {
     consented.value = false;
@@ -20,7 +38,12 @@ export function useLocation() {
     dialogOpen.value = false;
   }
 
-  async function applySession(name: string, offer: boolean) {
+  async function applySession(offer: boolean) {
+    const name = viewer.value;
+    if (!name) {
+      signedOut();
+      return;
+    }
     hint.value = "";
     const result = await api["/location/status"]({ feature: SHARING_LOCATION });
     if ("error" in result) {
@@ -28,7 +51,7 @@ export function useLocation() {
       return;
     }
     consented.value = result.consented;
-    if (!result.consented && offer && !wasLocationOffered(name)) dialogOpen.value = true;
+    if (!result.consented && offer && !wasOffered(name)) dialogOpen.value = true;
   }
 
   async function grant() {
@@ -60,12 +83,12 @@ export function useLocation() {
     busy.value = true;
     dialogOpen.value = false;
     const ok = await grant();
-    if (ok && viewer.value) markLocationOffered(viewer.value);
+    if (ok && viewer.value) markOffered(viewer.value);
     busy.value = false;
   }
 
   function skipOffer() {
-    if (viewer.value) markLocationOffered(viewer.value);
+    if (viewer.value) markOffered(viewer.value);
     dialogOpen.value = false;
   }
 
@@ -81,7 +104,6 @@ export function useLocation() {
     hint,
     busy,
     dialogOpen,
-    showToggle,
     applySession,
     signedOut,
     acceptOffer,

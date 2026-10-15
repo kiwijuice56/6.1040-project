@@ -1,15 +1,12 @@
 import L from "leaflet";
 import { createApp, type App } from "vue";
 import NoteReader from "./components/NoteReader.vue";
-import type { StickyWireHttp } from "../generated/wire.ts";
 import { dismissPopup, placePopup } from "./popup.ts";
-
-export type PublicNote = StickyWireHttp["/posts/list"]["output"]["posts"][number];
-export type VoteChoice = "up" | "down";
+import type { PublicNote } from "./types.ts";
 
 const DOT = 16;
 
-export function bindNotes(
+export function mountNotes(
   map: L.Map,
   options: {
     onOpen?: () => void;

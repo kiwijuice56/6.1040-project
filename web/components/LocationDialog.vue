@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from "vue";
+import { onMounted, ref } from "vue";
 
-const props = defineProps<{
-  open: boolean;
+defineProps<{
   busy: boolean;
 }>();
 
@@ -13,23 +12,13 @@ const emit = defineEmits<{
 
 const accept = ref<HTMLButtonElement>();
 
-watch(
-  () => props.open,
-  async (open) => {
-    if (!open) return;
-    await nextTick();
-    accept.value?.focus();
-  },
-);
+onMounted(() => {
+  accept.value?.focus();
+});
 </script>
 
 <template>
-  <div
-    id="location-consent"
-    class="location-consent"
-    :hidden="!open"
-    @keydown.escape="!busy && emit('skip')"
-  >
+  <div class="location-consent" @keydown.escape="!busy && emit('skip')">
     <div
       class="location-consent-card"
       role="dialog"

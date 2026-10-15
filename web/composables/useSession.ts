@@ -5,7 +5,7 @@ const viewer = ref<string | undefined>();
 const status = ref("");
 const busy = ref(false);
 
-/** Session from `/auth/me`, Commons start/finish, and logout. `signedIn` / `who` / `accountLabel` are computed from `viewer`. */
+/** Session from `/auth/me`. Module-level so map popups (nested Vue apps) share the same viewer. */
 export function useSession() {
   const signedIn = computed(() => viewer.value !== undefined);
   const who = computed(() => (viewer.value ? `Signed in as ${viewer.value}` : ""));

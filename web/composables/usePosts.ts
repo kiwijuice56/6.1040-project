@@ -1,16 +1,12 @@
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { api } from "../client.ts";
-import type { PublicNote, VoteChoice } from "../notes.ts";
-import { useSession } from "./useSession.ts";
+import type { PublicNote, VoteChoice } from "../types.ts";
 
 const posts = ref<PublicNote[]>([]);
 const loading = ref(false);
 
-/** Posts from `/posts/list`. `myNotes` is computed from the session viewer. */
+/** Shared with map popups (nested Vue apps). Filled by `/posts/list`; mutations refetch. */
 export function usePosts() {
-  const { viewer } = useSession();
-  const myNotes = computed(() => posts.value.filter((note) => note.username === viewer.value));
-
   async function refresh() {
     const result = await api["/posts/list"]();
     if ("error" in result) return;
@@ -86,5 +82,5 @@ export function usePosts() {
     if ("upvote" in result && typeof result.upvote === "boolean") return result.upvote ? "up" : "down";
   }
 
-  return { posts, myNotes, loading, refresh, poll, create, edit, remove, vote, mine };
+  return { posts, loading, refresh, poll, create, edit, remove, vote, mine };
 }

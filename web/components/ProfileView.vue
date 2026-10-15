@@ -4,7 +4,6 @@ defineProps<{
   signedIn: boolean;
   who: string;
   busy: boolean;
-  showLocation: boolean;
   consented: boolean;
   locationHint: string;
   locationBusy: boolean;
@@ -18,11 +17,11 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <section id="view-settings" class="app-view" :hidden="!visible" aria-labelledby="settings-heading">
+  <section id="view-settings" class="app-view" v-show="visible" aria-labelledby="settings-heading">
     <h2 id="settings-heading" class="visually-hidden">My profile</h2>
     <div id="session">
-      <p id="who" :hidden="!signedIn">{{ who }}</p>
-      <label v-show="showLocation" class="location-toggle">
+      <p id="who" v-show="signedIn">{{ who }}</p>
+      <label v-show="signedIn" class="location-toggle">
         <input
           type="checkbox"
           :checked="consented"
@@ -31,7 +30,7 @@ const emit = defineEmits<{
         />
         Use my location
       </label>
-      <p class="location-status" :hidden="!locationHint">{{ locationHint }}</p>
+      <p class="location-status" v-show="locationHint">{{ locationHint }}</p>
       <button v-if="!signedIn" type="button" :disabled="busy" @click="emit('signIn')">
         Sign in with Commons
       </button>

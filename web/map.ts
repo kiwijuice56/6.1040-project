@@ -56,6 +56,7 @@ export function mountMap(container: HTMLElement, options: { center?: MapCoordina
   const resize = () => map.invalidateSize();
   requestAnimationFrame(resize);
   window.addEventListener("resize", resize);
+  map.on("remove", () => window.removeEventListener("resize", resize));
   return map;
 }
 

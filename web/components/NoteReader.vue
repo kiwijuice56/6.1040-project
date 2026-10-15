@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { usePosts } from "../composables/usePosts.ts";
 import { useSession } from "../composables/useSession.ts";
-import type { PublicNote, VoteChoice } from "../notes.ts";
+import type { PublicNote, VoteChoice } from "../types.ts";
 
 const FADE_MS = 100;
 
@@ -72,7 +72,6 @@ async function choose(next: VoteChoice) {
       count.value += next === "up" ? 1 : -1;
     }
   }
-  props.note.count = count.value;
   voting.value = false;
   error.value = failed ?? "";
 }
@@ -115,7 +114,6 @@ function onPrimary() {
       error.value = message;
       return;
     }
-    props.note.body = body.value;
     void showView();
   });
 }
@@ -161,7 +159,7 @@ function onSecondary() {
         {{ mode === "view" ? "Delete" : "Cancel" }}
       </button>
     </div>
-    <p class="post-composer-error" :hidden="!error">{{ error }}</p>
+    <p class="post-composer-error" v-show="error">{{ error }}</p>
     <div class="note-reader-meta">
       <p class="note-reader-author" :title="note.username ?? ''">{{ note.username ?? "" }}</p>
       <div class="note-reader-votes">

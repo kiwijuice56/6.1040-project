@@ -59,7 +59,7 @@ onUnmounted(() => {
       type="button"
       :aria-expanded="menuOpen"
       aria-controls="primary-nav"
-      :hidden="!compact"
+      v-show="compact"
       @click="emit('update:menuOpen', !menuOpen)"
     >
       <span class="nav-menu-bars" aria-hidden="true">
@@ -69,7 +69,7 @@ onUnmounted(() => {
       </span>
       Menu
     </button>
-    <nav id="primary-nav" ref="nav" aria-label="Main" :hidden="compact && !menuOpen">
+    <nav id="primary-nav" ref="nav" aria-label="Main" v-show="!compact || menuOpen">
       <ul>
         <li>
           <a class="nav-link" href="#find" :aria-current="view === 'find' ? 'page' : undefined">
@@ -91,8 +91,8 @@ onUnmounted(() => {
             :aria-current="signedIn && view === 'settings' ? 'page' : undefined"
             @click="onAccount"
           >
-            <span class="nav-icon nav-icon-signin" aria-hidden="true" :hidden="signedIn"></span>
-            <span class="nav-icon nav-icon-profile" aria-hidden="true" :hidden="!signedIn"></span>
+            <span class="nav-icon nav-icon-signin" aria-hidden="true" v-show="!signedIn"></span>
+            <span class="nav-icon nav-icon-profile" aria-hidden="true" v-show="signedIn"></span>
             {{ accountLabel }}
           </a>
         </li>

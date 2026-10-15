@@ -24,6 +24,12 @@ watch(body, (value) => {
   emit("draft", value);
 });
 
+watch(signedIn, async (on) => {
+  if (!on) return;
+  await nextTick();
+  textarea.value?.focus();
+});
+
 onMounted(() => {
   emit("draft", body.value);
   void nextTick(() => {
@@ -32,6 +38,7 @@ onMounted(() => {
 });
 
 async function submit() {
+  if (!signedIn.value) return;
   error.value = "";
   posting.value = true;
   const message = await props.postNote(body.value);
@@ -41,7 +48,7 @@ async function submit() {
 </script>
 
 <template>
-  <form class="post-composer-card" @submit.prevent="signedIn && submit()">
+  <form class="post-composer-card" @submit.prevent="submit">
     <button class="post-composer-close" type="button" :aria-label="signedIn ? 'Cancel' : 'Close'" @click="emit('cancel')">
       &times;
     </button>

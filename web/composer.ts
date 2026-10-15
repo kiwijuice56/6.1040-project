@@ -9,7 +9,7 @@ export type ComposerOpenOptions = {
   animate?: boolean;
 };
 
-export function bindPostComposer(
+export function mountComposer(
   map: L.Map,
   options: {
     onSubmit: (input: { body: string; location: MapCoordinate }) => Promise<string | undefined>;
@@ -75,9 +75,5 @@ export function bindPostComposer(
     open,
     close,
     location: currentLocation,
-    setSignedIn(_signedIn?: boolean) {
-      const location = currentLocation();
-      if (location) open(location, { body: draft, animate: false });
-    },
   };
 }

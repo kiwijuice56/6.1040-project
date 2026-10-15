@@ -20,11 +20,9 @@ export function useView() {
   const showMap = computed(() => view.value === "find");
   const showNotes = computed(() => view.value === "notes");
   const showProfile = computed(() => view.value === "settings");
-  const showNav = computed(() => !compact.value || menuOpen.value);
 
   function setView(next: AppView) {
     view.value = next;
-    document.body.dataset.view = next;
     if (compact.value) menuOpen.value = false;
   }
 
@@ -62,8 +60,6 @@ export function useView() {
     showMap,
     showNotes,
     showProfile,
-    showNav,
-    setView,
     goFind,
   };
 }
