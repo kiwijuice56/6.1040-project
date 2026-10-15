@@ -1,8 +1,7 @@
 import type { Map as LeafletMap } from "leaflet";
 import { bindPostComposer } from "./composer.ts";
 import type { AppView } from "./composables/useView.ts";
-import { bindLocation, SHARING_LOCATION } from "./location.ts";
-import { api } from "./client.ts";
+import { startGpsWatch, stopGpsWatch } from "./location.ts";
 import { mountMap, type MapCoordinate } from "./map.ts";
 import { bindNotes, type PublicNote } from "./notes.ts";
 
@@ -11,27 +10,21 @@ const PENDING_POST = "sticky.pendingPost";
 let mapInstance: LeafletMap | undefined;
 
 export type MapUi = {
-  setSession(username: string | undefined, options?: { offer?: boolean }): void;
+  setSignedIn(signedIn: boolean): void;
   onView(view: AppView): void;
   render(posts: readonly PublicNote[]): void;
   isEditing(): boolean;
+  startGps(setHint: (message: string) => void): void;
+  stopGps(): void;
   stashPendingPost(): void;
   restorePendingPost(): void;
 };
 
-/** Leaflet notes/composer/location on a Vue-owned map node. Post state stays in Vue. */
+/** Leaflet island. Session, posts, and location consent stay in Vue. */
 export function bindMap(options: {
   map: HTMLElement;
-  viewer: () => string | undefined;
   onSignIn: () => void;
   onCreate: (input: { body: string; location: PublicNote["location"] }) => Promise<string | undefined>;
-  onEdit: (input: { post: PublicNote["post"]; body: string }) => Promise<string | undefined>;
-  onDelete: (input: { post: PublicNote["post"] }) => Promise<string | undefined>;
-  onVote: (input: {
-    post: PublicNote["post"];
-    action: "upvote" | "downvote" | "unvote";
-  }) => Promise<string | undefined>;
-  onMine: (input: { post: PublicNote["post"] }) => Promise<"up" | "down" | undefined>;
 }): MapUi {
   mapInstance?.remove();
   mapInstance = undefined;
@@ -53,20 +46,11 @@ export function bindMap(options: {
   const pending = takePendingPost();
   const map = mountMap(options.map, pending ? { center: pending } : {});
   mapInstance = map;
-  const locating = bindLocation(map, {
-    status: () => api["/location/status"]({ feature: SHARING_LOCATION }),
-    consent: () => api["/location/consent"]({ feature: SHARING_LOCATION }),
-    withdraw: () => api["/location/withdraw"]({ feature: SHARING_LOCATION }),
-  });
+  let gps: number | undefined;
   let closeComposer = () => {};
   const notes = bindNotes(map, {
     onOpen: () => closeComposer(),
-    viewer: () => options.viewer(),
     onSignIn: () => options.onSignIn(),
-    onMine: options.onMine,
-    onVote: options.onVote,
-    onEdit: options.onEdit,
-    onDelete: options.onDelete,
   });
   const composer = bindPostComposer(map, {
     interceptClick: () => notes.closeIfOpen(),
@@ -76,10 +60,8 @@ export function bindMap(options: {
   closeComposer = () => composer.close();
 
   return {
-    setSession(username, extras = {}) {
-      composer.setSignedIn(Boolean(username));
-      if (username) void locating.signedIn(username, extras.offer === true);
-      else locating.signedOut();
+    setSignedIn(signedIn) {
+      composer.setSignedIn(signedIn);
     },
     onView(view) {
       if (view !== "find") {
@@ -93,6 +75,14 @@ export function bindMap(options: {
       notes.render(posts);
     },
     isEditing: () => notes.isEditing(),
+    startGps(setHint) {
+      if (gps !== undefined) return;
+      gps = startGpsWatch(map, setHint);
+    },
+    stopGps() {
+      stopGpsWatch(gps);
+      gps = undefined;
+    },
     stashPendingPost() {
       const location = composer.location();
       if (location) sessionStorage.setItem(PENDING_POST, JSON.stringify(location));

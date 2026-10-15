@@ -2,7 +2,9 @@
 import { nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { bindMap, type MapUi } from "./app.ts";
 import AppHeader from "./components/AppHeader.vue";
+import LocationDialog from "./components/LocationDialog.vue";
 import ProfileView from "./components/ProfileView.vue";
+import { useLocation } from "./composables/useLocation.ts";
 import { usePosts } from "./composables/usePosts.ts";
 import { useSession } from "./composables/useSession.ts";
 import { useView } from "./composables/useView.ts";
@@ -11,28 +13,40 @@ const NOTES_POLL_MS = 5_000;
 
 const { viewer, signedIn, who, accountLabel, status, busy, loadMe, startCommons, finishCommons, logout } =
   useSession();
-const { posts, poll, create, edit, remove, vote, mine } = usePosts();
+const { posts, poll, create } = usePosts();
+const {
+  consented,
+  hint,
+  busy: locationBusy,
+  dialogOpen,
+  showToggle,
+  applySession,
+  signedOut: locationSignedOut,
+  acceptOffer,
+  skipOffer,
+  onToggle,
+} = useLocation();
 const { view, compact, menuOpen, showMap, showNotes, showProfile, goFind } = useView();
 const mapEl = ref<HTMLElement>();
 let mapUi: MapUi | undefined;
 
 function signIn() {
   mapUi?.stashPendingPost();
-  const popupSignIn = document.querySelector<HTMLButtonElement>(".post-composer-signin");
-  if (popupSignIn) popupSignIn.disabled = true;
   void startCommons();
+}
+
+function syncGps() {
+  if (signedIn.value && consented.value) mapUi?.startGps((message) => {
+    hint.value = message;
+  });
+  else mapUi?.stopGps();
 }
 
 onMounted(async () => {
   mapUi = bindMap({
     map: mapEl.value!,
-    viewer: () => viewer.value,
     onSignIn: signIn,
     onCreate: create,
-    onEdit: edit,
-    onDelete: remove,
-    onVote: vote,
-    onMine: mine,
   });
 
   watch(
@@ -52,14 +66,21 @@ onMounted(async () => {
   }
 
   if (!signedIn.value && view.value === "settings") goFind();
-  mapUi.setSession(viewer.value, { offer });
+  if (viewer.value) await applySession(viewer.value, offer);
+  else locationSignedOut();
+  mapUi.setSignedIn(signedIn.value);
   mapUi.restorePendingPost();
+  syncGps();
   void poll();
 
   pollId = window.setInterval(() => {
     if (document.hidden || mapUi?.isEditing()) return;
     void poll();
   }, NOTES_POLL_MS);
+});
+
+watch([signedIn, consented], () => {
+  syncGps();
 });
 
 watch(view, async (next) => {
@@ -74,6 +95,7 @@ watch(view, async (next) => {
 let pollId: number | undefined;
 onUnmounted(() => {
   if (pollId !== undefined) window.clearInterval(pollId);
+  mapUi?.stopGps();
 });
 </script>
 
@@ -97,23 +119,14 @@ onUnmounted(() => {
       :signed-in="signedIn"
       :who="who"
       :busy="busy"
+      :show-location="showToggle"
+      :consented="consented"
+      :location-hint="hint"
+      :location-busy="locationBusy"
       @sign-in="signIn"
       @sign-out="logout"
+      @location="onToggle"
     />
   </main>
-  <div id="location-consent" class="location-consent" hidden>
-    <div
-      class="location-consent-card"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="location-consent-title"
-    >
-      <h2 id="location-consent-title">Share your location?</h2>
-      <p>Sticky can keep the map on you so nearby notes are easier to find.</p>
-      <div class="location-consent-actions">
-        <button type="button" id="location-accept">Accept</button>
-        <button type="button" id="location-skip">Continue without location</button>
-      </div>
-    </div>
-  </div>
+  <LocationDialog :open="dialogOpen" :busy="locationBusy" @accept="acceptOffer" @skip="skipOffer" />
 </template>

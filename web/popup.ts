@@ -14,41 +14,37 @@ export function panClickToWindowCenter(map: L.Map, latlng: L.LatLng, animate: bo
   map.panBy(clickInMap.subtract(windowCenterInMap), { animate, duration: PAN_SECONDS });
 }
 
-export function placePopup(
-  map: L.Map,
-  latlng: L.LatLng,
-  card: HTMLElement,
-  options: { animate?: boolean } = {},
-) {
+/** Leaflet pin plus an empty host. Mount a Vue app on `host` after this returns. */
+export function placePopup(map: L.Map, latlng: L.LatLng, options: { animate?: boolean } = {}) {
   const animate = options.animate !== false;
-  const root = document.createElement("div");
-  root.className = "post-composer-body";
-  root.append(card);
   const marker = L.marker(latlng, {
     icon: L.divIcon({
       className: "post-composer",
       iconSize: [POPUP_SIZE + RADIUS, POPUP_SIZE],
       iconAnchor: [0, POPUP_SIZE / 2],
-      html: root,
+      html: `<div class="post-composer-body"><div class="popup-mount"></div></div>`,
     }),
     interactive: true,
     keyboard: false,
     zIndexOffset: 1000,
   }).addTo(map);
   const el = marker.getElement();
-  if (el) {
-    L.DomEvent.disableClickPropagation(el);
-    L.DomEvent.disableScrollPropagation(el);
-    if (animate) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => el.classList.add("is-open"));
-      });
-    } else {
-      el.classList.add("is-open", "post-composer-instant");
-    }
+  const host = el?.querySelector<HTMLElement>(".popup-mount");
+  if (!el || !host) {
+    marker.remove();
+    throw new Error("Leaflet did not create a popup host.");
+  }
+  L.DomEvent.disableClickPropagation(el);
+  L.DomEvent.disableScrollPropagation(el);
+  if (animate) {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => el.classList.add("is-open"));
+    });
+  } else {
+    el.classList.add("is-open", "post-composer-instant");
   }
   panClickToWindowCenter(map, latlng, animate);
-  return marker;
+  return { marker, host };
 }
 
 export function dismissPopup(marker: L.Marker | undefined, options: { animate?: boolean } = {}) {
