@@ -7,3 +7,4 @@ dist/
 .DS_Store
 !.env.example
 agents/*
+docs/p2/user-journey.mp4
