@@ -82,7 +82,23 @@ export function useSearch(options: {
 
   function schedule(reload: boolean) {
     if (timer !== undefined) window.clearTimeout(timer);
+    timer = undefined;
+    if (!query.value.trim()) {
+      void run(reload);
+      return;
+    }
     timer = window.setTimeout(() => void run(reload), DEBOUNCE_MS);
+  }
+
+  function cancel() {
+    if (timer !== undefined) window.clearTimeout(timer);
+    timer = undefined;
+    generation += 1;
+    query.value = "";
+    searched.value = false;
+    hits.value = [];
+    pending.value = false;
+    void closeContext();
   }
 
   watch(query, () => schedule(false));
@@ -102,5 +118,5 @@ export function useSearch(options: {
     void closeContext();
   });
 
-  return { query, miles, hits, pending, searched };
+  return { query, miles, hits, pending, searched, cancel };
 }

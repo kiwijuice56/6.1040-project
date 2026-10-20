@@ -29,6 +29,7 @@ const {
 const { view, compact, menuOpen, showMap, showNotes, showProfile, goFind } = useView();
 const mapEl = shallowRef<HTMLElement>();
 const mapUi = shallowRef<MapUi>();
+const searchBar = shallowRef<{ cancel: () => void; isActive: () => boolean }>();
 let pollId: number | undefined;
 
 function signIn() {
@@ -68,6 +69,12 @@ onMounted(async () => {
     map: mapEl.value!,
     onSignIn: signIn,
     onCreate: create,
+    onNoteOpen: () => searchBar.value?.cancel(),
+    consumeMapClick: () => {
+      if (!searchBar.value?.isActive()) return false;
+      searchBar.value.cancel();
+      return true;
+    },
   });
   mapUi.value.render(posts.value);
 
@@ -111,8 +118,10 @@ onUnmounted(() => {
     <div id="map" ref="mapEl" role="application" aria-label="Map" v-show="showMap"></div>
     <SearchBar
       v-if="showMap && mapUi"
+      ref="searchBar"
       :get-center="() => mapUi?.getCenter()"
       @adjusting="(value) => mapUi?.setRadiusMiles(value)"
+      @active="(open) => { if (open) mapUi?.dismissPopups(); }"
       @select="(note) => mapUi?.openNote(note)"
     />
     <section id="view-notes" class="app-view" v-show="showNotes" aria-labelledby="notes-heading">

@@ -19,6 +19,7 @@ export type MapUi = {
   getCenter(): MapCoordinate;
   setRadiusMiles(miles: number | null): void;
   openNote(note: PublicNote): void;
+  dismissPopups(): void;
   startGps(setHint: (message: string) => void): void;
   stopGps(): void;
   stashPendingPost(): void;
@@ -45,6 +46,8 @@ export function mountMapUi(options: {
   map: HTMLElement;
   onSignIn: () => void;
   onCreate: (input: { body: string; location: PublicNote["location"] }) => Promise<string | undefined>;
+  onNoteOpen?: () => void;
+  consumeMapClick?: () => boolean;
 }): MapUi {
   mapInstance?.remove();
   mapInstance = undefined;
@@ -66,12 +69,15 @@ export function mountMapUi(options: {
 
   let closeComposer = () => {};
   const notes = mountNotes(map, {
-    onOpen: () => closeComposer(),
+    onOpen: () => {
+      closeComposer();
+      options.onNoteOpen?.();
+    },
     onSignIn: () => options.onSignIn(),
     onDismiss: ignoreNextMapClick,
   });
   const composer = mountComposer(map, {
-    interceptClick: () => ignoreMapClick || notes.closeIfOpen(),
+    interceptClick: () => ignoreMapClick || Boolean(options.consumeMapClick?.()) || notes.closeIfOpen(),
     onSignIn: () => options.onSignIn(),
     onSubmit: options.onCreate,
     onDismiss: ignoreNextMapClick,
@@ -191,6 +197,10 @@ export function mountMapUi(options: {
       return { latitude: center.lat, longitude: center.lng };
     },
     setRadiusMiles,
+    dismissPopups() {
+      notes.closeIfOpen();
+      composer.close();
+    },
     openNote(note) {
       composer.close();
       map.setView([note.location.latitude, note.location.longitude]);

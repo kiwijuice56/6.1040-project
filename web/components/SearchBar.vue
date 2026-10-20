@@ -11,11 +11,12 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   adjusting: [miles: number | null];
+  active: [open: boolean];
   select: [note: PublicNote];
 }>();
 
 const { posts } = usePosts();
-const { query, miles, hits, searched } = useSearch({
+const { query, miles, hits, searched, cancel } = useSearch({
   posts,
   getCenter: () => props.getCenter(),
 });
@@ -88,6 +89,20 @@ watch([showPanel, hits, showEmpty], () => {
   void syncHeight();
 }, { flush: "post" });
 
+watch(showPanel, (open) => {
+  emit("active", open);
+});
+
+function select(note: PublicNote) {
+  cancel();
+  emit("select", note);
+}
+
+defineExpose({
+  cancel,
+  isActive: () => showPanel.value,
+});
+
 function onShellTransitionEnd(event: TransitionEvent) {
   if (event.propertyName !== "height") return;
   if (!showPanel.value) renderPanel.value = false;
@@ -148,7 +163,7 @@ function tally(count: number) {
             :key="note.post"
             class="post-composer-card search-hit"
             type="button"
-            @click="emit('select', note)"
+            @click="select(note)"
           >
             <p class="note-reader-body">{{ note.body }}</p>
             <div class="note-reader-meta">
