@@ -180,6 +180,71 @@ export type StickyWire = {
     };
     error: { error: AppWideError | "INVALID_INPUT" | "NOT_SIGNED_IN" };
   };
+  "/search/close": {
+    input: {
+      "context": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["discard"]>[0], ["context"]>>;
+    };
+    output: Record<string, never>;
+    error: { error: AppWideError | "CONTEXT_NOT_FOUND" | "INVALID_INPUT" };
+  };
+  "/search/open": {
+    input: {
+      "location": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_postsNear"]>[0], ["location"]>>;
+      "miles": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_postsNear"]>[0], ["miles"]>>;
+    };
+    output: {
+      "context": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Querying"]["createContext"]>>, ["context"]>>;
+      "members": {
+        "document": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_postsNear"]>>>, ["body"]>>;
+        "resource": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_postsNear"]>>>, ["post"]>>;
+      }[];
+    };
+    error: { error: AppWideError | "INVALID_INPUT" };
+  };
+  "/search/query": {
+    input: {
+      "algorithm": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["_getNResults"]>[0], ["algorithm"]>>;
+      "context": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["_getNResults"]>[0], ["context"]>>;
+      "query": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["_getNResults"]>[0], ["query"]>>;
+      "resultCount": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["_getNResults"]>[0], ["resultCount"]>>;
+    };
+    output: {
+      "notes": ({
+        "author": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Registering"]["_username"]>[0], ["user"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_post"]>>>, ["author"]>]>>;
+        "body": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_post"]>>>, ["body"]>>;
+        "count": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["_getVoteCount"]>>>, ["count"]>>;
+        "location": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_post"]>>>, ["location"]>>;
+        "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_post"]>[0], ["post"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["_getVoteCount"]>[0], ["resource"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Querying"]["_getNResults"]>>>, ["resource"]>]>>;
+        "username": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Registering"]["_username"]>>>, ["username"]>> | null;
+      })[];
+    };
+    error: { error: AppWideError | "INVALID_INPUT" };
+  };
+  "/search/replace": {
+    input: {
+      "context": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["replace"]>[0], ["context"]>>;
+      "members": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["replace"]>[0], ["bundle"]>>;
+    };
+    output: {
+      "context": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["replace"]>[0], ["context"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Querying"]["replace"]>>, ["context"]>]>>;
+    };
+    error: { error: AppWideError | "CONTEXT_NOT_FOUND" | "INVALID_BUNDLE" | "INVALID_INPUT" };
+  };
+  "/search/sync": {
+    input: {
+      "context": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["_context"]>[0], ["context"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Querying"]["_context"]>>>, ["context"]>]>>;
+      "location": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_postsNear"]>[0], ["location"]>>;
+      "miles": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_postsNear"]>[0], ["miles"]>>;
+    };
+    output: {
+      "context": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["_context"]>[0], ["context"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Querying"]["_context"]>>>, ["context"]>]>>;
+      "members": {
+        "document": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_postsNear"]>>>, ["body"]>>;
+        "resource": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_postsNear"]>>>, ["post"]>>;
+      }[];
+    };
+    error: { error: AppWideError | "INVALID_INPUT" };
+  };
 };
 
 export type HttpAppWideError = never;
@@ -326,5 +391,70 @@ export type StickyWireHttp = {
       "upvote": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["_getVote"]>>>, ["upvote"]>>;
     };
     error: { error: HttpAppWideError | "INVALID_REQUEST" | "UNAUTHORIZED" };
+  };
+  "/search/close": {
+    input: {
+      "context": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["discard"]>[0], ["context"]>>;
+    };
+    output: Record<string, never>;
+    error: { error: HttpAppWideError | "INVALID_REQUEST" | "NOT_FOUND" };
+  };
+  "/search/open": {
+    input: {
+      "location": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_postsNear"]>[0], ["location"]>>;
+      "miles": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_postsNear"]>[0], ["miles"]>>;
+    };
+    output: {
+      "context": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Querying"]["createContext"]>>, ["context"]>>;
+      "members": {
+        "document": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_postsNear"]>>>, ["body"]>>;
+        "resource": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_postsNear"]>>>, ["post"]>>;
+      }[];
+    };
+    error: { error: HttpAppWideError | "INVALID_REQUEST" };
+  };
+  "/search/query": {
+    input: {
+      "algorithm": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["_getNResults"]>[0], ["algorithm"]>>;
+      "context": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["_getNResults"]>[0], ["context"]>>;
+      "query": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["_getNResults"]>[0], ["query"]>>;
+      "resultCount": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["_getNResults"]>[0], ["resultCount"]>>;
+    };
+    output: {
+      "notes": ({
+        "author": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Registering"]["_username"]>[0], ["user"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_post"]>>>, ["author"]>]>>;
+        "body": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_post"]>>>, ["body"]>>;
+        "count": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["_getVoteCount"]>>>, ["count"]>>;
+        "location": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_post"]>>>, ["location"]>>;
+        "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_post"]>[0], ["post"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["_getVoteCount"]>[0], ["resource"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Querying"]["_getNResults"]>>>, ["resource"]>]>>;
+        "username": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Registering"]["_username"]>>>, ["username"]>> | null;
+      })[];
+    };
+    error: { error: HttpAppWideError | "INVALID_REQUEST" };
+  };
+  "/search/replace": {
+    input: {
+      "context": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["replace"]>[0], ["context"]>>;
+      "members": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["replace"]>[0], ["bundle"]>>;
+    };
+    output: {
+      "context": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["replace"]>[0], ["context"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Querying"]["replace"]>>, ["context"]>]>>;
+    };
+    error: { error: HttpAppWideError | "INVALID_REQUEST" | "NOT_FOUND" };
+  };
+  "/search/sync": {
+    input: {
+      "context": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["_context"]>[0], ["context"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Querying"]["_context"]>>>, ["context"]>]>>;
+      "location": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_postsNear"]>[0], ["location"]>>;
+      "miles": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_postsNear"]>[0], ["miles"]>>;
+    };
+    output: {
+      "context": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Querying"]["_context"]>[0], ["context"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Querying"]["_context"]>>>, ["context"]>]>>;
+      "members": {
+        "document": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_postsNear"]>>>, ["body"]>>;
+        "resource": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_postsNear"]>>>, ["post"]>>;
+      }[];
+    };
+    error: { error: HttpAppWideError | "INVALID_REQUEST" };
   };
 };

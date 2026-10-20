@@ -1,4 +1,5 @@
 import type { Collection, Db } from "mongodb";
+import { haversineMiles } from "../../geo.ts";
 
 export class EmptyBody extends Error {}
 export class InvalidLocation extends Error {}
@@ -67,5 +68,18 @@ export class GeographicPostingConcept<User extends string> {
   async _allPosts(_input: Record<string, never> = {}) {
     const rows = await this.posts.find().toArray();
     return rows.map(({ _id, body, author, location }) => ({ post: _id, body, author, location }));
+  }
+
+  async _post({ post }: { post: Post }) {
+    const found = await this.posts.findOne({ _id: post });
+    return found === null ? [] : [{ body: found.body, author: found.author, location: found.location }];
+  }
+
+  async _postsNear({ location, miles }: { location: Coordinate; miles: number }) {
+    if (!isValidCoordinate(location) || !Number.isFinite(miles) || miles <= 0) return [];
+    const rows = await this.posts.find().toArray();
+    return rows
+      .filter((row) => haversineMiles(location, row.location) <= miles)
+      .map(({ _id, body, author, location: at }) => ({ post: _id, body, author, location: at }));
   }
 }

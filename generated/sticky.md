@@ -25,9 +25,9 @@ Defined in [Consenting](../design/concepts/Consenting.md), line 1.
 
 #### Instances
 
-- `Consenting` — instance of `Consenting` — [Sticky types](../design/types.md), line 23.
-  - `Person` is `Registering.User` — [Sticky types](../design/types.md), line 24.
-  - `Use` is `Feature` — [Sticky types](../design/types.md), line 25.
+- `Consenting` — instance of `Consenting` — [Sticky types](../design/types.md), line 26.
+  - `Person` is `Registering.User` — [Sticky types](../design/types.md), line 27.
+  - `Use` is `Feature` — [Sticky types](../design/types.md), line 28.
 
 ### Federating
 
@@ -50,8 +50,8 @@ Defined in [Federating](../design/concepts/Federating.md), line 1.
 
 #### Instances
 
-- `CommonsFederating` — instance of `Federating` — [Sticky types](../design/types.md), line 17.
-  - `User` is `Registering.User` — [Sticky types](../design/types.md), line 18.
+- `CommonsFederating` — instance of `Federating` — [Sticky types](../design/types.md), line 20.
+  - `User` is `Registering.User` — [Sticky types](../design/types.md), line 21.
 
 ### GeographicPosting
 
@@ -73,11 +73,46 @@ Defined in [GeographicPosting](../design/concepts/GeographicPosting.md), line 1.
 #### Queries
 
 - `_allPosts() : many (post: Post, body: String, author: User, location: Coordinate)`
+- `_post(post: Post) : optional (body: String, author: User, location: Coordinate)`
+- `_postsNear(location: Coordinate, miles: Number) : many (post: Post, body: String, author: User, location: Coordinate)`
 
 #### Instances
 
-- `GeographicPosting` — instance of `GeographicPosting` — [Sticky types](../design/types.md), line 27.
-  - `User` is `Registering.User` — [Sticky types](../design/types.md), line 28.
+- `GeographicPosting` — instance of `GeographicPosting` — [Sticky types](../design/types.md), line 30.
+  - `User` is `Registering.User` — [Sticky types](../design/types.md), line 31.
+
+### Querying
+
+Defined in [Querying](../design/concepts/Querying.md), line 1.
+
+#### Actions
+
+- `createContext() : returns (context: SearchContext)`
+- `index(context: SearchContext, resource: Resource, document: String) : returns (resource: Resource)`
+  - Refuses `CONTEXT_NOT_FOUND`: There is no such search.
+  - Refuses `ALREADY_INDEXED`: That resource is already in this search.
+- `unindex(context: SearchContext, resource: Resource) : returns (resource: Resource)`
+  - Refuses `CONTEXT_NOT_FOUND`: There is no such search.
+  - Refuses `NOT_INDEXED`: That resource is not in this search.
+- `replace(context: SearchContext, bundle: Bundle) : returns (context: SearchContext)`
+  - Refuses `CONTEXT_NOT_FOUND`: There is no such search.
+  - Refuses `INVALID_BUNDLE`: That is not a list of documents to search.
+- `discard(context: SearchContext) : returns (context: SearchContext)`
+  - Refuses `CONTEXT_NOT_FOUND`: There is no such search.
+- `unindexEverywhere(resource: Resource) : returns (resource: Resource)`
+- `reindexEverywhere(resource: Resource, document: String) : returns (resource: Resource)`
+
+#### Queries
+
+- `_getNResults(context: SearchContext, algorithm: SearchAlgorithm, query: String, resultCount: Number) : many (resource: Resource, rank: Number)`
+- `_indexed(context: SearchContext) : many (resource: Resource, document: String)`
+- `_context(context: SearchContext) : optional (context: SearchContext)`
+
+#### Instances
+
+- `Querying` — instance of `Querying` — [Sticky types](../design/types.md), line 37.
+  - `Resource` is `GeographicPosting.Post` — [Sticky types](../design/types.md), line 38.
+  - `SearchAlgorithm` is `SearchAlgorithm` — [Sticky types](../design/types.md), line 39.
 
 ### Registering
 
@@ -96,7 +131,7 @@ Defined in [Registering](../design/concepts/Registering.md), line 1.
 
 #### Instances
 
-- `Registering` — instance of `Registering` — [Sticky types](../design/types.md), line 15.
+- `Registering` — instance of `Registering` — [Sticky types](../design/types.md), line 18.
 
 ### Sessioning
 
@@ -112,8 +147,8 @@ Defined in [Sessioning](../design/concepts/Sessioning.md), line 1.
 
 #### Instances
 
-- `Sessioning` — instance of `Sessioning` — [Sticky types](../design/types.md), line 20.
-  - `Subject` is `Registering.User` — [Sticky types](../design/types.md), line 21.
+- `Sessioning` — instance of `Sessioning` — [Sticky types](../design/types.md), line 23.
+  - `Subject` is `Registering.User` — [Sticky types](../design/types.md), line 24.
 
 ### Upvoting
 
@@ -136,20 +171,34 @@ Defined in [Upvoting](../design/concepts/Upvoting.md), line 1.
 
 #### Instances
 
-- `Upvoting` — instance of `Upvoting` — [Sticky types](../design/types.md), line 30.
-  - `Resource` is `GeographicPosting.Post` — [Sticky types](../design/types.md), line 32.
-  - `User` is `Registering.User` — [Sticky types](../design/types.md), line 31.
+- `Upvoting` — instance of `Upvoting` — [Sticky types](../design/types.md), line 33.
+  - `Resource` is `GeographicPosting.Post` — [Sticky types](../design/types.md), line 35.
+  - `User` is `Registering.User` — [Sticky types](../design/types.md), line 34.
 
 ## Application types
 
 Concrete types:
 
 - `Feature` — [Sticky types](../design/types.md), line 8.
+- `SearchAlgorithm` — [Sticky types](../design/types.md), line 11.
 
 ## Formers
 
 _Formers name result shapes evaluated when asked. The source former owns_
 _the authored explanation; this section records the generated shape._
+
+### the nearby documents
+
+Authored path: `searching.covering.NearbyDocuments`.
+- Covered by [Searching](../design/compositions/searching.md), line 3.
+
+```former
+Former "the nearby documents" — inputs (location, miles); bindings (post, body, author, at); promises exactly one record — forms:
+  each GeographicPosting._postsNear (location, miles) has (author, body, location: at, post)
+    form a record of
+      document: body
+      resource: post
+```
 
 ### the public notes
 
@@ -161,6 +210,27 @@ Former "the public notes" — inputs (); bindings (post, body, author, location,
   each GeographicPosting._allPosts () has (author, body, location, post)
     where whether Registering._username (user: author) has (username)
     where Upvoting._getVoteCount (resource: post) has (count)
+    form a record of
+      author
+      body
+      count
+      location
+      post
+      username
+```
+
+### the ranked notes
+
+Authored path: `searching.ranking.RankedNotes`.
+- Covered by [Searching](../design/compositions/searching.md), line 16.
+
+```former
+Former "the ranked notes" — inputs (context, algorithm, query, resultCount); bindings (post, body, author, location, username, count, rank); promises exactly one record — forms:
+  each Querying._getNResults (algorithm, context, query, resultCount) has (rank, resource: post)
+    where GeographicPosting._post (post) has (author, body, location)
+    where whether Registering._username (user: author) has (username)
+    where Upvoting._getVoteCount (resource: post) has (count)
+    arranged by rank, descending
     form a record of
       author
       body
@@ -846,6 +916,132 @@ then
   RequestBoundary.respond (address, attempt, expiresAt, requestId)
 ```
 
+### searching.covering.ReplaceSearch
+
+Authored path: `searching.covering.ReplaceSearch`.
+- Covered by [Searching](../design/compositions/searching.md), line 3.
+- Covered by [Searching](../design/compositions/searching.md), line 7.
+
+```reaction
+when RequestBoundary.request (context, members, path: "/search/replace", requestId)
+then
+  Querying.replace (bundle: members, context)
+```
+
+### searching.covering.ReplaceSearch#2
+
+Authored path: `searching.covering.ReplaceSearch`.
+- Covered by [Searching](../design/compositions/searching.md), line 3.
+- Covered by [Searching](../design/compositions/searching.md), line 7.
+
+```reaction
+when Querying.replace (bundle: members, context), asked by searching.covering.ReplaceSearch
+where
+  earlier, RequestBoundary.request (context, members, path: "/search/replace", requestId)
+then
+  RequestBoundary.respond (context, requestId)
+```
+
+### searching.covering.SyncSearch
+
+Authored path: `searching.covering.SyncSearch`.
+- Covered by [Searching](../design/compositions/searching.md), line 10.
+- Covered by [Searching](../design/compositions/searching.md), line 13.
+
+```reaction
+when RequestBoundary.request (context, location, miles, path: "/search/sync", requestId)
+where
+  Querying._context (context) has (context)
+then
+  RequestBoundary.respond (context, members: former "the nearby documents" with (location, miles), requestId)
+```
+
+### searching.keeping.ReindexEditedNote
+
+Authored path: `searching.keeping.ReindexEditedNote`.
+- Covered by [Searching](../design/compositions/searching.md), line 23.
+
+```reaction
+when GeographicPosting.edit (body, post)
+then
+  Querying.reindexEverywhere (document: body, resource: post)
+```
+
+### searching.keeping.UnindexDeletedNote
+
+Authored path: `searching.keeping.UnindexDeletedNote`.
+- Covered by [Searching](../design/compositions/searching.md), line 23.
+
+```reaction
+when GeographicPosting.delete (post)
+then
+  Querying.unindexEverywhere (resource: post)
+```
+
+### searching.opening.CloseSearch
+
+Authored path: `searching.opening.CloseSearch`.
+- Covered by [Searching](../design/compositions/searching.md), line 16.
+- Covered by [Searching](../design/compositions/searching.md), line 20.
+
+```reaction
+when RequestBoundary.request (context, path: "/search/close", requestId)
+then
+  Querying.discard (context)
+```
+
+### searching.opening.CloseSearch#2
+
+Authored path: `searching.opening.CloseSearch`.
+- Covered by [Searching](../design/compositions/searching.md), line 16.
+- Covered by [Searching](../design/compositions/searching.md), line 20.
+
+```reaction
+when Querying.discard (context), asked by searching.opening.CloseSearch
+where
+  earlier, RequestBoundary.request (context, path: "/search/close", requestId)
+then
+  RequestBoundary.respond (requestId)
+```
+
+### searching.opening.OpenSearch
+
+Authored path: `searching.opening.OpenSearch`.
+- Covered by [Searching](../design/compositions/searching.md), line 3.
+- Covered by [Searching](../design/compositions/searching.md), line 6.
+
+```reaction
+when RequestBoundary.request (location, miles, path: "/search/open", requestId)
+then
+  Querying.createContext ()
+```
+
+### searching.opening.OpenSearch#2
+
+Authored path: `searching.opening.OpenSearch`.
+- Covered by [Searching](../design/compositions/searching.md), line 3.
+- Covered by [Searching](../design/compositions/searching.md), line 6.
+
+```reaction
+when Querying.createContext (context), asked by searching.opening.OpenSearch
+where
+  earlier, RequestBoundary.request (location, miles, path: "/search/open", requestId)
+then
+  RequestBoundary.respond (context, members: former "the nearby documents" with (location, miles), requestId)
+```
+
+### searching.ranking.RankSearch
+
+Authored path: `searching.ranking.RankSearch`.
+- Covered by [Searching](../design/compositions/searching.md), line 16.
+- Covered by [Searching](../design/compositions/searching.md), line 19.
+
+```reaction
+when RequestBoundary.request (algorithm, context, path: "/search/query", query, requestId, resultCount)
+then
+  RequestBoundary.respond (notes: former "the ranked notes" with (algorithm, context, query, resultCount), requestId)
+```
+
 ## Endpoint input contracts
 
 Before recording an action ask, the boundary rejects a body that is not an
@@ -867,3 +1063,8 @@ not listed here have no explicit input contract.
 - `/posts/unvote` — requires `post`, `session`
 - `/posts/upvote` — requires `post`, `session`
 - `/posts/vote` — requires `post`, `session`
+- `/search/close` — requires `context`
+- `/search/open` — requires `location`, `miles`
+- `/search/query` — requires `algorithm`, `context`, `query`, `resultCount`
+- `/search/replace` — requires `context`, `members`
+- `/search/sync` — requires `context`, `location`, `miles`

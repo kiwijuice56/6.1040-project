@@ -7,6 +7,9 @@ CommonsFederating is Federating with Commons as the other site. Signing in with 
 ```types
 concrete Feature
   A use of a person's data that needs their consent.
+
+concrete SearchAlgorithm
+  The identity of a Querying ranking procedure. Sticky uses `tokenFuzzy`.
 ```
 
 Sticky uses one Feature, `sharingLocation`: keeping the map on the person's GPS. Consenting records whether they agreed to that use; the page asks the browser for GPS only after they have.
@@ -30,4 +33,8 @@ instantiate GeographicPosting with
 instantiate Upvoting with
   User is Registering.User
   Resource is GeographicPosting.Post
+
+instantiate Querying with
+  Resource is GeographicPosting.Post
+  SearchAlgorithm is SearchAlgorithm
 ```

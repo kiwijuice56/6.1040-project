@@ -108,6 +108,7 @@ export function mountNotes(
 
   return {
     render,
+    open,
     closeIfOpen: () => closeReader(),
     isOpen: () => reading !== undefined,
     isEditing: () => editing,

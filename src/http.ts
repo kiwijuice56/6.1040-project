@@ -1,6 +1,7 @@
 import { httpPolicy, type HttpPolicy } from "@mit-sdg/sync-engine-http/policy";
 import { locationHttp } from "./compositions/location.ts";
 import { postingHttp } from "./compositions/posting.ts";
+import { searchingHttp } from "./compositions/searching.ts";
 import { accountsHttp } from "./compositions/reusable/accounts.ts";
 import { commonsHttp } from "./compositions/reusable/commons.ts";
 
@@ -18,6 +19,7 @@ export function stickyPolicy(publicOrigin: string): HttpPolicy {
       ...commonsHttp.publicErrors,
       ...postingHttp.publicErrors,
       ...locationHttp.publicErrors,
+      ...searchingHttp.publicErrors,
     },
     cookies: {
       session: accountsHttp.sessionCookie("sticky-session", [...commonsHttp.startingSessions]),

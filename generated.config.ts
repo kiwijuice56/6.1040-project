@@ -19,6 +19,7 @@ export default {
       new URL("./design/compositions/reusable/commons.md", import.meta.url),
       new URL("./design/compositions/posting.md", import.meta.url),
       new URL("./design/compositions/location.md", import.meta.url),
+      new URL("./design/compositions/searching.md", import.meta.url),
     ],
   },
   projections: [httpWire({ policy: stickyPolicy("http://localhost:3000"), name: "StickyWireHttp" })],

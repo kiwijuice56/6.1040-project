@@ -147,6 +147,38 @@ describe("GeographicPosting", () => {
     expect(await posting._allPosts()).toEqual([{ post, body: "a note", author: "maya", location: mit }]);
   });
 
+  test("_post returns the post, or no row when it is unknown", async () => {
+    expect(await posting._post({ post: crypto.randomUUID() as Post })).toEqual([]);
+    const { post } = await posting.post({ user: "maya", body: "a note", location: mit });
+    expect(await posting._post({ post })).toEqual([{ body: "a note", author: "maya", location: mit }]);
+  });
+
+  test("_postsNear returns posts inside the radius, or no rows", async () => {
+    const maya = await posting.post({ user: "maya", body: "Killian", location: mit });
+    const sam = await posting.post({ user: "sam", body: "Kendall", location: kendall });
+    const far = await posting.post({
+      user: "leo",
+      body: "NYC",
+      location: { latitude: 40.7128, longitude: -74.006 },
+    });
+
+    expect(await posting._postsNear({ location: mit, miles: 0 })).toEqual([]);
+    expect(await posting._postsNear({ location: { latitude: 91, longitude: 0 }, miles: 1 })).toEqual([]);
+
+    const close = await posting._postsNear({ location: mit, miles: 0.3 });
+    expect(close).toEqual([{ post: maya.post, body: "Killian", author: "maya", location: mit }]);
+
+    const nearby = await posting._postsNear({ location: mit, miles: 1 });
+    expect(nearby).toEqual(
+      expect.arrayContaining([
+        { post: maya.post, body: "Killian", author: "maya", location: mit },
+        { post: sam.post, body: "Kendall", author: "sam", location: kendall },
+      ]),
+    );
+    expect(nearby).toHaveLength(2);
+    expect(nearby.map((row) => row.post)).not.toContain(far.post);
+  });
+
   test("_allPosts returns every post from every author, or no rows", async () => {
     expect(await posting._allPosts()).toEqual([]);
     const maya = await posting.post({ user: "maya", body: "Killian", location: mit });

@@ -5,6 +5,7 @@ import { composition as commons } from "./compositions/reusable/commons.ts";
 import { composition as accounts } from "./compositions/reusable/accounts.ts";
 import { composition as posting } from "./compositions/posting.ts";
 import { composition as location } from "./compositions/location.ts";
+import { composition as searching } from "./compositions/searching.ts";
 
 import type { Db } from "mongodb";
 import type { Provider } from "./concepts/Federating/provider.ts";
@@ -19,6 +20,7 @@ export function assembleApplication(
       reusable: { accounts, commons },
       posting,
       location,
+      searching,
     },
     redaction: { fields: ["attempt", "nonce", "state", "code"] },
     // Print what went wrong. Otherwise a failure only shows up as INTERNAL_ERROR.

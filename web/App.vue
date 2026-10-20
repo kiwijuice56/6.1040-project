@@ -3,6 +3,7 @@ import { nextTick, onMounted, onUnmounted, shallowRef, watch } from "vue";
 import AppHeader from "./components/AppHeader.vue";
 import LocationDialog from "./components/LocationDialog.vue";
 import ProfileView from "./components/ProfileView.vue";
+import SearchBar from "./components/SearchBar.vue";
 import { useLocation } from "./composables/useLocation.ts";
 import { usePosts } from "./composables/usePosts.ts";
 import { useSession } from "./composables/useSession.ts";
@@ -108,6 +109,12 @@ onUnmounted(() => {
   <p id="status" role="status" v-show="status">{{ status }}</p>
   <main>
     <div id="map" ref="mapEl" role="application" aria-label="Map" v-show="showMap"></div>
+    <SearchBar
+      v-if="showMap && mapUi"
+      :get-center="() => mapUi?.getCenter()"
+      @adjusting="(value) => mapUi?.setRadiusMiles(value)"
+      @select="(note) => mapUi?.openNote(note)"
+    />
     <section id="view-notes" class="app-view" v-show="showNotes" aria-labelledby="notes-heading">
       <h2 id="notes-heading" class="visually-hidden">My notes</h2>
     </section>

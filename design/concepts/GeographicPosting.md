@@ -77,4 +77,11 @@ edit(user: User, post: Post, body: String) : returns (post: Post)
 ```queries
 _allPosts() : many (post: Post, body: String, author: User, location: Coordinate)
   Returns every post, or no rows when there are none. The order of the rows is unspecified.
+
+_post(post: Post) : optional (body: String, author: User, location: Coordinate)
+  The post's body, author, and location, or no row when the post is unknown.
+
+_postsNear(location: Coordinate, miles: Number) : many (post: Post, body: String, author: User, location: Coordinate)
+  Every post at most miles from the given location, or no rows when there are none. The order of the rows is unspecified. When miles is not a positive finite number, or the location is not a valid coordinate, no rows.
 ```
+
