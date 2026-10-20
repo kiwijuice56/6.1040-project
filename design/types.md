@@ -37,4 +37,8 @@ instantiate Upvoting with
 instantiate Querying with
   Resource is GeographicPosting.Post
   SearchAlgorithm is SearchAlgorithm
+
+instantiate Labeling with
+  Resource is GeographicPosting.Post
 ```
+

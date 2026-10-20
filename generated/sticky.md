@@ -81,6 +81,35 @@ Defined in [GeographicPosting](../design/concepts/GeographicPosting.md), line 1.
 - `GeographicPosting` — instance of `GeographicPosting` — [Sticky types](../design/types.md), line 30.
   - `User` is `Registering.User` — [Sticky types](../design/types.md), line 31.
 
+### Labeling
+
+Defined in [Labeling](../design/concepts/Labeling.md), line 1.
+
+#### Actions
+
+- `createLabel() : returns (label: Label)`
+- `applyLabel(label: Label, resource: Resource) : returns (resource: Resource)`
+  - Refuses `LABEL_NOT_FOUND`: There is no such label.
+  - Refuses `ALREADY_LABELED`: That resource already has this label.
+- `removeLabel(label: Label, resource: Resource) : returns (resource: Resource)`
+  - Refuses `LABEL_NOT_FOUND`: There is no such label.
+  - Refuses `NOT_LABELED`: That resource does not have this label.
+- `delete(label: Label) : returns (label: Label)`
+  - Refuses `LABEL_NOT_FOUND`: There is no such label.
+- `unlabelEverywhere(resource: Resource) : returns (resource: Resource)`
+
+#### Queries
+
+- `_resources(label: Label) : many (resource: Resource)`
+- `_labels(resource: Resource) : many (label: Label)`
+- `_has(label: Label, resource: Resource) : optional (resource: Resource)`
+- `_label(label: Label) : optional (label: Label)`
+
+#### Instances
+
+- `Labeling` — instance of `Labeling` — [Sticky types](../design/types.md), line 41.
+  - `Resource` is `GeographicPosting.Post` — [Sticky types](../design/types.md), line 42.
+
 ### Querying
 
 Defined in [Querying](../design/concepts/Querying.md), line 1.
