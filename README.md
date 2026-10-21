@@ -11,6 +11,16 @@
 - [Updated user journey](docs/p2/user-journey.md)
 - [User journey video](docs/p2/user-journey.mp4)
 
+## Tests
+
+The automated tests cover concepts and the HTTP endpoints that compose them. They use a throwaway MongoDB database per file, so they do not write to the app database.
+
+1. Start the local database: `bun run db:up`. This runs MongoDB in Podman. On Windows, run `podman machine start` first if the machine is stopped.
+2. Copy `.env.example` to `.env` if you have not. Tests read `MONGODB_URL` from that file (`mongodb://dev:dev@127.0.0.1:27017/sticky?authSource=admin`).
+3. Run `bun test`.
+
+Bun loads `.env` on its own. Each test starts from an empty database and creates its data by calling actions.
+
 # Attribution
 - [Paper background image from Wikimedia Commons, by pinkorchid_too (Sandra)](https://commons.wikimedia.org/wiki/File:Vintage_paper_texture_-_Flickr_-_pinkorchid_too_(Sandra).jpg).
 - [UI Icons by Icons8](https://icons8.com/icons).

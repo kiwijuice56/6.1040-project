@@ -163,6 +163,8 @@ describe("GeographicPosting", () => {
     });
 
     expect(await posting._postsNear({ location: mit, miles: 0 })).toEqual([]);
+    expect(await posting._postsNear({ location: mit, miles: -1 })).toEqual([]);
+    expect(await posting._postsNear({ location: mit, miles: Number.NaN })).toEqual([]);
     expect(await posting._postsNear({ location: { latitude: 91, longitude: 0 }, miles: 1 })).toEqual([]);
 
     const close = await posting._postsNear({ location: mit, miles: 0.3 });

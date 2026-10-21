@@ -35,6 +35,7 @@ describe("Labeling", () => {
     await labeling.applyLabel({ label, resource: "stata" });
 
     expect(await labeling._resources({ label })).toEqual([{ resource: "killian" }, { resource: "stata" }]);
+    expect(await labeling._has({ label, resource: "killian" })).toEqual([{ resource: "killian" }]);
 
     expect(await labeling.removeLabel({ label, resource: "stata" })).toEqual({ resource: "stata" });
     expect(await labeling._resources({ label })).toEqual([{ resource: "killian" }]);

@@ -102,4 +102,55 @@ describe("Saving", () => {
     expect(await maya["/posts/delete"]({ post })).toEqual({ post });
     expect(await maya["/saves/list"]()).toEqual({ notes: [] });
   });
+
+  test("deleting a note removes it from the other person's saved list", async () => {
+    const { browser, signIn } = createSticky(testDb.db);
+    const maya = browser();
+    const sam = browser();
+    await signIn(maya, "maya");
+    await signIn(sam, "sam");
+
+    const created = await sam["/posts/create"]({ body: "Don't walk here", location: mit });
+    if ("error" in created) throw new Error(JSON.stringify(created));
+    const { post } = created;
+    expect(await maya["/saves/save"]({ post })).toEqual({ post });
+
+    expect(await sam["/posts/delete"]({ post })).toEqual({ post });
+    expect(await maya["/saves/list"]()).toEqual({ notes: [] });
+    expect(await sam["/saves/list"]()).toEqual({ notes: [] });
+  });
+
+  test("unsaving removes the note from one person's list only", async () => {
+    const { browser, signIn } = createSticky(testDb.db);
+    const maya = browser();
+    const sam = browser();
+    await signIn(maya, "maya");
+    await signIn(sam, "sam");
+
+    const created = await sam["/posts/create"]({ body: "Don't walk here", location: mit });
+    if ("error" in created) throw new Error(JSON.stringify(created));
+    const { post } = created;
+    expect(await maya["/saves/save"]({ post })).toEqual({ post });
+    expect(await maya["/saves/unsave"]({ post })).toEqual({ post });
+
+    expect(await maya["/saves/list"]()).toEqual({ notes: [] });
+    const samList = await sam["/saves/list"]();
+    if ("error" in samList) throw new Error(JSON.stringify(samList));
+    expect(samList.notes.map((note) => note.post)).toEqual([post]);
+  });
+
+  test("editing a saved note shows the new text in the list", async () => {
+    const { browser, signIn } = createSticky(testDb.db);
+    const maya = browser();
+    await signIn(maya, "maya");
+    const created = await maya["/posts/create"]({ body: "Killian grass is closed", location: mit });
+    if ("error" in created) throw new Error(JSON.stringify(created));
+
+    expect(await maya["/posts/edit"]({ post: created.post, body: "Killian grass is open" })).toEqual({
+      post: created.post,
+    });
+    const listed = await maya["/saves/list"]();
+    if ("error" in listed) throw new Error(JSON.stringify(listed));
+    expect(listed.notes.map((note) => note.body)).toEqual(["Killian grass is open"]);
+  });
 });

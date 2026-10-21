@@ -125,4 +125,131 @@ describe("Searching", () => {
     if ("error" in ranked) throw new Error(JSON.stringify(ranked));
     expect(ranked.notes.map((note) => note.post)).toEqual([nearby.post]);
   });
+
+  test("a note posted after the search was opened stays out until the page syncs", async () => {
+    const { browser, signIn } = createSticky(testDb.db);
+    const maya = browser();
+    const reader = browser();
+    await signIn(maya, "maya");
+    const first = await maya["/posts/create"]({ body: "Killian grass is closed", location: mit });
+    if ("error" in first) throw new Error(JSON.stringify(first));
+
+    const opened = await reader["/search/open"]({ location: mit, miles: 1 });
+    if ("error" in opened) throw new Error(JSON.stringify(opened));
+    expect(await reader["/search/replace"]({ context: opened.context, members: opened.members })).toEqual({
+      context: opened.context,
+    });
+
+    const second = await maya["/posts/create"]({ body: "Killian lawn is open", location: mit });
+    if ("error" in second) throw new Error(JSON.stringify(second));
+    const before = await query(reader, opened.context, "killian");
+    expect(before.map((note) => note.post)).toEqual([first.post]);
+
+    const synced = await reader["/search/sync"]({ context: opened.context, location: mit, miles: 1 });
+    if ("error" in synced) throw new Error(JSON.stringify(synced));
+    expect(await reader["/search/replace"]({ context: opened.context, members: synced.members })).toEqual({
+      context: opened.context,
+    });
+    const after = await query(reader, opened.context, "killian");
+    expect(after.map((note) => note.post)).toEqual(expect.arrayContaining([first.post, second.post]));
+    expect(after).toHaveLength(2);
+  });
+
+  test("an unknown context cannot be replaced or closed, and a query returns no notes", async () => {
+    const { browser } = createSticky(testDb.db);
+    const reader = browser();
+    const context = crypto.randomUUID() as SearchContext;
+
+    expect(await reader["/search/replace"]({ context, members: [] })).toEqual({ error: "NOT_FOUND" });
+    expect(await reader["/search/close"]({ context })).toEqual({ error: "NOT_FOUND" });
+    expect(await query(reader, context, "killian")).toEqual([]);
+
+    const synced = await reader["/search/sync"]({ context, location: mit, miles: 1 }, { timeoutMs: 500 });
+    expect(synced).toEqual({ error: "TIMED_OUT" });
+  });
+
+  test("closing a search twice is not found", async () => {
+    const { browser } = createSticky(testDb.db);
+    const reader = browser();
+    const opened = await reader["/search/open"]({ location: mit, miles: 1 });
+    if ("error" in opened) throw new Error(JSON.stringify(opened));
+    expect(await reader["/search/close"]({ context: opened.context })).toEqual({});
+    expect(await reader["/search/close"]({ context: opened.context })).toEqual({ error: "NOT_FOUND" });
+  });
+
+  test("a distance outside the allowed range is refused, and an invalid coordinate matches no notes", async () => {
+    const { browser, signIn } = createSticky(testDb.db);
+    const maya = browser();
+    const reader = browser();
+    await signIn(maya, "maya");
+    const created = await maya["/posts/create"]({ body: "Killian grass", location: mit });
+    if ("error" in created) throw new Error(JSON.stringify(created));
+
+    expect(await reader["/search/open"]({ location: mit, miles: 0 })).toEqual({ error: "INVALID_REQUEST" });
+    expect(await reader["/search/open"]({ location: mit, miles: 26 })).toEqual({ error: "INVALID_REQUEST" });
+    expect(await reader["/search/open"]({ location: mit, miles: Number.NaN })).toEqual({ error: "INVALID_REQUEST" });
+
+    const opened = await reader["/search/open"]({ location: { latitude: 91, longitude: 0 }, miles: 1 });
+    if ("error" in opened) throw new Error(JSON.stringify(opened));
+    expect(opened.members).toEqual([]);
+  });
+
+  test("a bad bundle is refused, and an empty bundle clears the ranking", async () => {
+    const { browser, signIn } = createSticky(testDb.db);
+    const maya = browser();
+    const reader = browser();
+    await signIn(maya, "maya");
+    const created = await maya["/posts/create"]({ body: "Killian grass is closed", location: mit });
+    if ("error" in created) throw new Error(JSON.stringify(created));
+
+    const opened = await reader["/search/open"]({ location: mit, miles: 1 });
+    if ("error" in opened) throw new Error(JSON.stringify(opened));
+    const { context } = opened;
+    expect(await reader["/search/replace"]({ context, members: opened.members })).toEqual({ context });
+
+    expect(await reader["/search/replace"]({ context, members: "nope" } as never)).toEqual({ error: "INVALID_REQUEST" });
+    expect((await query(reader, context, "killian")).map((note) => note.post)).toEqual([created.post]);
+
+    expect(await reader["/search/replace"]({ context, members: [] })).toEqual({ context });
+    expect(await query(reader, context, "killian")).toEqual([]);
+  });
+
+  test("an unknown algorithm is refused, and a blank query returns no notes", async () => {
+    const { browser, signIn } = createSticky(testDb.db);
+    const maya = browser();
+    const reader = browser();
+    await signIn(maya, "maya");
+    const created = await maya["/posts/create"]({ body: "Killian grass is closed", location: mit });
+    if ("error" in created) throw new Error(JSON.stringify(created));
+
+    const opened = await reader["/search/open"]({ location: mit, miles: 1 });
+    if ("error" in opened) throw new Error(JSON.stringify(opened));
+    expect(await reader["/search/replace"]({ context: opened.context, members: opened.members })).toEqual({
+      context: opened.context,
+    });
+
+    expect(
+      await reader["/search/query"]({
+        context: opened.context,
+        query: "killian",
+        resultCount: 8,
+        algorithm: "other",
+      } as never),
+    ).toEqual({ error: "INVALID_REQUEST" });
+    expect(await query(reader, opened.context, "   ")).toEqual([]);
+  });
 });
+
+type Api = ReturnType<ReturnType<typeof createSticky>["browser"]>;
+type SearchContext = Parameters<Api["/search/query"]>[0]["context"];
+
+async function query(api: Api, context: SearchContext, text: string) {
+  const ranked = await api["/search/query"]({
+    context,
+    query: text,
+    resultCount: 8,
+    algorithm: TOKEN_FUZZY,
+  });
+  if ("error" in ranked) throw new Error(JSON.stringify(ranked));
+  return ranked.notes;
+}

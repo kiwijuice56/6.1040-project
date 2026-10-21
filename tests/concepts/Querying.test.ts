@@ -163,6 +163,75 @@ describe("Querying", () => {
     expect(rows[0]?.rank).toBeGreaterThan(rows[1]?.rank ?? 0);
   });
 
+  test("replace on an unknown context stores nothing and leaves other contexts", async () => {
+    const kept = await querying.createContext();
+    await querying.index({ context: kept.context, resource: "keep", document: "stay" });
+    const missing = crypto.randomUUID() as typeof kept.context;
+    const refusal = querying.replace({ context: missing, bundle: [{ resource: "note", document: "hello" }] });
+    await expect(refusal).rejects.toThrow(ContextNotFound);
+    await expect(refusal).rejects.toThrow("There is no such search.");
+    expect(await querying._context({ context: missing })).toEqual([]);
+    expect(await querying._indexed({ context: missing })).toEqual([]);
+    expect(await querying._indexed({ context: kept.context })).toEqual([{ resource: "keep", document: "stay" }]);
+  });
+
+  test("replace with an empty bundle clears the context, and a repeated resource keeps the first document", async () => {
+    const { context } = await querying.createContext();
+    await querying.index({ context, resource: "old", document: "old text" });
+    expect(
+      await querying.replace({
+        context,
+        bundle: [
+          { resource: "note", document: "first" },
+          { resource: "note", document: "second" },
+        ],
+      }),
+    ).toEqual({ context });
+    expect(await querying._indexed({ context })).toEqual([{ resource: "note", document: "first" }]);
+
+    expect(await querying.replace({ context, bundle: [] })).toEqual({ context });
+    expect(await querying._indexed({ context })).toEqual([]);
+    expect(
+      await querying._getNResults({ context, algorithm: TOKEN_FUZZY, query: "first", resultCount: 5 }),
+    ).toEqual([]);
+  });
+
+  test("_context returns the context, or no row when it is unknown", async () => {
+    const missing = crypto.randomUUID() as Awaited<ReturnType<QueryingConcept<string>["createContext"]>>["context"];
+    expect(await querying._context({ context: missing })).toEqual([]);
+    const { context } = await querying.createContext();
+    expect(await querying._context({ context })).toEqual([{ context }]);
+  });
+
+  test("_getNResults ranks a prefix below an exact token and returns at most resultCount rows", async () => {
+    const { context } = await querying.createContext();
+    await querying.replace({
+      context,
+      bundle: [
+        { resource: "exact", document: "kil marker by the dome" },
+        { resource: "prefix", document: "killian court is closed" },
+        { resource: "other", document: "stata doors" },
+      ],
+    });
+
+    const rows = await querying._getNResults({
+      context,
+      algorithm: TOKEN_FUZZY,
+      query: "kil",
+      resultCount: 5,
+    });
+    expect(rows.map((row) => row.resource)).toEqual(["exact", "prefix"]);
+    expect(rows[0]?.rank).toBeGreaterThan(rows[1]?.rank ?? 0);
+
+    const capped = await querying._getNResults({
+      context,
+      algorithm: TOKEN_FUZZY,
+      query: "kil",
+      resultCount: 1,
+    });
+    expect(capped.map((row) => row.resource)).toEqual(["exact"]);
+  });
+
   test("_getNResults returns no rows for an unknown algorithm, empty query, or non-positive count", async () => {
     const { context } = await querying.createContext();
     await querying.index({ context, resource: "note", document: "Killian grass" });
