@@ -21,6 +21,9 @@
   --upvote: #ec9357;
   --downvote: #5266b4;
   --delete: #c45c5c;
+  --downvote-dark: #353887;
+  --upvote-dark: #b55532;
+  --neutral-vote: rgb(186, 186, 186);
 }
 
 html,
@@ -114,7 +117,7 @@ header h1 a {
   gap: 0.45rem;
   box-sizing: border-box;
   padding: 0.4rem 0.8rem;
-  border: 2px solid var(--outline);
+  border: 1px solid var(--outline);
   border-radius: 0.25rem;
   background: #fff;
   color: inherit;
@@ -333,7 +336,7 @@ button {
   appearance: none;
   font: inherit;
   padding: 0.4rem 0.8rem;
-  border: 2px solid var(--outline);
+  border: 1px solid var(--outline);
   border-radius: 0.25rem;
   background: #fff;
   color: var(--ink);
@@ -373,7 +376,6 @@ button:disabled {
 }
 
 #map .leaflet-bar {
-  border-width: 3px;
   border-color: color-mix(in srgb, var(--ink) 20%, transparent);
 }
 
@@ -631,7 +633,7 @@ textarea.note-reader-body:read-only:focus-visible {
   flex: 1 1 50%;
   min-width: 0;
   margin: 0;
-  color: #555;
+  color: var(--ink);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -653,7 +655,7 @@ textarea.note-reader-body:read-only:focus-visible {
   width: 1.85rem;
   height: 1.85rem;
   padding: 0;
-  border-radius: 0.25rem;
+  border-radius: 50%;
 }
 
 .note-vote svg {
@@ -665,6 +667,7 @@ textarea.note-reader-body:read-only:focus-visible {
 
 .note-vote-up {
   color: var(--upvote);
+  border-color: var(--upvote);
 }
 
 .note-vote-up:hover:not(:disabled) {
@@ -678,6 +681,7 @@ textarea.note-reader-body:read-only:focus-visible {
 .note-vote-up[aria-pressed="true"] {
   color: #fff;
   background: var(--upvote);
+  border-color: var(--upvote-dark);
 }
 
 .note-vote-up[aria-pressed="true"]:hover {
@@ -690,6 +694,7 @@ textarea.note-reader-body:read-only:focus-visible {
 
 .note-vote-down {
   color: var(--downvote);
+  border-color: var(--downvote);
 }
 
 .note-vote-down:hover:not(:disabled) {
@@ -703,6 +708,7 @@ textarea.note-reader-body:read-only:focus-visible {
 .note-vote-down[aria-pressed="true"] {
   color: #fff;
   background: var(--downvote);
+  border-color: var(--downvote-dark);
 }
 
 .note-vote-down[aria-pressed="true"]:hover {
@@ -714,19 +720,33 @@ textarea.note-reader-body:read-only:focus-visible {
 }
 
 .note-vote-count {
-  flex: 1 1 auto;
-  min-width: 0;
-  margin: 0;
+  flex: 0 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 1.85rem;
+  min-width: 1.85rem;
+  margin: 0 auto;
+  padding: 0 0.4rem;
+  border: 1px solid var(--neutral-vote);
+  border-radius: 999px;
+  background: var(--base-dark);
+  color: var(--ink);
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
 
 .note-vote-count.is-up {
-  color: var(--upvote);
+  color: #fff;
+  background: var(--upvote);
+  border-color: var(--upvote-dark);
 }
 
 .note-vote-count.is-down {
-  color: var(--downvote);
+  color: #fff;
+  background: var(--downvote);
+  border-color: var(--downvote-dark);
 }
 
 .note-reader-actions {

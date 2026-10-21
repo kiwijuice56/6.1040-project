@@ -67,6 +67,8 @@ async function choose(next: VoteChoice) {
     steps.push(next === "up" ? "upvote" : "downvote");
   }
   let failed: string | undefined;
+  let choice = mine.value;
+  let total = count.value;
   for (const action of steps) {
     const message = await vote({ post: props.note.post, action });
     if (message) {
@@ -74,13 +76,15 @@ async function choose(next: VoteChoice) {
       break;
     }
     if (action === "unvote") {
-      count.value += mine.value === "up" ? -1 : 1;
-      mine.value = undefined;
+      total += choice === "up" ? -1 : 1;
+      choice = undefined;
     } else {
-      mine.value = next;
-      count.value += next === "up" ? 1 : -1;
+      choice = next;
+      total += next === "up" ? 1 : -1;
     }
   }
+  mine.value = choice;
+  count.value = total;
   voting.value = false;
   error.value = failed ?? "";
 }
@@ -208,19 +212,19 @@ function onSecondary() {
           type="button"
           aria-label="Upvote"
           :aria-pressed="mine === 'up'"
-          :disabled="owned || voting"
+          :disabled="owned"
           :title="owned ? 'You can\'t vote on your own note' : undefined"
           @click="choose('up')"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.2 20.2 18H3.8z" /></svg>
         </button>
-        <span class="note-vote-count" :class="{ 'is-up': count > 0, 'is-down': count < 0 }">{{ tally }}</span>
+        <span class="note-vote-count" :class="{ 'is-up': mine === 'up', 'is-down': mine === 'down' }">{{ tally }}</span>
         <button
           class="note-vote note-vote-down"
           type="button"
           aria-label="Downvote"
           :aria-pressed="mine === 'down'"
-          :disabled="owned || voting"
+          :disabled="owned"
           :title="owned ? 'You can\'t vote on your own note' : undefined"
           @click="choose('down')"
         >
