@@ -103,7 +103,7 @@ export type StickyWire = {
     output: {
       "post": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["post"]>>, ["post"]>>;
     };
-    error: { error: AppWideError | "EMPTY_BODY" | "INVALID_INPUT" | "INVALID_LOCATION" | "NOT_SIGNED_IN" };
+    error: { error: AppWideError | "ALREADY_LABELED" | "EMPTY_BODY" | "INVALID_INPUT" | "INVALID_LOCATION" | "LABEL_NOT_FOUND" | "NOT_SIGNED_IN" };
   };
   "/posts/delete": {
     input: {
@@ -179,6 +179,42 @@ export type StickyWire = {
       "upvote": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["_getVote"]>>>, ["upvote"]>>;
     };
     error: { error: AppWideError | "INVALID_INPUT" | "NOT_SIGNED_IN" };
+  };
+  "/saves/list": {
+    input: {
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["use"]>[0], ["session"]>>;
+    };
+    output: {
+      "notes": ({
+        "author": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Registering"]["_username"]>[0], ["user"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_post"]>>>, ["author"]>]>>;
+        "body": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_post"]>>>, ["body"]>>;
+        "count": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["_getVoteCount"]>>>, ["count"]>>;
+        "location": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_post"]>>>, ["location"]>>;
+        "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_post"]>[0], ["post"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["_getVoteCount"]>[0], ["resource"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Labeling"]["_resources"]>>>, ["resource"]>]>>;
+        "username": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Registering"]["_username"]>>>, ["username"]>> | null;
+      })[];
+    };
+    error: { error: AppWideError | "INVALID_INPUT" | "NOT_SIGNED_IN" };
+  };
+  "/saves/save": {
+    input: {
+      "post": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Labeling"]["applyLabel"]>[0], ["resource"]>>;
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["use"]>[0], ["session"]>>;
+    };
+    output: {
+      "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Labeling"]["applyLabel"]>[0], ["resource"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Labeling"]["applyLabel"]>>, ["resource"]>]>>;
+    };
+    error: { error: AppWideError | "ALREADY_LABELED" | "INVALID_INPUT" | "LABEL_NOT_FOUND" | "NOT_SIGNED_IN" };
+  };
+  "/saves/unsave": {
+    input: {
+      "post": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Labeling"]["removeLabel"]>[0], ["resource"]>>;
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["use"]>[0], ["session"]>>;
+    };
+    output: {
+      "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Labeling"]["removeLabel"]>[0], ["resource"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Labeling"]["removeLabel"]>>, ["resource"]>]>>;
+    };
+    error: { error: AppWideError | "INVALID_INPUT" | "LABEL_NOT_FOUND" | "NOT_LABELED" | "NOT_SIGNED_IN" };
   };
   "/search/close": {
     input: {
@@ -321,7 +357,7 @@ export type StickyWireHttp = {
     output: {
       "post": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["post"]>>, ["post"]>>;
     };
-    error: { error: HttpAppWideError | "INVALID_REQUEST" | "UNAUTHORIZED" };
+    error: { error: HttpAppWideError | "CONFLICT" | "INVALID_REQUEST" | "NOT_FOUND" | "UNAUTHORIZED" };
   };
   "/posts/delete": {
     input: {
@@ -391,6 +427,38 @@ export type StickyWireHttp = {
       "upvote": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["_getVote"]>>>, ["upvote"]>>;
     };
     error: { error: HttpAppWideError | "INVALID_REQUEST" | "UNAUTHORIZED" };
+  };
+  "/saves/list": {
+    input: Record<string, never>;
+    output: {
+      "notes": ({
+        "author": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Registering"]["_username"]>[0], ["user"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_post"]>>>, ["author"]>]>>;
+        "body": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_post"]>>>, ["body"]>>;
+        "count": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Upvoting"]["_getVoteCount"]>>>, ["count"]>>;
+        "location": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_post"]>>>, ["location"]>>;
+        "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["GeographicPosting"]["_post"]>[0], ["post"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Upvoting"]["_getVoteCount"]>[0], ["resource"]>, AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Labeling"]["_resources"]>>>, ["resource"]>]>>;
+        "username": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Registering"]["_username"]>>>, ["username"]>> | null;
+      })[];
+    };
+    error: { error: HttpAppWideError | "INVALID_REQUEST" | "UNAUTHORIZED" };
+  };
+  "/saves/save": {
+    input: {
+      "post": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Labeling"]["applyLabel"]>[0], ["resource"]>>;
+    };
+    output: {
+      "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Labeling"]["applyLabel"]>[0], ["resource"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Labeling"]["applyLabel"]>>, ["resource"]>]>>;
+    };
+    error: { error: HttpAppWideError | "CONFLICT" | "INVALID_REQUEST" | "NOT_FOUND" | "UNAUTHORIZED" };
+  };
+  "/saves/unsave": {
+    input: {
+      "post": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Labeling"]["removeLabel"]>[0], ["resource"]>>;
+    };
+    output: {
+      "post": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Labeling"]["removeLabel"]>[0], ["resource"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Labeling"]["removeLabel"]>>, ["resource"]>]>>;
+    };
+    error: { error: HttpAppWideError | "INVALID_REQUEST" | "NOT_FOUND" | "UNAUTHORIZED" };
   };
   "/search/close": {
     input: {

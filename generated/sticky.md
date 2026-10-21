@@ -88,6 +88,7 @@ Defined in [Labeling](../design/concepts/Labeling.md), line 1.
 #### Actions
 
 - `createLabel() : returns (label: Label)`
+- `ensure(label: Label) : returns (label: Label)`
 - `applyLabel(label: Label, resource: Resource) : returns (resource: Resource)`
   - Refuses `LABEL_NOT_FOUND`: There is no such label.
   - Refuses `ALREADY_LABELED`: That resource already has this label.
@@ -260,6 +261,26 @@ Former "the ranked notes" — inputs (context, algorithm, query, resultCount); b
     where whether Registering._username (user: author) has (username)
     where Upvoting._getVoteCount (resource: post) has (count)
     arranged by rank, descending
+    form a record of
+      author
+      body
+      count
+      location
+      post
+      username
+```
+
+### the saved notes
+
+Authored path: `saving.listing.SavedNotes`.
+- Covered by [Saving](../design/compositions/saving.md), line 15.
+
+```former
+Former "the saved notes" — inputs (label); bindings (post, body, author, location, username, count); promises exactly one record — forms:
+  each Labeling._resources (label) has (resource: post)
+    where GeographicPosting._post (post) has (author, body, location)
+    where whether Registering._username (user: author) has (username)
+    where Upvoting._getVoteCount (resource: post) has (count)
     form a record of
       author
       body
@@ -945,6 +966,178 @@ then
   RequestBoundary.respond (address, attempt, expiresAt, requestId)
 ```
 
+### saving.keeping.SaveNote
+
+Authored path: `saving.keeping.SaveNote`.
+- Covered by [Saving](../design/compositions/saving.md), line 3.
+- Covered by [Saving](../design/compositions/saving.md), line 6.
+
+```reaction
+when RequestBoundary.request (path: "/saves/save", post, requestId, session)
+then
+  Sessioning.use (session)
+```
+
+### saving.keeping.SaveNote#2
+
+Authored path: `saving.keeping.SaveNote`.
+- Covered by [Saving](../design/compositions/saving.md), line 3.
+- Covered by [Saving](../design/compositions/saving.md), line 6.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by saving.keeping.SaveNote
+where
+  Registering._username (user) has (username)
+then
+  Labeling.ensure (label: username)
+```
+
+### saving.keeping.SaveNote#3
+
+Authored path: `saving.keeping.SaveNote`.
+- Covered by [Saving](../design/compositions/saving.md), line 3.
+- Covered by [Saving](../design/compositions/saving.md), line 6.
+
+```reaction
+when Labeling.ensure (label: username, result.label), asked by saving.keeping.SaveNote#2
+where
+  earlier, RequestBoundary.request (path: "/saves/save", post, requestId, session)
+then
+  Labeling.applyLabel (label, resource: post)
+```
+
+### saving.keeping.SaveNote#4
+
+Authored path: `saving.keeping.SaveNote`.
+- Covered by [Saving](../design/compositions/saving.md), line 3.
+- Covered by [Saving](../design/compositions/saving.md), line 6.
+
+```reaction
+when Labeling.applyLabel (label, resource: post), asked by saving.keeping.SaveNote#3
+where
+  earlier, RequestBoundary.request (path: "/saves/save", post, requestId, session)
+then
+  RequestBoundary.respond (post, requestId)
+```
+
+### saving.keeping.SaveOwnNote
+
+Authored path: `saving.keeping.SaveOwnNote`.
+- Covered by [Saving](../design/compositions/saving.md), line 21.
+
+```reaction
+when GeographicPosting.post (user, post)
+where
+  Registering._username (user) has (username)
+then
+  Labeling.ensure (label: username)
+```
+
+### saving.keeping.SaveOwnNote#2
+
+Authored path: `saving.keeping.SaveOwnNote`.
+- Covered by [Saving](../design/compositions/saving.md), line 21.
+
+```reaction
+when Labeling.ensure (label: username, result.label), asked by saving.keeping.SaveOwnNote
+where
+  earlier, GeographicPosting.post (user, post)
+then
+  Labeling.applyLabel (label, resource: post)
+```
+
+### saving.keeping.UnlabelDeletedNote
+
+Authored path: `saving.keeping.UnlabelDeletedNote`.
+- Covered by [Saving](../design/compositions/saving.md), line 21.
+
+```reaction
+when GeographicPosting.delete (post)
+then
+  Labeling.unlabelEverywhere (resource: post)
+```
+
+### saving.keeping.UnsaveNote
+
+Authored path: `saving.keeping.UnsaveNote`.
+- Covered by [Saving](../design/compositions/saving.md), line 9.
+- Covered by [Saving](../design/compositions/saving.md), line 12.
+
+```reaction
+when RequestBoundary.request (path: "/saves/unsave", post, requestId, session)
+then
+  Sessioning.use (session)
+```
+
+### saving.keeping.UnsaveNote#2
+
+Authored path: `saving.keeping.UnsaveNote`.
+- Covered by [Saving](../design/compositions/saving.md), line 9.
+- Covered by [Saving](../design/compositions/saving.md), line 12.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by saving.keeping.UnsaveNote
+where
+  Registering._username (user) has (username)
+then
+  Labeling.ensure (label: username)
+```
+
+### saving.keeping.UnsaveNote#3
+
+Authored path: `saving.keeping.UnsaveNote`.
+- Covered by [Saving](../design/compositions/saving.md), line 9.
+- Covered by [Saving](../design/compositions/saving.md), line 12.
+
+```reaction
+when Labeling.ensure (label: username, result.label), asked by saving.keeping.UnsaveNote#2
+where
+  earlier, RequestBoundary.request (path: "/saves/unsave", post, requestId, session)
+then
+  Labeling.removeLabel (label, resource: post)
+```
+
+### saving.keeping.UnsaveNote#4
+
+Authored path: `saving.keeping.UnsaveNote`.
+- Covered by [Saving](../design/compositions/saving.md), line 9.
+- Covered by [Saving](../design/compositions/saving.md), line 12.
+
+```reaction
+when Labeling.removeLabel (label, resource: post), asked by saving.keeping.UnsaveNote#3
+where
+  earlier, RequestBoundary.request (path: "/saves/unsave", post, requestId, session)
+then
+  RequestBoundary.respond (post, requestId)
+```
+
+### saving.listing.ListSaves
+
+Authored path: `saving.listing.ListSaves`.
+- Covered by [Saving](../design/compositions/saving.md), line 15.
+- Covered by [Saving](../design/compositions/saving.md), line 18.
+
+```reaction
+when RequestBoundary.request (path: "/saves/list", requestId, session)
+then
+  Sessioning.use (session)
+```
+
+### saving.listing.ListSaves#2
+
+Authored path: `saving.listing.ListSaves`.
+- Covered by [Saving](../design/compositions/saving.md), line 15.
+- Covered by [Saving](../design/compositions/saving.md), line 18.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by saving.listing.ListSaves
+where
+  Registering._username (user) has (username)
+  earlier, RequestBoundary.request (path: "/saves/list", requestId, session)
+then
+  RequestBoundary.respond (notes: former "the saved notes" with (label: username), requestId)
+```
+
 ### searching.covering.ReplaceSearch
 
 Authored path: `searching.covering.ReplaceSearch`.
@@ -1092,6 +1285,9 @@ not listed here have no explicit input contract.
 - `/posts/unvote` — requires `post`, `session`
 - `/posts/upvote` — requires `post`, `session`
 - `/posts/vote` — requires `post`, `session`
+- `/saves/list` — requires `session`
+- `/saves/save` — requires `post`, `session`
+- `/saves/unsave` — requires `post`, `session`
 - `/search/close` — requires `context`
 - `/search/open` — requires `location`, `miles`
 - `/search/query` — requires `algorithm`, `context`, `query`, `resultCount`

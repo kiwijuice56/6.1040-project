@@ -446,6 +446,39 @@ button:disabled {
   transition: none;
 }
 
+.note-bookmark {
+  position: absolute;
+  top: 0.15rem;
+  left: 0.15rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0.15rem;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.note-bookmark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.note-bookmark[aria-pressed="true"] svg {
+  fill: currentColor;
+}
+
+.note-bookmark:hover,
+.note-bookmark:active,
+.note-bookmark:disabled {
+  background: transparent;
+}
+
 .post-composer-close {
   position: absolute;
   top: 0.2rem;
@@ -540,6 +573,10 @@ textarea.note-reader-body {
 textarea.note-reader-body:read-only {
   caret-color: transparent;
   outline: none;
+}
+
+.note-reader.is-openable textarea.note-reader-body:read-only {
+  cursor: pointer;
 }
 
 textarea.note-reader-body:read-only:focus,
@@ -848,4 +885,54 @@ textarea.note-reader-body:read-only:focus-visible {
 .search-empty {
   margin: 0.75rem;
   text-align: center;
+}
+
+.notes-view {
+  background-color: #ebe2d6;
+  background-image: url("./img/paper_texture.webp");
+  background-size: 100% auto;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.notes-empty {
+  margin: 2rem auto;
+  max-width: 24rem;
+  text-align: center;
+}
+
+.notes-board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  justify-items: center;
+  align-content: start;
+}
+
+.notes-card {
+  transform: none;
+  transform-origin: center;
+  cursor: pointer;
+}
+
+.note-list-move {
+  transition: transform 0.28s ease;
+}
+
+.note-list-enter-active,
+.note-list-leave-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.note-list-enter-from,
+.note-list-leave-to {
+  opacity: 0;
+  transform: scale(0.92);
+}
+
+.note-list-leave-active {
+  position: absolute;
 }

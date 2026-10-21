@@ -41,6 +41,15 @@ describe("Labeling", () => {
     expect(await labeling._has({ label, resource: "stata" })).toEqual([]);
   });
 
+  test("ensure creates a chosen label once, then applyLabel can use it", async () => {
+    const label = "maya" as Label;
+    expect(await labeling.ensure({ label })).toEqual({ label });
+    expect(await labeling.ensure({ label })).toEqual({ label });
+    expect(await labeling._label({ label })).toEqual([{ label }]);
+    await labeling.applyLabel({ label, resource: "killian" });
+    expect(await labeling._resources({ label })).toEqual([{ resource: "killian" }]);
+  });
+
   test("createLabel returns a new label each time", async () => {
     const first = await labeling.createLabel();
     const second = await labeling.createLabel();

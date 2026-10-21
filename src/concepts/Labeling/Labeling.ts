@@ -45,6 +45,12 @@ export class LabelingConcept<Resource extends string> {
     return { label };
   }
 
+  async ensure({ label }: { label: Label }) {
+    await this.#ready();
+    await this.labels.updateOne({ _id: label }, { $setOnInsert: { _id: label } }, { upsert: true });
+    return { label };
+  }
+
   async applyLabel({ label, resource }: { label: Label; resource: Resource }) {
     await this.#ready();
     if ((await this.labels.findOne({ _id: label })) === null) {

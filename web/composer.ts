@@ -22,7 +22,8 @@ export function mountComposer(
   let composerApp: App | undefined;
   let draft = "";
 
-  function close(motion: { animate?: boolean } = {}) {
+  function close(motion: { animate?: boolean; clearDraft?: boolean } = {}) {
+    if (motion.clearDraft) draft = "";
     if (!marker) return;
     options.onDismiss?.();
     const app = composerApp;
@@ -56,10 +57,11 @@ export function mountComposer(
           body,
           location: currentLocation()!,
         });
-        if (!error) close();
+        if (!error) close({ clearDraft: true });
         return error;
       },
       onDraft: (body: string) => {
+        if (!marker) return;
         draft = body;
       },
       onCancel: () => close(),

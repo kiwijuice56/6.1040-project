@@ -37,6 +37,12 @@ createLabel() : returns (label: Label)
     add a Label
     returns label
 
+ensure(label: Label) : returns (label: Label)
+  where true
+  then
+    add this Label if it is unknown
+    returns label
+
 applyLabel(label: Label, resource: Resource) : returns (resource: Resource)
   where label is unknown
   then

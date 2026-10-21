@@ -6,6 +6,7 @@ import { composition as accounts } from "./compositions/reusable/accounts.ts";
 import { composition as posting } from "./compositions/posting.ts";
 import { composition as location } from "./compositions/location.ts";
 import { composition as searching } from "./compositions/searching.ts";
+import { composition as saving } from "./compositions/saving.ts";
 
 import type { Db } from "mongodb";
 import type { Provider } from "./concepts/Federating/provider.ts";
@@ -21,6 +22,7 @@ export function assembleApplication(
       posting,
       location,
       searching,
+      saving,
     },
     redaction: { fields: ["attempt", "nonce", "state", "code"] },
     // Print what went wrong. Otherwise a failure only shows up as INTERNAL_ERROR.

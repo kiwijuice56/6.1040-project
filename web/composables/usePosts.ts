@@ -1,12 +1,15 @@
 import { ref } from "vue";
 import { api } from "../client.ts";
 import type { PublicNote, VoteChoice } from "../types.ts";
+import { useSaves } from "./useSaves.ts";
 
 const posts = ref<PublicNote[]>([]);
 const loading = ref(false);
 
 /** Shared with map popups (nested Vue apps). Filled by `/posts/list`; mutations refetch. */
 export function usePosts() {
+  const { refresh: refreshSaves } = useSaves();
+
   async function refresh() {
     const result = await api["/posts/list"]();
     if ("error" in result) return;
@@ -27,6 +30,7 @@ export function usePosts() {
     const result = await api["/posts/create"](input);
     if (!("error" in result)) {
       await refresh();
+      await refreshSaves();
       return;
     }
     if (result.error === "UNAUTHORIZED") return "Sign in to post.";
@@ -38,6 +42,7 @@ export function usePosts() {
     const result = await api["/posts/edit"](input);
     if (!("error" in result)) {
       await refresh();
+      await refreshSaves();
       return;
     }
     if (result.error === "UNAUTHORIZED") return "Sign in to edit.";
@@ -51,6 +56,7 @@ export function usePosts() {
     const result = await api["/posts/delete"](input);
     if (!("error" in result)) {
       await refresh();
+      await refreshSaves();
       return;
     }
     if (result.error === "UNAUTHORIZED") return "Sign in to delete.";

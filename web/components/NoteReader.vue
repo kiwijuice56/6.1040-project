@@ -3,15 +3,22 @@ import { computed, onMounted, ref } from "vue";
 import { usePosts } from "../composables/usePosts.ts";
 import { useSession } from "../composables/useSession.ts";
 import type { PublicNote, VoteChoice } from "../types.ts";
+import NoteBookmark from "./NoteBookmark.vue";
 
 const FADE_MS = 100;
 
-const props = defineProps<{
-  note: PublicNote;
-}>();
+const props = withDefaults(
+  defineProps<{
+    note: PublicNote;
+    showClose?: boolean;
+    openOnClick?: boolean;
+  }>(),
+  { showClose: true, openOnClick: false },
+);
 
 const emit = defineEmits<{
   close: [];
+  open: [];
   editing: [value: boolean];
   signIn: [];
 }>();
@@ -120,6 +127,19 @@ function onPrimary() {
   });
 }
 
+const press = ref({ x: 0, y: 0 });
+
+function onPress(event: PointerEvent) {
+  press.value = { x: event.clientX, y: event.clientY };
+}
+
+function onCardClick(event: MouseEvent) {
+  if (!props.openOnClick || mode.value === "edit") return;
+  if (event.target instanceof Element && event.target.closest("button, a")) return;
+  if (Math.hypot(event.clientX - press.value.x, event.clientY - press.value.y) > 6) return;
+  emit("open");
+}
+
 function onSecondary() {
   if (fading.value || acting.value) return;
   if (mode.value === "edit") {
@@ -139,8 +159,15 @@ function onSecondary() {
 </script>
 
 <template>
-  <div class="post-composer-card note-reader">
+  <div
+    class="post-composer-card note-reader"
+    :class="{ 'is-openable': openOnClick }"
+    @pointerdown="onPress"
+    @click="onCardClick"
+  >
+    <NoteBookmark :post="note.post" @sign-in="emit('signIn')" />
     <button
+      v-if="showClose"
       class="post-composer-close"
       type="button"
       aria-label="Close"

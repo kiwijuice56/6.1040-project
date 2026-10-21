@@ -3,9 +3,11 @@ import { nextTick, onMounted, onUnmounted, shallowRef, watch } from "vue";
 import AppHeader from "./components/AppHeader.vue";
 import LocationDialog from "./components/LocationDialog.vue";
 import ProfileView from "./components/ProfileView.vue";
+import MyNotesView from "./components/MyNotesView.vue";
 import SearchBar from "./components/SearchBar.vue";
 import { useLocation } from "./composables/useLocation.ts";
 import { usePosts } from "./composables/usePosts.ts";
+import { useSaves } from "./composables/useSaves.ts";
 import { useSession } from "./composables/useSession.ts";
 import { useView } from "./composables/useView.ts";
 import { mountMapUi, type MapUi } from "./mapUi.ts";
@@ -15,6 +17,7 @@ const NOTES_POLL_MS = 5_000;
 const { viewer, signedIn, who, accountLabel, status, busy, loadMe, startCommons, finishCommons, logout } =
   useSession();
 const { posts, poll, create } = usePosts();
+const { refresh: refreshSaves } = useSaves();
 const {
   consented,
   hint,
@@ -55,6 +58,18 @@ watch([signedIn, consented], () => {
   syncGps();
 });
 
+watch(signedIn, () => {
+  void refreshSaves();
+});
+
+async function showOnMap(note: (typeof posts.value)[number]) {
+  searchBar.value?.cancel();
+  goFind();
+  await nextTick();
+  mapUi.value?.onView("find");
+  mapUi.value?.openNote(note);
+}
+
 watch(view, async (next) => {
   if (next !== "find") {
     mapUi.value?.onView(next);
@@ -91,6 +106,7 @@ onMounted(async () => {
   else locationSignedOut();
   mapUi.value.restorePendingPost();
   void poll();
+  void refreshSaves();
 
   pollId = window.setInterval(() => {
     if (document.hidden || mapUi.value?.isEditing()) return;
@@ -123,10 +139,9 @@ onUnmounted(() => {
       @adjusting="(value) => mapUi?.setRadiusMiles(value)"
       @active="(open) => { if (open) mapUi?.dismissPopups(); }"
       @select="(note) => mapUi?.openNote(note)"
+      @sign-in="signIn"
     />
-    <section id="view-notes" class="app-view" v-show="showNotes" aria-labelledby="notes-heading">
-      <h2 id="notes-heading" class="visually-hidden">My notes</h2>
-    </section>
+    <MyNotesView :visible="showNotes" @open="showOnMap" @sign-in="signIn" />
     <ProfileView
       :visible="showProfile"
       :signed-in="signedIn"

@@ -4,6 +4,7 @@ import { usePosts } from "../composables/usePosts.ts";
 import { useSearch } from "../composables/useSearch.ts";
 import type { MapCoordinate } from "../map.ts";
 import type { PublicNote } from "../types.ts";
+import NoteBookmark from "./NoteBookmark.vue";
 
 const props = defineProps<{
   getCenter: () => MapCoordinate | undefined;
@@ -13,6 +14,7 @@ const emit = defineEmits<{
   adjusting: [miles: number | null];
   active: [open: boolean];
   select: [note: PublicNote];
+  signIn: [];
 }>();
 
 const { posts } = usePosts();
@@ -158,13 +160,16 @@ function tally(count: number) {
       <div v-if="renderPanel" ref="panelEl" class="search-results">
         <p class="search-empty" v-if="paintedEmpty">No matching notes in range.</p>
         <div class="search-grid" v-else>
-          <button
+          <div
             v-for="note in paintedHits"
             :key="note.post"
             class="post-composer-card search-hit"
-            type="button"
+            role="button"
+            tabindex="0"
             @click="select(note)"
+            @keydown.enter="select(note)"
           >
+            <NoteBookmark :post="note.post" @sign-in="emit('signIn')" />
             <p class="note-reader-body">{{ note.body }}</p>
             <div class="note-reader-meta">
               <p class="note-reader-author" :title="note.username ?? ''">{{ note.username ?? "" }}</p>
@@ -175,7 +180,7 @@ function tally(count: number) {
                 {{ tally(note.count) }}
               </span>
             </div>
-          </button>
+          </div>
         </div>
       </div>
     </div>
