@@ -6,6 +6,7 @@ import type { MapCoordinate } from "../map.ts";
 import { accentFor } from "../palette.ts";
 import type { PublicNote } from "../types.ts";
 import NoteBookmark from "./NoteBookmark.vue";
+import NoteVotes from "./NoteVotes.vue";
 
 const props = defineProps<{
   getCenter: () => MapCoordinate | undefined;
@@ -117,10 +118,6 @@ function onResize() {
 
 onMounted(() => window.addEventListener("resize", onResize));
 onUnmounted(() => window.removeEventListener("resize", onResize));
-
-function tally(count: number) {
-  return count > 0 ? `+${count}` : String(count);
-}
 </script>
 
 <template>
@@ -140,7 +137,7 @@ function tally(count: number) {
         <input
           type="range"
           min="0.1"
-          max="10"
+          max="3"
           step="0.1"
           v-model.number="miles"
           @pointerdown="adjusting = true"
@@ -175,12 +172,7 @@ function tally(count: number) {
             <p class="note-reader-body">{{ note.body }}</p>
             <div class="note-reader-meta">
               <p class="note-reader-author" :title="note.username ?? ''">{{ note.username ?? "" }}</p>
-              <span
-                class="note-vote-count"
-                :class="{ 'is-up': note.count > 0, 'is-down': note.count < 0 }"
-              >
-                {{ tally(note.count) }}
-              </span>
+              <NoteVotes :note="note" @click.stop @keydown.enter.stop @sign-in="emit('signIn')" />
             </div>
           </div>
         </div>
