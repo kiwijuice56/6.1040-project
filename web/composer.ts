@@ -2,6 +2,7 @@ import L from "leaflet";
 import { createApp, type App } from "vue";
 import ComposerCard from "./components/ComposerCard.vue";
 import { coordinatesAt, type MapCoordinate } from "./map.ts";
+import { accentFor } from "./palette.ts";
 import { dismissPopup, placePopup } from "./popup.ts";
 
 export type ComposerOpenOptions = {
@@ -50,6 +51,7 @@ export function mountComposer(
       { animate },
     );
     marker = next;
+    next.getElement()?.style.setProperty("--note-tint", accentFor(location));
     composerApp = createApp(ComposerCard, {
       initialBody: nextBody,
       postNote: async (body: string) => {

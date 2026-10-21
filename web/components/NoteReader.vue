@@ -118,7 +118,7 @@ function onSecondary() {
   <div
     class="post-composer-card note-reader"
     :class="{ 'is-openable': openOnClick }"
-    :style="{ '--note-tint': accentFor(note.post) }"
+    :style="{ '--note-tint': accentFor(note.location) }"
     @pointerdown="onPress"
     @click="onCardClick"
   >

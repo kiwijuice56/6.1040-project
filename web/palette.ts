@@ -1,9 +1,13 @@
 const ACCENTS = ["var(--accent-1)", "var(--accent-2)", "var(--accent-3)", "var(--accent-4)"] as const;
 
-/** The same post always gets the same accent, so its card and its map dot match. */
-export function accentFor(post: string): string {
+/**
+ * Keyed by location rather than post id, because the composer needs the color before the server assigns an id.
+ * The same spot always gets the same accent, so a note's card, map dot, and composer preview all match.
+ */
+export function accentFor(location: { latitude: number; longitude: number }): string {
+  const key = `${location.latitude},${location.longitude}`;
   let hash = 0;
-  for (let i = 0; i < post.length; i++) hash = (hash * 31 + post.charCodeAt(i)) | 0;
+  for (let i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) | 0;
   return ACCENTS[Math.abs(hash) % ACCENTS.length]!;
 }
 

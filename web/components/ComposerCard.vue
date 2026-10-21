@@ -61,7 +61,7 @@ async function submit() {
     </button>
     <template v-if="signedIn">
       <label>
-        write a sticky note!
+        Write a sticky note:
         <textarea
           ref="textarea"
           class="is-editing"
@@ -72,7 +72,7 @@ async function submit() {
           v-model="body"
         ></textarea>
       </label>
-      <p class="post-composer-error" role="status">{{ error }}</p>
+      <p class="post-composer-error" role="status" v-show="error">{{ error }}</p>
       <button type="submit" :disabled="posting">Post</button>
     </template>
     <template v-else>

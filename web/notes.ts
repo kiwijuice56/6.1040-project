@@ -29,7 +29,7 @@ export function mountNotes(
         className: "note-dot-icon",
         iconSize: [DOT, DOT],
         iconAnchor: [DOT / 2, DOT / 2],
-        html: `<span class="map-dot" style="--note-tint: ${accentFor(note.post)}"></span>`,
+        html: `<span class="map-dot" style="--note-tint: ${accentFor(note.location)}"></span>`,
       }),
       interactive: true,
       keyboard: false,
@@ -81,7 +81,7 @@ export function mountNotes(
     reading = note.post;
     editing = false;
     const { marker, host } = placePopup(map, L.latLng(note.location.latitude, note.location.longitude));
-    marker.getElement()?.style.setProperty("--note-tint", accentFor(note.post));
+    marker.getElement()?.style.setProperty("--note-tint", accentFor(note.location));
     readerApp = createApp(NoteReader, {
       note,
       onClose: () => closeReader(),
