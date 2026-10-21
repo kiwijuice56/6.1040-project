@@ -8,6 +8,27 @@ _specifications and composition source, then regenerate this file._
 
 ## Concepts
 
+### Authenticating
+
+Defined in [Authenticating](../design/concepts/Authenticating.md), line 1.
+
+#### Actions
+
+- `set(user: User, password: String) : returns (user: User)`
+  - Refuses `INVALID_PASSWORD`: A password must have 8 to 128 characters.
+  - Refuses `PASSWORD_SET`: This account already has a password.
+- `authenticate(user: User, password: String) : returns (user: User)`
+  - Refuses `INVALID_CREDENTIALS`: The username or password is incorrect.
+
+#### Queries
+
+- `_acceptable(password: String) : one (acceptable: Flag)`
+
+#### Instances
+
+- `Authenticating` — instance of `Authenticating` — [Sticky types](../design/types.md), line 23.
+  - `User` is `Registering.User` — [Sticky types](../design/types.md), line 24.
+
 ### Consenting
 
 Defined in [Consenting](../design/concepts/Consenting.md), line 1.
@@ -25,9 +46,9 @@ Defined in [Consenting](../design/concepts/Consenting.md), line 1.
 
 #### Instances
 
-- `Consenting` — instance of `Consenting` — [Sticky types](../design/types.md), line 26.
-  - `Person` is `Registering.User` — [Sticky types](../design/types.md), line 27.
-  - `Use` is `Feature` — [Sticky types](../design/types.md), line 28.
+- `Consenting` — instance of `Consenting` — [Sticky types](../design/types.md), line 29.
+  - `Person` is `Registering.User` — [Sticky types](../design/types.md), line 30.
+  - `Use` is `Feature` — [Sticky types](../design/types.md), line 31.
 
 ### Federating
 
@@ -78,8 +99,8 @@ Defined in [GeographicPosting](../design/concepts/GeographicPosting.md), line 1.
 
 #### Instances
 
-- `GeographicPosting` — instance of `GeographicPosting` — [Sticky types](../design/types.md), line 30.
-  - `User` is `Registering.User` — [Sticky types](../design/types.md), line 31.
+- `GeographicPosting` — instance of `GeographicPosting` — [Sticky types](../design/types.md), line 33.
+  - `User` is `Registering.User` — [Sticky types](../design/types.md), line 34.
 
 ### Labeling
 
@@ -108,8 +129,8 @@ Defined in [Labeling](../design/concepts/Labeling.md), line 1.
 
 #### Instances
 
-- `Labeling` — instance of `Labeling` — [Sticky types](../design/types.md), line 41.
-  - `Resource` is `GeographicPosting.Post` — [Sticky types](../design/types.md), line 42.
+- `Labeling` — instance of `Labeling` — [Sticky types](../design/types.md), line 44.
+  - `Resource` is `GeographicPosting.Post` — [Sticky types](../design/types.md), line 45.
 
 ### Querying
 
@@ -140,9 +161,9 @@ Defined in [Querying](../design/concepts/Querying.md), line 1.
 
 #### Instances
 
-- `Querying` — instance of `Querying` — [Sticky types](../design/types.md), line 37.
-  - `Resource` is `GeographicPosting.Post` — [Sticky types](../design/types.md), line 38.
-  - `SearchAlgorithm` is `SearchAlgorithm` — [Sticky types](../design/types.md), line 39.
+- `Querying` — instance of `Querying` — [Sticky types](../design/types.md), line 40.
+  - `Resource` is `GeographicPosting.Post` — [Sticky types](../design/types.md), line 41.
+  - `SearchAlgorithm` is `SearchAlgorithm` — [Sticky types](../design/types.md), line 42.
 
 ### Registering
 
@@ -177,8 +198,8 @@ Defined in [Sessioning](../design/concepts/Sessioning.md), line 1.
 
 #### Instances
 
-- `Sessioning` — instance of `Sessioning` — [Sticky types](../design/types.md), line 23.
-  - `Subject` is `Registering.User` — [Sticky types](../design/types.md), line 24.
+- `Sessioning` — instance of `Sessioning` — [Sticky types](../design/types.md), line 26.
+  - `Subject` is `Registering.User` — [Sticky types](../design/types.md), line 27.
 
 ### Upvoting
 
@@ -201,9 +222,9 @@ Defined in [Upvoting](../design/concepts/Upvoting.md), line 1.
 
 #### Instances
 
-- `Upvoting` — instance of `Upvoting` — [Sticky types](../design/types.md), line 33.
-  - `Resource` is `GeographicPosting.Post` — [Sticky types](../design/types.md), line 35.
-  - `User` is `Registering.User` — [Sticky types](../design/types.md), line 34.
+- `Upvoting` — instance of `Upvoting` — [Sticky types](../design/types.md), line 36.
+  - `Resource` is `GeographicPosting.Post` — [Sticky types](../design/types.md), line 38.
+  - `User` is `Registering.User` — [Sticky types](../design/types.md), line 37.
 
 ## Application types
 
@@ -966,6 +987,128 @@ then
   RequestBoundary.respond (address, attempt, expiresAt, requestId)
 ```
 
+### reusable.passwords.entering.Register:accepted
+
+Authored path: `reusable.passwords.entering.Register`.
+- Covered by [Passwords](../design/compositions/reusable/passwords.md), line 5.
+- Covered by [Passwords](../design/compositions/reusable/passwords.md), line 12.
+
+```reaction
+when RequestBoundary.request (password, path: "/auth/register", requestId, username)
+where
+  Authenticating._acceptable (password) has (acceptable: true)
+then
+  Registering.register (username)
+```
+
+### reusable.passwords.entering.Register:accepted#2
+
+Authored path: `reusable.passwords.entering.Register`.
+- Covered by [Passwords](../design/compositions/reusable/passwords.md), line 5.
+- Covered by [Passwords](../design/compositions/reusable/passwords.md), line 12.
+
+```reaction
+when Registering.register (username, user), asked by reusable.passwords.entering.Register:accepted
+where
+  earlier, RequestBoundary.request (password, path: "/auth/register", requestId, username)
+then
+  Authenticating.set (password, user)
+```
+
+### reusable.passwords.entering.Register:accepted#3
+
+Authored path: `reusable.passwords.entering.Register`.
+- Covered by [Passwords](../design/compositions/reusable/passwords.md), line 5.
+- Covered by [Passwords](../design/compositions/reusable/passwords.md), line 12.
+
+```reaction
+when Authenticating.set (password, user), asked by reusable.passwords.entering.Register:accepted#2
+then
+  Sessioning.start (subject: user)
+```
+
+### reusable.passwords.entering.Register:accepted#4
+
+Authored path: `reusable.passwords.entering.Register`.
+- Covered by [Passwords](../design/compositions/reusable/passwords.md), line 5.
+- Covered by [Passwords](../design/compositions/reusable/passwords.md), line 12.
+
+```reaction
+when Sessioning.start (subject: user, expiresAt, session), asked by reusable.passwords.entering.Register:accepted#3
+where
+  earlier, RequestBoundary.request (password, path: "/auth/register", requestId, username)
+then
+  RequestBoundary.respond (expiresAt, requestId, session, user)
+```
+
+### reusable.passwords.entering.Register:refused
+
+Authored path: `reusable.passwords.entering.Register`.
+- Covered by [Passwords](../design/compositions/reusable/passwords.md), line 5.
+- Covered by [Passwords](../design/compositions/reusable/passwords.md), line 12.
+
+```reaction
+when RequestBoundary.request (password, path: "/auth/register", requestId, username)
+where
+  Authenticating._acceptable (password) has (acceptable: false)
+then
+  RequestBoundary.respond (error: "INVALID_PASSWORD", requestId)
+```
+
+### reusable.passwords.entering.SignIn:known
+
+Authored path: `reusable.passwords.entering.SignIn`.
+- Covered by [Passwords](../design/compositions/reusable/passwords.md), line 7.
+- Covered by [Passwords](../design/compositions/reusable/passwords.md), line 13.
+
+```reaction
+when RequestBoundary.request (password, path: "/auth/login", requestId, username)
+where
+  Registering._byUsername (username) has (user)
+then
+  Authenticating.authenticate (password, user)
+```
+
+### reusable.passwords.entering.SignIn:known#2
+
+Authored path: `reusable.passwords.entering.SignIn`.
+- Covered by [Passwords](../design/compositions/reusable/passwords.md), line 7.
+- Covered by [Passwords](../design/compositions/reusable/passwords.md), line 13.
+
+```reaction
+when Authenticating.authenticate (password, user), asked by reusable.passwords.entering.SignIn:known
+then
+  Sessioning.start (subject: user)
+```
+
+### reusable.passwords.entering.SignIn:known#3
+
+Authored path: `reusable.passwords.entering.SignIn`.
+- Covered by [Passwords](../design/compositions/reusable/passwords.md), line 7.
+- Covered by [Passwords](../design/compositions/reusable/passwords.md), line 13.
+
+```reaction
+when Sessioning.start (subject: user, expiresAt, session), asked by reusable.passwords.entering.SignIn:known#2
+where
+  earlier, RequestBoundary.request (password, path: "/auth/login", requestId, username)
+then
+  RequestBoundary.respond (expiresAt, requestId, session, user)
+```
+
+### reusable.passwords.entering.SignIn:unknown
+
+Authored path: `reusable.passwords.entering.SignIn`.
+- Covered by [Passwords](../design/compositions/reusable/passwords.md), line 7.
+- Covered by [Passwords](../design/compositions/reusable/passwords.md), line 13.
+
+```reaction
+when RequestBoundary.request (password, path: "/auth/login", requestId, username)
+where
+  no Registering._byUsername (username)
+then
+  RequestBoundary.respond (error: "INVALID_CREDENTIALS", requestId)
+```
+
 ### saving.keeping.SaveNote
 
 Authored path: `saving.keeping.SaveNote`.
@@ -1273,8 +1416,10 @@ not listed here have no explicit input contract.
 
 - `/auth/commons/choose` — requires `attempt`, `username`
 - `/auth/commons/finish` — requires `attempt`, `code`, `state`
+- `/auth/login` — requires `password`, `username`
 - `/auth/logout` — requires `session`
 - `/auth/me` — requires `session`
+- `/auth/register` — requires `password`, `username`
 - `/location/consent` — requires `feature`, `session`
 - `/location/status` — requires `feature`, `session`
 - `/location/withdraw` — requires `feature`, `session`

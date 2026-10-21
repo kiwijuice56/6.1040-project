@@ -1,6 +1,6 @@
 # Sticky types
 
-Every person in Sticky is a Registering user, signed in with Commons. That user is the one a session belongs to.
+Every person in Sticky is a Registering user, signed in with Commons or with a username and password. That user is the one a session belongs to.
 
 CommonsFederating is Federating with Commons as the other site. Signing in with Google would add a second instance, `instantiate Federating as GoogleFederating`, with its own provider.
 
@@ -18,6 +18,9 @@ Sticky uses one Feature, `sharingLocation`: keeping the map on the person's GPS.
 instantiate Registering
 
 instantiate Federating as CommonsFederating with
+  User is Registering.User
+
+instantiate Authenticating with
   User is Registering.User
 
 instantiate Sessioning with

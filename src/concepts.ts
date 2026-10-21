@@ -1,4 +1,5 @@
 import { conceptSet } from "@mit-sdg/sync-engine/assembly";
+import { authenticating } from "./concepts/Authenticating/registry.ts";
 import { consenting } from "./concepts/Consenting/registry.ts";
 import { commonsFederating } from "./concepts/Federating/registry.ts";
 import { geographicPosting } from "./concepts/GeographicPosting/registry.ts";
@@ -11,6 +12,7 @@ import { upvoting } from "./concepts/Upvoting/registry.ts";
 export const applicationConceptSet = conceptSet({
   Registering: registering,
   CommonsFederating: commonsFederating,
+  Authenticating: authenticating,
   Sessioning: sessioning,
   Consenting: consenting,
   GeographicPosting: geographicPosting,

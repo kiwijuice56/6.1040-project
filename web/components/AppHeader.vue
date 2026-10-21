@@ -96,9 +96,10 @@ onUnmounted(() => {
         <li>
           <a
             class="nav-link"
-            :href="signedIn ? '#profile' : '#'"
-            :role="signedIn ? undefined : 'button'"
-            :aria-current="signedIn && view === 'settings' ? 'page' : undefined"
+            :href="signedIn ? '#profile' : '#signin'"
+            :aria-current="
+              (signedIn ? view === 'settings' : view === 'signin' || view === 'signup') ? 'page' : undefined
+            "
             @click="onAccount"
           >
             <span class="nav-icon nav-icon-signin" aria-hidden="true" v-show="!signedIn"></span>

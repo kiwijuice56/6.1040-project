@@ -5,6 +5,8 @@ import LocationDialog from "./components/LocationDialog.vue";
 import ProfileView from "./components/ProfileView.vue";
 import MyNotesView from "./components/MyNotesView.vue";
 import SearchBar from "./components/SearchBar.vue";
+import SignInView from "./components/SignInView.vue";
+import SignUpView from "./components/SignUpView.vue";
 import { useLocation } from "./composables/useLocation.ts";
 import { usePosts } from "./composables/usePosts.ts";
 import { useSaves } from "./composables/useSaves.ts";
@@ -29,15 +31,23 @@ const {
   skipOffer,
   onToggle,
 } = useLocation();
-const { view, compact, menuOpen, showMap, showNotes, showProfile, goFind } = useView();
+const { view, compact, menuOpen, showMap, showNotes, showProfile, showSignIn, showSignUp, goFind } = useView();
 const mapEl = shallowRef<HTMLElement>();
 const mapUi = shallowRef<MapUi>();
 const searchBar = shallowRef<{ cancel: () => void; isActive: () => boolean }>();
 let pollId: number | undefined;
 
+const AUTH_VIEWS: readonly string[] = ["signin", "signup"];
+
 function signIn() {
+  if (signedIn.value) return;
   mapUi.value?.stashPendingPost();
-  void startCommons();
+  window.location.hash = "signin";
+}
+
+async function onPasswordSignIn() {
+  goFind();
+  await applySession(true);
 }
 
 function syncGps() {
@@ -70,13 +80,18 @@ async function showOnMap(note: (typeof posts.value)[number]) {
   mapUi.value?.openNote(note);
 }
 
-watch(view, async (next) => {
+watch(view, async (next, prev) => {
+  if (signedIn.value && AUTH_VIEWS.includes(next)) {
+    goFind();
+    return;
+  }
   if (next !== "find") {
     mapUi.value?.onView(next);
     return;
   }
   await nextTick();
   mapUi.value?.onView("find");
+  if (AUTH_VIEWS.includes(prev)) mapUi.value?.restorePendingPost();
 });
 
 onMounted(async () => {
@@ -102,6 +117,7 @@ onMounted(async () => {
   }
 
   if (!signedIn.value && view.value === "settings") goFind();
+  if (signedIn.value && AUTH_VIEWS.includes(view.value)) goFind();
   if (viewer.value) await applySession(offer);
   else locationSignedOut();
   mapUi.value.restorePendingPost();
@@ -154,6 +170,8 @@ onUnmounted(() => {
       @sign-out="logout"
       @location="onToggle"
     />
+    <SignInView :visible="showSignIn" @signed-in="onPasswordSignIn" @commons="startCommons" />
+    <SignUpView :visible="showSignUp" @signed-in="onPasswordSignIn" />
   </main>
   <LocationDialog v-if="dialogOpen" :busy="locationBusy" @accept="acceptOffer" @skip="skipOffer" />
 </template>

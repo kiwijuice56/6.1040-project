@@ -5,6 +5,7 @@ import { searchingHttp } from "./compositions/searching.ts";
 import { savingHttp } from "./compositions/saving.ts";
 import { accountsHttp } from "./compositions/reusable/accounts.ts";
 import { commonsHttp } from "./compositions/reusable/commons.ts";
+import { passwordsHttp } from "./compositions/reusable/passwords.ts";
 
 /**
  * The HTTP category the server returns for each refusal. A refusal missing here
@@ -18,13 +19,17 @@ export function stickyPolicy(publicOrigin: string): HttpPolicy {
     publicErrors: {
       ...accountsHttp.publicErrors,
       ...commonsHttp.publicErrors,
+      ...passwordsHttp.publicErrors,
       ...postingHttp.publicErrors,
       ...locationHttp.publicErrors,
       ...searchingHttp.publicErrors,
       ...savingHttp.publicErrors,
     },
     cookies: {
-      session: accountsHttp.sessionCookie("sticky-session", [...commonsHttp.startingSessions]),
+      session: accountsHttp.sessionCookie("sticky-session", [
+        ...commonsHttp.startingSessions,
+        ...passwordsHttp.startingSessions,
+      ]),
       signIn: commonsHttp.signInCookie("sticky-sign-in"),
     },
   });

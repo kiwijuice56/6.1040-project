@@ -358,6 +358,27 @@ main {
   background: #fff;
 }
 
+/* Replays every time v-show reveals a view, since display: none resets animations. */
+.app-view,
+#map,
+.search-overlay {
+  animation: view-fade-in 180ms ease-out;
+}
+
+@keyframes view-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-view,
+  #map,
+  .search-overlay {
+    animation: none;
+  }
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -974,14 +995,127 @@ textarea.note-reader-body:read-only:focus-visible {
   text-align: center;
 }
 
+main,
 .notes-view,
-.profile-view {
+.profile-view,
+.auth-view {
   background-color: var(--base-dark);
   background-image: url("./img/paper_texture.webp");
   background-blend-mode: multiply;
   background-size: 100% auto;
   background-position: center;
   background-repeat: no-repeat;
+}
+
+.auth-view {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 1rem;
+  width: min(22rem, 100%);
+  margin: auto;
+  padding: 1.25rem 1rem 1rem;
+  background-color: var(--base);
+  background-image: url("./img/paper_texture.webp");
+  background-blend-mode: multiply;
+  background-size: 100% auto;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: var(--ink);
+  border: 1px solid color-mix(in srgb, var(--ink) 50%, transparent);
+  border-radius: 2px;
+  box-shadow: 0 0.4rem 1rem color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+.auth-card h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.auth-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.auth-form input {
+  padding: 0.35rem 0.6rem;
+  font: inherit;
+  color: inherit;
+  background: rgb(255 255 255 / 55%);
+  border: 1px solid color-mix(in srgb, var(--ink) 40%, transparent);
+  border-radius: 2px;
+}
+
+.auth-form input:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+}
+
+.auth-hint {
+  font-size: 0.85rem;
+  color: color-mix(in srgb, var(--ink) 75%, transparent);
+}
+
+.auth-error {
+  margin: 0;
+  color: #a40000;
+}
+
+.auth-divider {
+  width: 100%;
+  margin: 0;
+  border: none;
+  border-top: 1px solid color-mix(in srgb, var(--ink) 45%, transparent);
+}
+
+.auth-alternatives {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.auth-card button,
+.auth-link-button {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.auth-link-button {
+  display: block;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--outline);
+  border-radius: 0.25rem;
+  background: #fff;
+  color: var(--ink);
+  text-align: center;
+  text-decoration: none;
+}
+
+.auth-link-button:hover {
+  background: #f0f0f0;
+}
+
+.auth-link-button:active {
+  background: #e4e4e4;
+}
+
+.auth-link-button:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
 }
 
 .notes-empty {

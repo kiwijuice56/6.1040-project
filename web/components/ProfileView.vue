@@ -31,9 +31,7 @@ const emit = defineEmits<{
         Use my location
       </label>
       <p class="location-status" v-show="locationHint">{{ locationHint }}</p>
-      <button v-if="!signedIn" type="button" :disabled="busy" @click="emit('signIn')">
-        Sign in with Commons
-      </button>
+      <button v-if="!signedIn" type="button" :disabled="busy" @click="emit('signIn')">Sign in</button>
       <button v-else type="button" :disabled="busy" @click="emit('signOut')">Sign out</button>
     </div>
   </section>

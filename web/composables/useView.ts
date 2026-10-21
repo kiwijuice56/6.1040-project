@@ -1,8 +1,8 @@
 import { computed, onMounted, onUnmounted, ref } from "vue";
 
-export type AppView = "find" | "notes" | "settings";
+export type AppView = "find" | "notes" | "settings" | "signin" | "signup";
 
-const VIEWS = ["find", "notes", "settings"] as const;
+const VIEWS = ["find", "notes", "settings", "signin", "signup"] as const;
 const COMPACT = "(max-width: 44rem)";
 
 export function viewFromHash(): AppView {
@@ -11,7 +11,7 @@ export function viewFromHash(): AppView {
   return (VIEWS as readonly string[]).includes(id) ? (id as AppView) : "find";
 }
 
-/** Hash views (`#find`, `#notes`, `#profile`) and the compact pancake menu. */
+/** Hash views (`#find`, `#notes`, `#profile`, `#signin`, `#signup`) and the compact pancake menu. */
 export function useView() {
   const view = ref<AppView>(typeof window === "undefined" ? "find" : viewFromHash());
   const compact = ref(false);
@@ -20,6 +20,8 @@ export function useView() {
   const showMap = computed(() => view.value === "find");
   const showNotes = computed(() => view.value === "notes");
   const showProfile = computed(() => view.value === "settings");
+  const showSignIn = computed(() => view.value === "signin");
+  const showSignUp = computed(() => view.value === "signup");
 
   function setView(next: AppView) {
     view.value = next;
@@ -60,6 +62,8 @@ export function useView() {
     showMap,
     showNotes,
     showProfile,
+    showSignIn,
+    showSignUp,
     goFind,
   };
 }

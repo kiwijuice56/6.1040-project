@@ -17,6 +17,7 @@ export default {
       new URL("./design/types.md", import.meta.url),
       new URL("./design/compositions/reusable/accounts.md", import.meta.url),
       new URL("./design/compositions/reusable/commons.md", import.meta.url),
+      new URL("./design/compositions/reusable/passwords.md", import.meta.url),
       new URL("./design/compositions/posting.md", import.meta.url),
       new URL("./design/compositions/location.md", import.meta.url),
       new URL("./design/compositions/searching.md", import.meta.url),

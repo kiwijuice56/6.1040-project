@@ -3,6 +3,7 @@ import { applicationConceptSet } from "./concepts.ts";
 
 import { composition as commons } from "./compositions/reusable/commons.ts";
 import { composition as accounts } from "./compositions/reusable/accounts.ts";
+import { composition as passwords } from "./compositions/reusable/passwords.ts";
 import { composition as posting } from "./compositions/posting.ts";
 import { composition as location } from "./compositions/location.ts";
 import { composition as searching } from "./compositions/searching.ts";
@@ -18,7 +19,7 @@ export function assembleApplication(
     conceptSet: applicationConceptSet,
     instances: applicationConceptSet.implementations("mongo", resources),
     composition: {
-      reusable: { accounts, commons },
+      reusable: { accounts, commons, passwords },
       posting,
       location,
       searching,

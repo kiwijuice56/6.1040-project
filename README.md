@@ -12,6 +12,7 @@
 - [User journey video](docs/p2/user-journey.mp4)
 ## P3
 - [Visual study](https://docs.google.com/presentation/d/161UhO2MOadJnFcJR5gb5zliLfOzlw8lOOjnFVynC9ww/edit?usp=sharing)
+- [Updated user journey](docs/p3/user-journey.md)
 
 ## Tests
 

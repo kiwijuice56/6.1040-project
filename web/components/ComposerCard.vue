@@ -84,7 +84,7 @@ async function submit() {
         :disabled="busy"
         @click="emit('signIn')"
       >
-        Sign in with Commons
+        Sign in
       </button>
     </template>
   </form>

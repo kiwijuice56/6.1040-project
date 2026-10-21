@@ -52,7 +52,7 @@ export function mountMapUi(options: {
   mapInstance?.remove();
   mapInstance = undefined;
 
-  const pending = takePendingPost();
+  let pending = takePendingPost();
   const map = mountMap(options.map, pending ? { center: pending } : {});
   mapInstance = map;
 
@@ -217,7 +217,9 @@ export function mountMapUi(options: {
       if (location) sessionStorage.setItem(PENDING_POST, JSON.stringify(location));
     },
     restorePendingPost() {
-      if (pending) composer.open(pending, { animate: false });
+      const location = pending ?? takePendingPost();
+      pending = undefined;
+      if (location) composer.open(location, { animate: false });
     },
     destroy() {
       cancelLocate();

@@ -68,6 +68,35 @@ export function useSession() {
     return { offer: false };
   }
 
+  /** Returns an error message, or nothing once the session is loaded. */
+  async function login(input: { username: string; password: string }): Promise<string | undefined> {
+    busy.value = true;
+    const result = await api["/auth/login"](input);
+    busy.value = false;
+    if (!("error" in result)) {
+      await loadMe();
+      return;
+    }
+    if (result.error === "UNAUTHORIZED" || result.error === "INVALID_REQUEST") {
+      return "The username or password is incorrect.";
+    }
+    return "Something went wrong. Try again.";
+  }
+
+  /** Returns an error message, or nothing once the session is loaded. */
+  async function register(input: { username: string; password: string }): Promise<string | undefined> {
+    busy.value = true;
+    const result = await api["/auth/register"](input);
+    busy.value = false;
+    if (!("error" in result)) {
+      await loadMe();
+      return;
+    }
+    if (result.error === "CONFLICT") return "That username is taken.";
+    if (result.error === "INVALID_REQUEST") return "That username or password doesn't follow the rules under each box.";
+    return "Something went wrong. Try again.";
+  }
+
   async function logout() {
     busy.value = true;
     await api["/auth/logout"]();
@@ -84,6 +113,8 @@ export function useSession() {
     loadMe,
     startCommons,
     finishCommons,
+    login,
+    register,
     logout,
   };
 }
