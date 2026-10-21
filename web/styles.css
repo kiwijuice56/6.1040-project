@@ -77,6 +77,44 @@ header h1 a {
   text-decoration: none;
 }
 
+/*
+ * Three stacked copies of the word, so no letter's stroke covers a neighbor's fill: a white outline around the
+ * whole word, then each letter's darkened-accent outline, then the accent fills.
+ * Strokes are centered on the glyph edge, so 4px shows 2px outside and 8px reaches 2px past that.
+ */
+.brand {
+  position: relative;
+  display: inline-block;
+  font-kerning: none;
+}
+
+.brand::before {
+  content: attr(data-text);
+  content: attr(data-text) / "";
+  position: absolute;
+  inset: 0;
+  color: #fff;
+  -webkit-text-stroke: 8px #fff;
+}
+
+.brand-outline {
+  position: absolute;
+  inset: 0;
+}
+
+.brand-outline span {
+  color: color-mix(in srgb, var(--letter) 65%, #000);
+  -webkit-text-stroke: 4px color-mix(in srgb, var(--letter) 65%, #000);
+}
+
+.brand-fill {
+  position: relative;
+}
+
+.brand-fill span {
+  color: var(--letter);
+}
+
 #nav-menu {
   display: inline-flex;
   align-items: center;

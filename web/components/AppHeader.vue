@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
 import type { AppView } from "../composables/useView.ts";
+import { logoAccents } from "../palette.ts";
+
+const BRAND = "Sticky";
+const brandColors = logoAccents(BRAND.length);
 
 const props = defineProps<{
   view: AppView;
@@ -52,7 +56,13 @@ onUnmounted(() => {
 
 <template>
   <header>
-    <h1><a href="#find">Sticky</a></h1>
+    <h1>
+      <a href="#find" class="brand" :data-text="BRAND" :aria-label="BRAND">
+        <span v-for="layer in ['brand-outline', 'brand-fill']" :key="layer" :class="layer" aria-hidden="true">
+          <span v-for="(letter, i) in BRAND" :key="i" :style="{ '--letter': brandColors[i] }">{{ letter }}</span>
+        </span>
+      </a>
+    </h1>
     <button
       id="nav-menu"
       ref="toggle"

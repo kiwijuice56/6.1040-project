@@ -6,3 +6,16 @@ export function accentFor(post: string): string {
   for (let i = 0; i < post.length; i++) hash = (hash * 31 + post.charCodeAt(i)) | 0;
   return ACCENTS[Math.abs(hash) % ACCENTS.length]!;
 }
+
+/** Random accent per letter: every accent appears at least once and neighbors never match. Needs count >= 4. */
+export function logoAccents(count: number): string[] {
+  const pick = () => ACCENTS[Math.floor(Math.random() * ACCENTS.length)]!;
+  for (;;) {
+    const colors = [...ACCENTS, ...Array.from({ length: count - ACCENTS.length }, pick)];
+    for (let i = colors.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [colors[i], colors[j]] = [colors[j]!, colors[i]!];
+    }
+    if (colors.every((color, i) => i === 0 || color !== colors[i - 1])) return colors;
+  }
+}
