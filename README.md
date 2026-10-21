@@ -10,6 +10,8 @@
 - [Design notebook (private)](https://github.com/kiwijuice56/6.1040-homework-fa26/tree/main/project/design-notebook.md)
 - [Updated user journey](docs/p2/user-journey.md)
 - [User journey video](docs/p2/user-journey.mp4)
+## P3
+- [Visual study](https://docs.google.com/presentation/d/161UhO2MOadJnFcJR5gb5zliLfOzlw8lOOjnFVynC9ww/edit?usp=sharing)
 
 ## Tests
 
