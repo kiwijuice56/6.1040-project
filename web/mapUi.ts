@@ -84,7 +84,7 @@ export function mountMapUi(options: {
   });
   closeComposer = () => composer.close();
 
-  const ink = "#2e221a";
+  const ink = "#412a22";
   const RADIUS_FADE_MS = 200;
   const RADIUS_LINGER_MS = 1000;
   const RADIUS_FILL = 0.08;

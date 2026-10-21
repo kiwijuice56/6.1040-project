@@ -17,7 +17,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <section id="view-settings" class="app-view" v-show="visible" aria-labelledby="settings-heading">
+  <section id="view-settings" class="app-view profile-view" v-show="visible" aria-labelledby="settings-heading">
     <h2 id="settings-heading" class="visually-hidden">My profile</h2>
     <div id="session">
       <p id="who" v-show="signedIn">{{ who }}</p>

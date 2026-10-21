@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { usePosts } from "../composables/usePosts.ts";
 import { useSession } from "../composables/useSession.ts";
+import { accentFor } from "../palette.ts";
 import type { PublicNote, VoteChoice } from "../types.ts";
 import NoteBookmark from "./NoteBookmark.vue";
 
@@ -162,6 +163,7 @@ function onSecondary() {
   <div
     class="post-composer-card note-reader"
     :class="{ 'is-openable': openOnClick }"
+    :style="{ '--note-tint': accentFor(note.post) }"
     @pointerdown="onPress"
     @click="onCardClick"
   >

@@ -1,6 +1,7 @@
 import L from "leaflet";
 import { createApp, type App } from "vue";
 import NoteReader from "./components/NoteReader.vue";
+import { accentFor } from "./palette.ts";
 import { dismissPopup, placePopup } from "./popup.ts";
 import type { PublicNote } from "./types.ts";
 
@@ -28,7 +29,7 @@ export function mountNotes(
         className: "note-dot-icon",
         iconSize: [DOT, DOT],
         iconAnchor: [DOT / 2, DOT / 2],
-        html: `<span class="map-dot"></span>`,
+        html: `<span class="map-dot" style="--note-tint: ${accentFor(note.post)}"></span>`,
       }),
       interactive: true,
       keyboard: false,
@@ -80,6 +81,7 @@ export function mountNotes(
     reading = note.post;
     editing = false;
     const { marker, host } = placePopup(map, L.latLng(note.location.latitude, note.location.longitude));
+    marker.getElement()?.style.setProperty("--note-tint", accentFor(note.post));
     readerApp = createApp(NoteReader, {
       note,
       onClose: () => closeReader(),

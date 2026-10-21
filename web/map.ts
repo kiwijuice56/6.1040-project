@@ -53,6 +53,16 @@ export function mountMap(container: HTMLElement, options: { center?: MapCoordina
     ).addTo(map);
   });
 
+  // Drags and pan animations leave the pane at fractional pixels. On scaled displays that re-rasterizes markers at a
+  // different sub-pixel offset each frame, so thin outlines shimmer. Snapping to the device pixel grid keeps them still.
+  const pane = map.getPane("mapPane")!;
+  map.on("move", () => {
+    const pos = L.DomUtil.getPosition(pane);
+    const dpr = window.devicePixelRatio || 1;
+    const snapped = L.point(Math.round(pos.x * dpr) / dpr, Math.round(pos.y * dpr) / dpr);
+    if (!snapped.equals(pos)) L.DomUtil.setPosition(pane, snapped);
+  });
+
   const resize = () => map.invalidateSize();
   requestAnimationFrame(resize);
   window.addEventListener("resize", resize);

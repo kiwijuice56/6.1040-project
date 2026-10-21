@@ -1,9 +1,26 @@
-/* UI ink. Was black (#111 / #000). Change --ink to recolor text, icons, outlines, and map dots. */
+/*
+ * Palette. Change these to recolor the app.
+ * --ink: text, icons, and outlines. web/mapUi.ts repeats it for the search radius circle.
+ * --outline: button borders.
+ * --base / --base-dark / --base-light: tints for the grayscale paper texture. Default is the nav bar and
+ *   un-tinted cards, dark is the panels behind notes (My notes, profile, search results), light is the search bar
+ *   (white leaves the paper untinted).
+ * --accent-1..4: per-note tints. web/palette.ts picks one per post, and the note's map dot uses the same one.
+ * Paper surfaces set background-color to a tint and use background-blend-mode: multiply over paper_texture.webp.
+ */
 :root {
-  --ink: #2e221a;
-  --upvote: #e39b6b;
-  --downvote: #7ba3c9;
-  --delete: #e18282;
+  --ink: #412a22;
+  --outline: #5c433a;
+  --base: #fbd999;
+  --base-dark: #f1f1f1;
+  --base-light: #ffffff;
+  --accent-1: #c8cd82;
+  --accent-2: #e2aa9a;
+  --accent-3: #accfc7;
+  --accent-4: #dfc4d1;
+  --upvote: #ec9357;
+  --downvote: #5266b4;
+  --delete: #c45c5c;
 }
 
 html,
@@ -35,12 +52,13 @@ header {
   justify-content: space-between;
   gap: 0.75rem 1rem;
   padding: 0.75rem 1rem;
-  background-color: #c4b5a5;
+  background-color: var(--base);
   background-image: url("./img/paper_texture.webp");
+  background-blend-mode: multiply;
   background-size: 100% auto;
   background-position: center;
   background-repeat: no-repeat;
-  box-shadow: 0 2px 6px color-mix(in srgb, var(--ink) 18%, transparent);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--ink) 23%, transparent);
   position: relative;
   z-index: 1;
   color: var(--ink);
@@ -96,7 +114,7 @@ header h1 a {
   gap: 0.45rem;
   box-sizing: border-box;
   padding: 0.4rem 0.8rem;
-  border: 1px solid var(--ink);
+  border: 2px solid var(--outline);
   border-radius: 0.25rem;
   background: #fff;
   color: inherit;
@@ -241,8 +259,9 @@ header h1 a {
   gap: 0.75rem;
   width: min(22rem, 100%);
   padding: 1.25rem 1rem 1rem;
-  background-color: #c4b5a5;
+  background-color: var(--base);
   background-image: url("./img/paper_texture.webp");
+  background-blend-mode: multiply;
   background-size: 100% auto;
   background-position: center;
   background-repeat: no-repeat;
@@ -314,7 +333,7 @@ button {
   appearance: none;
   font: inherit;
   padding: 0.4rem 0.8rem;
-  border: 1px solid var(--ink);
+  border: 2px solid var(--outline);
   border-radius: 0.25rem;
   background: #fff;
   color: var(--ink);
@@ -339,6 +358,7 @@ button:disabled {
   min-height: 0;
   width: 100%;
   cursor: grab;
+  isolation: isolate;
 }
 
 #map:active {
@@ -353,6 +373,7 @@ button:disabled {
 }
 
 #map .leaflet-bar {
+  border-width: 3px;
   border-color: color-mix(in srgb, var(--ink) 20%, transparent);
 }
 
@@ -408,8 +429,10 @@ button:disabled {
   height: 0.5rem;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: var(--ink);
-  box-shadow: 0 0 0 2px #fff;
+  background: var(--note-tint, var(--ink));
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 3px var(--ink);
 }
 
 .post-composer-card {
@@ -423,8 +446,9 @@ button:disabled {
   min-height: 0;
   overflow: hidden;
   padding: 1.75rem 0.75rem 0.75rem;
-  background-color: #c4b5a5;
+  background-color: var(--note-tint, var(--base));
   background-image: url("./img/paper_texture.webp");
+  background-blend-mode: multiply;
   background-size: auto 100%;
   background-position: center;
   background-repeat: no-repeat;
@@ -542,8 +566,10 @@ button:disabled {
   height: 0.5rem;
   margin: 0.25rem;
   border-radius: 50%;
-  background: var(--ink);
-  box-shadow: 0 0 0 2px #fff;
+  background: var(--note-tint, var(--ink));
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 3px var(--ink);
   transform-origin: center;
   transition: transform 0.2s ease;
 }
@@ -639,7 +665,6 @@ textarea.note-reader-body:read-only:focus-visible {
 
 .note-vote-up {
   color: var(--upvote);
-  border-color: var(--upvote);
 }
 
 .note-vote-up:hover:not(:disabled) {
@@ -665,7 +690,6 @@ textarea.note-reader-body:read-only:focus-visible {
 
 .note-vote-down {
   color: var(--downvote);
-  border-color: var(--downvote);
 }
 
 .note-vote-down:hover:not(:disabled) {
@@ -733,7 +757,7 @@ textarea.note-reader-body:read-only:focus-visible {
 .note-delete {
   color: #fff;
   background: var(--delete);
-  border-color: color-mix(in srgb, var(--delete) 50%, var(--ink));
+  border-color: color-mix(in srgb, var(--delete) 50%, var(--outline));
 }
 
 .note-delete:hover {
@@ -772,8 +796,9 @@ textarea.note-reader-body:read-only:focus-visible {
   gap: 0.75rem;
   padding: 0.5rem 0.75rem;
   color: var(--ink);
-  background-color: #c4b5a5;
+  background-color: var(--base-light);
   background-image: url("./img/paper_texture.webp");
+  background-blend-mode: multiply;
   background-size: 100% auto;
   background-position: center;
   background-repeat: no-repeat;
@@ -845,8 +870,9 @@ textarea.note-reader-body:read-only:focus-visible {
   min-height: 0;
   overflow: hidden;
   color: var(--ink);
-  background-color: #c4b5a5;
+  background-color: var(--base-dark);
   background-image: url("./img/paper_texture.webp");
+  background-blend-mode: multiply;
   background-size: 100% auto;
   background-position: center;
   background-repeat: no-repeat;
@@ -874,8 +900,9 @@ textarea.note-reader-body:read-only:focus-visible {
 .search-hit:hover,
 .search-hit:active {
   color: inherit;
-  background-color: #c4b5a5;
+  background-color: var(--note-tint, var(--base));
   background-image: url("./img/paper_texture.webp");
+  background-blend-mode: multiply;
   background-size: auto 100%;
   background-position: center;
   background-repeat: no-repeat;
@@ -887,9 +914,11 @@ textarea.note-reader-body:read-only:focus-visible {
   text-align: center;
 }
 
-.notes-view {
-  background-color: #ebe2d6;
+.notes-view,
+.profile-view {
+  background-color: var(--base-dark);
   background-image: url("./img/paper_texture.webp");
+  background-blend-mode: multiply;
   background-size: 100% auto;
   background-position: center;
   background-repeat: no-repeat;

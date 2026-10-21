@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { usePosts } from "../composables/usePosts.ts";
 import { useSearch } from "../composables/useSearch.ts";
 import type { MapCoordinate } from "../map.ts";
+import { accentFor } from "../palette.ts";
 import type { PublicNote } from "../types.ts";
 import NoteBookmark from "./NoteBookmark.vue";
 
@@ -164,6 +165,7 @@ function tally(count: number) {
             v-for="note in paintedHits"
             :key="note.post"
             class="post-composer-card search-hit"
+            :style="{ '--note-tint': accentFor(note.post) }"
             role="button"
             tabindex="0"
             @click="select(note)"
