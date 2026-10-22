@@ -62,7 +62,17 @@ function toSignUp() {
       </form>
       <hr class="auth-divider" />
       <div class="auth-alternatives">
-        <button type="button" :disabled="busy" @click="emit('commons')">Login or Sign-up with Commons</button>
+        <button class="auth-commons" type="button" :disabled="busy" @click="emit('commons')">
+          <svg class="auth-commons-icon" viewBox="14 11 39 39" aria-hidden="true" fill="currentColor">
+            <rect x="15" y="15" width="16" height="16" rx="4.5" />
+            <rect x="15" y="33" width="16" height="16" rx="4.5" />
+            <rect x="33" y="33" width="16" height="16" rx="4.5" />
+            <circle cx="23" cy="32" r="2.7" />
+            <circle cx="32" cy="41" r="2.7" />
+            <rect x="36" y="12" width="16" height="16" rx="4.5" transform="rotate(12 44 20)" />
+          </svg>
+          Login or Sign-up with Commons
+        </button>
         <a class="auth-link-button" href="#signup" @click="toSignUp">Sign-up without Commons</a>
       </div>
     </div>

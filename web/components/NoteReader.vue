@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { usePosts } from "../composables/usePosts.ts";
 import { useSession } from "../composables/useSession.ts";
 import { accentFor } from "../palette.ts";
@@ -35,6 +35,14 @@ const error = ref("");
 const mode = ref<"view" | "edit">("view");
 const fading = ref(false);
 const acting = ref(false);
+
+watch(
+  () => props.note.body,
+  (next) => {
+    savedBody.value = next;
+    if (mode.value === "view") body.value = next;
+  },
+);
 
 function wait(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));

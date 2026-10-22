@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { usePosts } from "../composables/usePosts.ts";
 import { useSession } from "../composables/useSession.ts";
 import type { PublicNote, VoteChoice } from "../types.ts";
@@ -20,6 +20,13 @@ const owned = computed(() => Boolean(props.note.username && props.note.username 
 const count = ref(typeof props.note.count === "number" ? props.note.count : 0);
 const mine = ref<VoteChoice | undefined>();
 const voting = ref(false);
+
+watch(
+  () => props.note.count,
+  (next) => {
+    if (!voting.value && typeof next === "number") count.value = next;
+  },
+);
 
 const tally = computed(() => (count.value > 0 ? `+${count.value}` : String(count.value)));
 

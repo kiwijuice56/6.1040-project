@@ -19,7 +19,7 @@ const NOTES_POLL_MS = 5_000;
 const { viewer, signedIn, who, accountLabel, status, busy, loadMe, startCommons, finishCommons, logout } =
   useSession();
 const { posts, poll, create } = usePosts();
-const { refresh: refreshSaves } = useSaves();
+const { refresh: refreshSaves, poll: pollSaves } = useSaves();
 const {
   consented,
   hint,
@@ -125,7 +125,9 @@ onMounted(async () => {
   void refreshSaves();
 
   pollId = window.setInterval(() => {
-    if (document.hidden || mapUi.value?.isEditing()) return;
+    if (document.hidden) return;
+    void pollSaves();
+    if (mapUi.value?.isEditing()) return;
     void poll();
   }, NOTES_POLL_MS);
 });
