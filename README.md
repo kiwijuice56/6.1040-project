@@ -1,4 +1,6 @@
-# Project: Sticky
+# Sticky
+[Link to live app](https://sticky.mit-sdg.dev/).
+
 ## P1
 - [Design notebook (private)](https://github.com/kiwijuice56/6.1040-homework-fa26/tree/main/project/design-notebook.md)
 - [Problem framing and stakeholders](docs/p1/problem-framing.md)
@@ -14,6 +16,8 @@
 - [Visual study](https://docs.google.com/presentation/d/161UhO2MOadJnFcJR5gb5zliLfOzlw8lOOjnFVynC9ww/edit?usp=sharing)
 - [Updated user journey (written)](docs/p3/user-journey.md)
 - [Updated user journey (video)](https://youtu.be/mOpjAN1GwCs)
+- [Link to live app](https://sticky.mit-sdg.dev/)
+- [Automated test output](#tests)
 
 ## Tests
 
