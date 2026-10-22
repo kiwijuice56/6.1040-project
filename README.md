@@ -17,7 +17,7 @@
 - [Updated user journey (written)](docs/p3/user-journey.md)
 - [Updated user journey (video)](https://youtu.be/mOpjAN1GwCs)
 - [Link to live app](https://sticky.mit-sdg.dev/)
-- [Automated test output](#tests)
+- [Automated test output](docs/p3/saved_test_output.md)
 
 ## Tests
 
@@ -26,6 +26,14 @@ The automated tests cover concepts and the HTTP endpoints that compose them. The
 1. Start the local database: `bun run db:up`. This runs MongoDB in Podman. On Windows, run `podman machine start` first if the machine is stopped.
 2. Copy `.env.example` to `.env` if you have not. Tests read `MONGODB_URL` from that file (`mongodb://dev:dev@127.0.0.1:27017/sticky?authSource=admin`).
 3. Run `bun test`.
+
+To save that output, from PowerShell:
+
+```powershell
+bun test --no-color 2>&1 | ForEach-Object { "$_" } | Set-Content -Encoding utf8 docs/p3/bun-test.txt
+```
+
+Name the file `.txt`. `.gitignore` ignores `*.log`, so a `.log` file would not be committed. The latest saved log is [docs/p3/bun-test.txt](docs/p3/bun-test.txt).
 
 Bun loads `.env` on its own. Each test starts from an empty database and creates its data by calling actions.
 

@@ -1,0 +1,149 @@
+bun test v1.4.2 (744846f84)
+
+tests\compositions\location.test.ts:
+(pass) Sharing location > its principle: Maya's consent lasts until she withdraws it, and Sam's check stays false [230.01ms]
+(pass) Sharing location > someone who is not signed in cannot consent, withdraw, or read their status [22.31ms]
+(pass) Sharing location > a feature other than sharingLocation is refused and records no consent [90.80ms]
+
+tests\compositions\passwords.test.ts:
+(pass) Passwords > its principle: Ben signs up with a password, signs out, and logs back in to the same account [252.22ms]
+(pass) Passwords > a short password is refused before `ben` is registered, so Ben can sign up again [141.76ms]
+(pass) Passwords > usernames are unique: Leo can't sign up as `ben`, and an invalid username is refused [141.76ms]
+(pass) Passwords > a wrong password and a username nobody has get the same refusal, and sign nobody in [222.33ms]
+(pass) Passwords > nobody signs up or logs in with a password as Sam, who signed in with Commons [114.94ms]
+(pass) Passwords > a password account can post notes like a Commons account [221.42ms]
+
+tests\compositions\posting.test.ts:
+(pass) Posting > its principle: Maya posts, Sam upvotes, Maya edits, and deleting the note clears Sam's vote [268.03ms]
+(pass) Posting > someone who is not signed in cannot post, edit, delete, or vote, and nothing is stored [174.60ms]
+(pass) Posting > signing out ends the session, so the next post is refused [84.38ms]
+(pass) Posting > someone who is not the author cannot edit or delete, and the votes stay [191.03ms]
+(pass) Posting > create and edit refuse an empty body or a bad location and leave the notes as they were [173.28ms]
+(pass) Posting > a second vote conflicts, and unvoting when there is no vote is not found [207.53ms]
+(pass) Posting > editing or deleting an unknown note is not found and leaves the real note [161.66ms]
+(pass) Posting > the note's author is the session, even when the body names someone else [187.87ms]
+
+tests\compositions\saving.test.ts:
+(pass) Saving > its principle: a posted note is saved under the username label, can be unsaved, and saving another note lists both [298.67ms]
+(pass) Saving > Maya can save Sam's note, and her list does not include Sam's own pile [227.39ms]
+(pass) Saving > someone who is not signed in cannot save, unsave, or list [190.83ms]
+(pass) Saving > saving twice is refused, unsaving twice is refused, and a delete leaves the list [198.24ms]
+(pass) Saving > deleting a note removes it from the other person's saved list [209.19ms]
+(pass) Saving > unsaving removes the note from one person's list only [200.77ms]
+(pass) Saving > editing a saved note shows the new text in the list [167.66ms]
+
+tests\compositions\searching.test.ts:
+(pass) Searching > its principle: notes in range are ranked, edits update the documents, and deletes leave the search [374.74ms]
+(pass) Searching > opening a search does not require a session, and a note outside the radius is omitted [237.14ms]
+(pass) Searching > a note posted after the search was opened stays out until the page syncs [287.38ms]
+(pass) Searching > an unknown context cannot be replaced or closed, and a query returns no notes [540.09ms]
+(pass) Searching > closing a search twice is not found [56.77ms]
+(pass) Searching > a distance outside the allowed range is refused, and an invalid coordinate matches no notes [206.03ms]
+(pass) Searching > a bad bundle is refused, and an empty bundle clears the ranking [245.15ms]
+(pass) Searching > an unknown algorithm is refused, and a blank query returns no notes [212.30ms]
+
+tests\concepts\Authenticating.test.ts:
+(pass) Authenticating > its principle: Ben authenticates with his password, and Leo can neither guess it nor set a new one [1466.34ms]
+(pass) Authenticating > a user with no password, such as one who signed in with Commons, is refused like a wrong password [2.44ms]
+(pass) Authenticating > Authenticating stores an argon2id hash, never the password [523.64ms]
+(pass) Authenticating > a password must have 8 to 128 characters, and _acceptable returns the same answer as set [5.14ms]
+(pass) Authenticating > of two passwords set for one user at once, one is set and the other is refused with PASSWORD_SET [295.64ms]
+
+tests\concepts\Consenting.test.ts:
+(pass) Consenting > its principle: Maya's consent counts from when she gives it until she withdraws it [81.82ms]
+(pass) Consenting > one person's consent to one use doesn't extend to another person or another use [24.66ms]
+(pass) Consenting > a person can't consent to the same use twice [20.56ms]
+(pass) Consenting > of two consents to one use at once, Consenting accepts one, so one withdrawal takes the consent back [26.73ms]
+(pass) Consenting > a person can't withdraw a consent they never gave [1.65ms]
+
+tests\concepts\Federating.test.ts:
+(pass) Federating > its principle: Sam comes back to the same user after his Commons username changes, and neither Leo's link nor Sam's code read by Leo finishes a sign-in [128.35ms]
+(pass) Federating > start returns an address carrying a fresh nonce and challenge in the forms Commons accepts, and an attempt that expires in 10 minutes [31.25ms]
+(pass) Federating > finish refuses an unknown, expired, or confirmed attempt, or another nonce, with SIGN_IN_EXPIRED before contacting the other site [37.36ms]
+(pass) Federating > finish refuses a code the other site doesn't confirm with SIGN_IN_REFUSED, and the attempt stays unconfirmed [35.81ms]
+(pass) Federating > of two finishes of one attempt at once, one confirms it and the other is refused [32.18ms]
+(pass) Federating > link refuses an unconfirmed attempt with NOT_CONFIRMED and a subject already linked with ALREADY_LINKED [44.59ms]
+(pass) Federating > _linkable is true only for a confirmed, unexpired attempt whose subject is unlinked, and link still links after expiry [39.76ms]
+
+tests\concepts\GeographicPosting.test.ts:
+(pass) GeographicPosting > its principle: Maya posts at a coordinate, edits the text, then deletes the post [58.61ms]
+(pass) GeographicPosting > post returns a new post that _allPosts includes [14.54ms]
+(pass) GeographicPosting > post accepts coordinates on the valid range edges [12.51ms]
+(pass) GeographicPosting > post refuses an empty body and stores nothing [1.39ms]
+(pass) GeographicPosting > post refuses a blank body and stores nothing [1.15ms]
+(pass) GeographicPosting > post refuses an invalid coordinate and stores nothing [2.96ms]
+(pass) GeographicPosting > post refuses a non-finite coordinate [2.01ms]
+(pass) GeographicPosting > edit overwrites the body and leaves the location [15.32ms]
+(pass) GeographicPosting > edit refuses an unknown post [2.00ms]
+(pass) GeographicPosting > edit refuses a user who is not the author and leaves the post [16.67ms]
+(pass) GeographicPosting > edit refuses an empty body and leaves the post [14.13ms]
+(pass) GeographicPosting > delete removes the author's post [17.69ms]
+(pass) GeographicPosting > delete refuses an unknown post [12.66ms]
+(pass) GeographicPosting > delete refuses a user who is not the author and leaves the post [12.92ms]
+(pass) GeographicPosting > _post returns the post, or no row when it is unknown [15.14ms]
+(pass) GeographicPosting > _postsNear returns posts inside the radius, or no rows [16.05ms]
+(pass) GeographicPosting > _allPosts returns every post from every author, or no rows [15.62ms]
+
+tests\concepts\Labeling.test.ts:
+(pass) Labeling > its principle: apply two resources, read them, remove one, then the group has the other [155.59ms]
+(pass) Labeling > ensure creates a chosen label once, then applyLabel can use it [63.91ms]
+(pass) Labeling > createLabel returns a new label each time [58.90ms]
+(pass) Labeling > the same resource can belong to many labels [65.45ms]
+(pass) Labeling > applyLabel refuses an unknown label and stores nothing [52.07ms]
+(pass) Labeling > applyLabel refuses a resource already in the label [67.42ms]
+(pass) Labeling > removeLabel refuses an unknown label or a resource that is not a member [64.57ms]
+(pass) Labeling > delete removes the label and its memberships; other labels keep theirs [83.61ms]
+(pass) Labeling > delete refuses an unknown label [1.89ms]
+(pass) Labeling > unlabelEverywhere removes the resource from every label [68.93ms]
+(pass) Labeling > unlabelEverywhere succeeds when the resource is on no label [2.41ms]
+(pass) Labeling > _resources and _has are empty for an unknown or empty label [63.31ms]
+
+tests\concepts\Querying.test.ts:
+(pass) Querying > its principle: index notes, then rank the ones whose documents match the query [63.78ms]
+(pass) Querying > createContext returns a new context each time [28.75ms]
+(pass) Querying > index refuses an unknown context and stores nothing [18.69ms]
+(pass) Querying > index refuses a resource already in the context [36.46ms]
+(pass) Querying > unindex removes a resource from one context [36.28ms]
+(pass) Querying > unindex refuses an unknown context or a resource that is not indexed [34.60ms]
+(pass) Querying > replace loads a bundle and overwrites previous members [37.40ms]
+(pass) Querying > replace refuses a malformed bundle and leaves the index [31.61ms]
+(pass) Querying > discard removes the context so later ranking returns no rows [34.34ms]
+(pass) Querying > unindexEverywhere and reindexEverywhere update every context that has the resource [57.66ms]
+(pass) Querying > _getNResults prefers exact matches, then prefixes, then typos, and omits non-matches [42.24ms]
+(pass) Querying > replace on an unknown context stores nothing and leaves other contexts [37.97ms]
+(pass) Querying > replace with an empty bundle clears the context, and a repeated resource keeps the first document [38.02ms]
+(pass) Querying > _context returns the context, or no row when it is unknown [37.24ms]
+(pass) Querying > _getNResults ranks a prefix below an exact token and returns at most resultCount rows [43.52ms]
+(pass) Querying > _getNResults returns no rows for an unknown algorithm, empty query, or non-positive count [35.64ms]
+
+tests\concepts\Registering.test.ts:
+(pass) Registering > its principle: Sam finds Maya by her username, and Ben registers another when hers is taken [41.36ms]
+(pass) Registering > a username must have 3 to 32 ASCII letters, digits, underscores, or hyphens [20.10ms]
+(pass) Registering > usernames are case-sensitive, so `Maya` is a different username from `maya` [19.39ms]
+(pass) Registering > of two registrations of one username at once, one succeeds and the other is refused with USERNAME_TAKEN [26.32ms]
+(pass) Registering > _username and _byUsername return no row for an unknown user or username [2.67ms]
+
+tests\concepts\Sessioning.test.ts:
+(pass) Sessioning > its principle: Maya stays signed in until she signs out, leaves a session unused for a week, or reaches 90 days [119.43ms]
+(pass) Sessioning > a session's identity is 32 random bytes in base64url [19.14ms]
+(pass) Sessioning > every use sets lastUsed to now, so the week of idleness counts from the latest use [23.57ms]
+(pass) Sessioning > a refused use or end changes no session [20.79ms]
+(pass) Sessioning > Sessioning refuses to use or end an unknown or ended session [20.39ms]
+(pass) Sessioning > of two ends of one session at once, Sessioning accepts one and refuses the other with NOT_SIGNED_IN [24.40ms]
+
+tests\concepts\Upvoting.test.ts:
+(pass) Upvoting > its principle: Sam upvotes, Leo downvotes, Sam unvotes, then the votes are cleared [69.81ms]
+(pass) Upvoting > upvote then downvote by another voter nets the two votes [30.04ms]
+(pass) Upvoting > votes on one resource do not change the count of another [25.76ms]
+(pass) Upvoting > upvote refuses a second vote by the same voter and leaves the count [20.49ms]
+(pass) Upvoting > downvote refuses when the voter already upvoted [19.69ms]
+(pass) Upvoting > upvote refuses when the voter already downvoted [21.28ms]
+(pass) Upvoting > unvote refuses when the voter has no vote [2.12ms]
+(pass) Upvoting > clearAllVotes succeeds when there are no votes [1.70ms]
+(pass) Upvoting > _getVoteCount is 0 when nobody has voted [1.15ms]
+(pass) Upvoting > _getVote returns the voter's flag, or no row [21.33ms]
+
+ 115 pass
+ 0 fail
+ 530 expect() calls
+Ran 115 tests across 14 files. [11.92s]
