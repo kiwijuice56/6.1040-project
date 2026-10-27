@@ -1,4 +1,6 @@
 # Design Document
+[Demonstration video](https://youtu.be/fe9tq-tWSrw)
+
 Sticky is a web-app that helps people navigate daily tasks (e.g. booking an appointment or boarding a train) through user-contributed sticky notes written on a global map. Instead of relying on non-specific or vague instructions on the internet, users can get advice relevant to the exact location that they need to traverse.
 
 From P1 to P4, the problem domain, solution proposal, and concept design of Sticky remained unchanged. The design instead evolved in the visual presentation and features implemented: 
