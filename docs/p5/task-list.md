@@ -1,12 +1,10 @@
 # Task list
 
-# Task 1
-
-# Task 2
-
-# Task 3
-
-# Task 4
-
-# Task 5
+| Task | Instruction | Rationale | 
+| -------- | ------- | ------- |
+| Finding information  | You want to learn more how to acquire an MIT ID and what parts of MIT campus you can access as a visitor. Find at least 3 useful facts with Sticky. |  Searching for information on Sticky (both with the map and with the searchbar) is one of the most common tasks that users will undertake. It's important that this task is efficient and easy to learn. I hope to find user interface issues that make this task confusing to an unfamiliar user. I also hope to see how fast the user understands the conceptual model of placing/reading notes on a global map. | 
+| Creating an account | Create a Sticky account to access the entire website. |  From my experience, the process of creating an account on websites is a filter/boundary that can lower user conversion if implemented poorly. I want to uncover any friction or annoyances in the steps of creating a profile.  | 
+| Contributing  | Using what you know about your local area, write three helpful notes.  | Because I kept the process of writing notes extremely simple in my app (a single text-box), I hope to see what features my test users expect in order to potentially implement them later. For example: rich text formatting, keyboard shortcuts, and emojis.  | 
+| Editing contributions  | Edit the contents of one of your notes. Then, delete one of your notes.  |  The rationale for this task is largely the same as the previous. Editing and deleting notes is slightly more involved than writing them, so I put them into a separate task. I hope to see that editing and deleting notes is efficient without making accidents common or irrecoverable.  | 
+| Collecting information  | Going back to MIT campus, leave a vote on at least three notes. Next, save at least one note to your collection.  |  This task completes the coverage of all features in Sticky. I hope to see whether the conceptual models for upvoting/downvoting and saving posts are intuitive and easy to apply. I also want to see whether the user discovers the saved notes tab and makes use of it.   | 
 
