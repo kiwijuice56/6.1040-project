@@ -45,6 +45,11 @@ Bun loads `.env` on its own. Each test starts from an empty database and creates
 ## Design Notes
 
 Below are notes and deliverables created alongside Sticky explaining design choices and demonstrating development progress. All documents can be found in `docs/`.
+## P5
+- [Task list](docs/p5/task-list.md)
+- [Study reports](docs/p5/study-reports.md)
+- [Design flaws](docs/p5/flaws.md)
+- [Project reflection]()
 ## P4
 - [Design document](docs/p4/design-document.md)
 - [Demonstration video](https://youtu.be/fe9tq-tWSrw)
