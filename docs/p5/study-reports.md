@@ -20,3 +20,20 @@ An unexpected finding was that the dots on the map were too small to click comfo
 ## Task 5
 Same results as task 4: minor frustrations when clicking on notes.
 
+# User 2
+My second user was a senior animation student from Texas A&M.
+
+## Task 1
+Unlike the first user, this user did not use the search bar to find notes. When I asked him why, he told me that he hadn't noticed the search bar at all. He experienced friction when clicking on the account-gated features, which teleported him to the log-in page with no obvious way to return. Finally, they also misclicked on notes like the first user.
+
+## Task 2
+This user clicked on the Commons sign-up first. Considering that the first user did this as well, I believe that placing the Commons sign-up first in the list of buttons is implying that it is the preferred/recommended method of signing in. This is fine for a 6.1040 project, but it should be changed in the future because most users don't have Commons access.
+
+## Task 3
+The user found it very intuitive to click on the map to write notes. I noticed that they had fun exploring the map and finding places to place notes.
+
+## Task 4
+The user also found it very intuitive to edit and delete their notes. This task may have been too simple considering that people my age have background experience with other social media apps.
+
+## Task 5
+The user was able to upvote, downvote, and save posts with ease. One interesting detail was in his narration: he wasn't sure exactly what upvote/downvote meant in the context of this app, so he implicitly assumed that they were for accurate/inaccurate respectively. 
