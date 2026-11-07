@@ -49,7 +49,7 @@ Below are notes and deliverables created alongside Sticky explaining design choi
 - [Task list](docs/p5/task-list.md)
 - [Study reports](docs/p5/study-reports.md)
 - [Design flaws](docs/p5/flaws.md)
-- [Project reflection]()
+- [Project reflection](https://github.com/kiwijuice56/6.1040-homework-fa26/blob/main/project/p5-reflection.md)
 ## P4
 - [Design document](docs/p4/design-document.md)
 - [Demonstration video](https://youtu.be/fe9tq-tWSrw)
